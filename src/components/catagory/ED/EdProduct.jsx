@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import viagra from '../../../assets/viagra.jpg';
 import cialis from '../../../assets/cialis.jpg';
 import kamagra from '../../../assets/kamagra.jpg';
@@ -11,6 +11,16 @@ import doxy from '../../../assets/doxycycline.jpg';
 import { useNavigate } from 'react-router-dom';
 
 function EdProduct() {
+
+    const topRef = useRef(null); 
+
+    useEffect(() =>{
+        topRef.current?.scrollIntoView({ behavior: 'smooth'});
+        window.scrollTo({
+            top:0,
+            behavior: 'smooth'
+        });
+    }, [])
 
     const navigate = useNavigate()
     const products = [
@@ -72,7 +82,7 @@ function EdProduct() {
 
     return (
         <>
-            <div className="w-full mx-auto">
+            <div ref={topRef} className="w-full mx-auto">
                 <div className="bg-green-500 font-bold text-center text-white py-2">
                     <h2>Erectile Dysfunction Medicines</h2>
                 </div>

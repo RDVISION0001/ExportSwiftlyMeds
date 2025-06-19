@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
             cart,setCart,
             product,setProduct
         }}>
-            {children}
+            {children} 
         </AuthContext.Provider>
     );
 }
