@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../AuthContext/AuthContext';
 import { TiDeleteOutline } from "react-icons/ti";
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 function ShippingCart() {
   const { product } = useAuth();
   const navigate = useNavigate()
+  const topRef = useRef(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedBonus, setSelectedBonus] = useState('Vlagra 100 mg × 2 pills');
   const [selectedShipping, setSelectedShipping] = useState('AirMail');
@@ -20,8 +21,16 @@ function ShippingCart() {
     }
   };
 
+  useEffect(() => {
+    topRef.current?.scrollIntoView({ behavior: 'smooth'});
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, [])
+
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div ref={topRef} className="max-w-6xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Shopping Cart</h1>
 
         {/* Products Table */}

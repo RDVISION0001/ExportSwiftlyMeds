@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaShoppingCart, FaHeart, FaShareAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../AuthContext/AuthContext';
 
 const ViagraProductPage = () => {
+
+    const topRef = useRef(null);
+
+    useEffect(() =>{
+        topRef.current?.scrollIntoView({ behavior : 'smooth'});
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }, [])
     const {setProduct,setCart} = useAuth();
     const [selectedDosage, setSelectedDosage] = useState('100mg');
     const navigate = useNavigate();
@@ -55,7 +65,7 @@ const ViagraProductPage = () => {
         navigate('/shipping');
     }
     return (
-        <div className="max-w-6xl mx-auto px-4 py-8">
+        <div ref={topRef} className="max-w-6xl mx-auto px-4 py-8">
             <div className='flex justify-end fixed top-34 right-50 z-60'>
                 <button onClick={() => navigate('/ed')} className='bg-blue-300 px-4 py-1 rounded-lg'>Back To shop</button>
             </div>

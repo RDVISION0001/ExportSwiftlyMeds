@@ -113,7 +113,7 @@ const Header = () => {
         <>
             {/* First Header */}
             <header className="bg-gradient-to-r from-[#4DA8DA] to-[#56DFCF] shadow-sm sticky top-0 z-50">
-                <div className="max-w-8xl mx-auto px-4 md:px-20 py-3">
+                <div className="max-w-7xl mx-auto px-4 md:px-20 py-3">
                     <div className="flex items-center justify-between">
                         {/* Logo - Always visible */}
                         <div className="flex-shrink-0">
@@ -257,16 +257,16 @@ const Header = () => {
                             </Link>
                         </nav>
 
-                        {/* Mobile Menu Button */}
-                        <button
-                            className="md:hidden focus:outline-none"
+                        
+                    </div>
+{/* Mobile Menu Button */}
+<button
+                            className="md:hidden focus:outline-none text-start"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                             aria-label="Toggle menu"
                         >
                             {mobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
                         </button>
-                    </div>
-
                     {/* Mobile Menu */}
                     {mobileMenuOpen && (
                         <nav className="md:hidden mt-4 pb-4 space-y-3">

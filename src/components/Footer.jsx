@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube } from "react-icons/fa";
 
 const Footer = () => {
@@ -15,21 +16,21 @@ const Footer = () => {
             
             {/* Social Media Icons */}
             <div className="flex space-x-4 mb-6">
-              <a href="#" className=" hover:text-blue-600 transition-colors">
+              <Link to="" className=" hover:text-blue-600 transition-colors">
                 <FaFacebook size={24} />
-              </a>
-              <a href="#" className=" hover:text-blue-400 transition-colors">
+              </Link>
+              <Link to="" className=" hover:text-blue-400 transition-colors">
                 <FaTwitter size={24} />
-              </a>
-              <a href="#" className=" hover:text-pink-600 transition-colors">
+              </Link>
+              <Link to="" className=" hover:text-pink-600 transition-colors">
                 <FaInstagram size={24} />
-              </a>
-              <a href="#" className=" hover:text-blue-700 transition-colors">
+              </Link>
+              <Link to="" className=" hover:text-blue-700 transition-colors">
                 <FaLinkedin size={24} />
-              </a>
-              <a href="#" className=" hover:text-red-600 transition-colors">
+              </Link>
+              <Link to="" className=" hover:text-red-600 transition-colors">
                 <FaYoutube size={24} />
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -72,50 +73,50 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-3">Shop</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Browse Medications</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">New Arrivals</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Best Sellers</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Swiftly Marketplace</a></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Browse Medications</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">New Arrivals</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Best Sellers</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Swiftly Marketplace</Link></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-3">Services</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Contact Doctor</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">For Providers</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Prescription Refills</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Home Delivery</a></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Contact Doctor</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">For Providers</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Prescription Refills</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Home Delivery</Link></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-3">Company</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Our Mission</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">About Us</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Careers</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Press</a></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Our Mission</Link></li>
+              <li><Link to="/about" className="hover:text-blue-600 hover:underline">About Us</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Careers</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Press</Link></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-3">Support</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="hover:text-blue-600 hover:underline">FAQs</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Contact Us</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Shipping Info</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Returns</a></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">FAQs</Link></li>
+              <li><Link to="/contact" className="hover:text-blue-600 hover:underline">Contact Us</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Shipping Info</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Returns</Link></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-3">Legal</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">CA Privacy</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">HIPAA Policy</a></li>
-              <li><a href="#" className="hover:text-blue-600 hover:underline">Terms of Service</a></li>
+              <li><Link to="/privacy" className="hover:text-blue-600 hover:underline">Privacy Policy</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">CA Privacy</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">HIPAA Policy</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
