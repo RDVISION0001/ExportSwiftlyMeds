@@ -9,21 +9,25 @@ import ShippingCart from './components/shippingCart/ShippingCart';
 import AboutUs from './components/Pages/AboutUs';
 import ContactUs from './components/Pages/ContactUs';
 import Privacy from './components/Pages/Privacy';
+import FAQ from './components/Pages/Faq';
+import Blog from './components/blog/Blog';
 
 function App() {
   return (
-    <Router> 
+    <Router>
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path='/ed' element={<EdProduct/>}/>
-        <Route path='/view' element={<ViewProduct/>}/>
-        <Route path='/shipping' element={<ShippingCart/>}/>
-        <Route path='/about' element={<AboutUs/>}/>
-        <Route path='/contact' element={<ContactUs/>}/>
-        <Route path='/privacy' element={<Privacy/>}/>
+        <Route path='/ed' element={<EdProduct />} />
+        <Route path='/view' element={<ViewProduct />} />
+        <Route path='/shipping' element={<ShippingCart />} />
+        <Route path='/about' element={<AboutUs />} />
+        <Route path='/contact' element={<ContactUs />} />
+        <Route path='/privacy' element={<Privacy />} />
+        <Route path='/faq' element={<FAQ />} />
+        <Route path='/blog' element={<Blog />} />
       </Routes>
-      <Footer/>
+      <Footer />
     </Router>
   );
 }
