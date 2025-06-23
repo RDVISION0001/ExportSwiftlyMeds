@@ -51,14 +51,14 @@ function ContactUs() {
 
     const sendMessage = async (e) => {
         e.preventDefault();
-        
+
         if (!validateForm()) return;
-        
+
         setIsSubmitting(true);
-        
+
         try {
             const response = await axiosInstance.post("/contact/addNewContact", formData);
-            
+
             if (response.data) {
                 Swal.fire({
                     icon: 'success',
@@ -94,7 +94,7 @@ function ContactUs() {
         <div ref={topRef}>
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12'>
                 <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-12">Contact Us</h1>
-                
+
                 {/* Hero Section */}
                 <div className="flex flex-col md:flex-row justify-between items-center gap-12 mb-16">
                     <div className="md:w-1/2">
@@ -150,8 +150,8 @@ function ContactUs() {
                                                 <svg className="w-5 h-5 mt-1 mr-3 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                                 </svg>
-                                                <a href="tel:+13189366091" className="hover:underline text-gray-600 hover:text-gray-800">
-                                                    +1 318-936-6091
+                                                <a href="tel:088580 43370" className="hover:underline text-gray-600 hover:text-gray-800">
+                                                    088580 43370
                                                 </a>
                                             </div>
                                             <div className="flex items-start">
@@ -168,15 +168,11 @@ function ContactUs() {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 </svg>
                                                 <div>
-                                                    <a
-                                                        href="https://www.google.com/maps?q=3715+XENOPHON+DR,+HOUSTON,+TX+77082-2922"
+                                                    <a href="https://www.google.com/maps/search/H-6-K+Chandra+Chauraha+SA+20%2F205+Ashapur+Road+Hanuman+Nagar+Ashapur+Varanasi+Uttar+Pradesh+221007"
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="hover:underline text-gray-600 hover:text-gray-800"
-                                                    >
-                                                        MEN VITAMIN SHOP LLC<br />
-                                                        3715 XENOPHON DR<br />
-                                                        HOUSTON TX 77082-2922
+                                                        className="hover:underline hover:text-gray-700">
+                                                        H-6-K, Chandra Chauraha, SA 20/205, Ashapur Road, Hanuman Nagar, Ashapur, Varanasi, Uttar Pradesh 221007
                                                     </a>
                                                 </div>
                                             </div>

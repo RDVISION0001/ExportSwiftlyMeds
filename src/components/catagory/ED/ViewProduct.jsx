@@ -14,7 +14,7 @@ const ViagraProductPage = () => {
             behavior: 'smooth'
         });
     }, [])
-    const {setProduct,setCart} = useAuth();
+    const { setProduct, setCart, setAmount, cart,product } = useAuth();
     const [selectedDosage, setSelectedDosage] = useState('100mg');
     const navigate = useNavigate();
     const dosageOptions = ['100mg', '75mg', '50mg', '25mg'];
@@ -60,17 +60,60 @@ const ViagraProductPage = () => {
         'Intagra', 'Sildenafila', 'Sildenafilo', 'Sildenafilum', 'Veega'
     ];
     const AddToCart = (data) => {
-        alert('fg')
-        setProduct(data);
+        // Set the selected product
+        setProduct({
+            id: data.id,
+            dosage: selectedDosage,
+            pills: data.pills,
+            perPill: data.perPill,
+            perPack: data.perPack,
+            savings: data.savings,
+        });
+ console.log('product',product);
+        // Update cart
+        const existingItem = cart.find(item => item.id === data.id && item.dosage === selectedDosage);
+        let updatedCart;
+        if (existingItem) {
+            // If item exists, update quantity
+            updatedCart = cart.map(item =>
+                item.id === data.id && item.dosage === selectedDosage
+                    ? { ...item, quantity: item.quantity + 1 }
+                    : item
+            );
+        } else {
+            // Add new item to cart
+            updatedCart = [
+                ...cart,
+                {
+                    id: data.id,
+                    dosage: selectedDosage,
+                    pills: data.pills,
+                    perPill: data.perPill,
+                    perPack: data.perPack,
+                    savings: data.savings,
+                    quantity: 1
+                }
+            ];
+        }
+        setCart(updatedCart);
+        console.log('cart',cart);
+        // Calculate total amount
+        const totalAmount = updatedCart.reduce((sum, item) => {
+            const price = parseFloat(item.perPill.replace('$', '')) * item.pills * item.quantity;
+            return sum + price;
+        }, 0);
+        setAmount(totalAmount.toFixed(2));
+
+        // Navigate to shipping page
         navigate('/shipping');
-    }
+    };
     return (
         <div ref={topRef} className="max-w-6xl mx-auto px-4 py-8">
-            <div className='flex justify-end fixed top-34 right-50 z-60'>
-                <button onClick={() => navigate('/ed')} className='bg-blue-300 px-4 py-1 rounded-lg'>Back To shop</button>
-            </div>
             {/* Product Header */}
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Viagra</h1>
+           <div className='flex justify-between items-center mb-6'>
+           <h1 className="text-3xl font-bold text-gray-800 mb-2">Viagra</h1>
+           <button onClick={() => navigate('/ed')} className='bg-[#A8F1FF] px-4 py-1 rounded-lg'>Back To shop</button>
+           </div>
             <p className="text-gray-600 mb-4">
                 Viagra is often the first treatment tried for erectile dysfunction in men and pulmonary arterial hypertension.
             </p>

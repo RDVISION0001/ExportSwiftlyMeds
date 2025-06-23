@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
     FaUser,
     FaShoppingCart,
@@ -23,13 +23,33 @@ import {
     FaHeartbeat,
     FaLeaf,
     FaShieldAlt,
-    FaPills
+    FaPills,
+    FaQq
 } from 'react-icons/fa';
-import { MdAttachEmail } from "react-icons/md";
-import { IoCallOutline } from "react-icons/io5";
+
 import Logo from '../assets/logo.png';
+import { useAuth } from "../AuthContext/AuthContext";
+import axios from "axios";
 const Header = () => {
+    const { cart, amount } = useAuth(); // Get cart and amount from context
+    const navigate = useNavigate();
+    // Calculate total item count
+    const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
     // Country-currency mapping
+    const fetchCountry = async () => {
+        try {
+            const response = await axios.get('https://libretranslate.com/languages');
+            const indicesToExtract = [0, 1, 11, 14];
+            const selectedLanguages = indicesToExtract.map(index => response.data[index]);
+
+            console.log('Selected Languages:', selectedLanguages, response);
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
+    useEffect(() => {
+        fetchCountry();
+    }, [])
     const countryOptions = [
         { code: 'US', name: 'United States', currency: 'USD', language: 'English' },
         { code: 'GB', name: 'United Kingdom', currency: 'GBP', language: 'English' },
@@ -115,6 +135,14 @@ const Header = () => {
             <header className="bg-gradient-to-r from-[#4DA8DA] to-[#56DFCF] shadow-sm sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 md:px-20 py-3">
                     <div className="flex items-center justify-between">
+                        {/* Mobile Menu Button */}
+                        <button
+                            className="md:hidden focus:outline-none text-start"
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            aria-label="Toggle menu"
+                        >
+                            {mobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+                        </button>
                         {/* Logo - Always visible */}
                         <div className="flex-shrink-0">
                             <Link to="/" className="flex items-center">
@@ -122,10 +150,10 @@ const Header = () => {
                             </Link>
                         </div>
 
-                        
+
 
                         {/* Right Side - Icons and Login - Always visible */}
-                        <div className="flex items-center space-x-4 md:space-x-6">
+                        <div className="flex items-center space-x-1 md:space-x-2">
 
                             {/* Wishlist and Cart - visible on all screens */}
                             {/* <Link to="/wishlist" className="p-2 text-white hover:text-gray-200 relative transition-colors">
@@ -135,75 +163,77 @@ const Header = () => {
                                 </span>
                             </Link> */}
 
-                            <Link to="/cart" className="p-2 text-white hover:text-gray-200 relative transition-colors">
+                            <Link to="/shipping" className="p-2 text-white hover:text-gray-200 relative transition-colors">
                                 <FaShoppingCart className="text-xl text-black" />
                                 <span className="absolute -top-1 -right-1 bg-blue-500  text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                    5
+                                    {cartItemCount}
                                 </span>
                             </Link>
-
+                            <span className="text-white text-xs md:text-xl">
+                                ${parseFloat(amount).toFixed(2)}
+                            </span>
                             {/* Login - visible on all screens */}
-                            <div className="relative group">
+                            <div className="relative group hidden md:block">
                                 <Link to="/account" className="flex items-center space-x-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
                                     <FaUser className="text-xl" />
                                     <span className="hidden md:inline  font-medium">Login</span>
                                 </Link>
                             </div>
                             {/* Language & Currency Selectors - Hidden on mobile */}
-                        <div className="flex-1 max-w-2xl mx-4 hidden md:block">
-                            <div className="flex items-center space-x-4">
-                                <div className="relative flex items-center">
-                                    <FaGlobe className="absolute left-3" />
-                                    <select
-                                        name="country"
-                                        value={selectedCountry.code}
-                                        onChange={(e) => handleCountryChange(e.target.value)}
-                                        className="pl-10 pr-4 py-2 rounded-lg border border-black font-semibold focus:outline-none focus:ring-1 focus:ring-blue-400 appearance-none"
-                                    >
-                                        {countryOptions.map((country) => (
-                                            <option
-                                                key={country.code}
-                                                value={country.code}
-                                            >
-                                                {country.name} ({country.language})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                            <div className="flex-1 max-w-2xl mx-4 hidden md:block">
+                                <div className="flex items-center space-x-4">
+                                    <div className="relative flex items-center">
+                                        <FaGlobe className="absolute left-3" />
+                                        <select
+                                            name="country"
+                                            value={selectedCountry.code}
+                                            onChange={(e) => handleCountryChange(e.target.value)}
+                                            className="pl-10 pr-4 py-2 rounded-lg border border-black font-semibold focus:outline-none focus:ring-1 focus:ring-blue-400 appearance-none"
+                                        >
+                                            {countryOptions.map((country) => (
+                                                <option
+                                                    key={country.code}
+                                                    value={country.code}
+                                                >
+                                                    {country.name} ({country.language})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
 
-                                <div className="relative flex items-center">
-                                    <FaMoneyBillWave className="absolute left-3" />
-                                    <select
-                                        name="currency"
-                                        value={selectedCountry.currency}
-                                        onChange={(e) => {
-                                            const selected = countryOptions.find(
-                                                c => c.currency === e.target.value
-                                            );
-                                            setSelectedCountry(selected);
-                                        }}
-                                        className="pl-10 pr-4 py-2 rounded-lg border border-black cursor-pointer font-semibold focus:outline-none focus:ring-1 focus:ring-blue-400 appearance-none"
-                                    >
-                                        {availableCurrencies.map((currency) => (
-                                            <option
-                                                key={currency}
-                                                value={currency}
-                                            >
-                                                {currency}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <div className="relative flex items-center">
+                                        <FaMoneyBillWave className="absolute left-3" />
+                                        <select
+                                            name="currency"
+                                            value={selectedCountry.currency}
+                                            onChange={(e) => {
+                                                const selected = countryOptions.find(
+                                                    c => c.currency === e.target.value
+                                                );
+                                                setSelectedCountry(selected);
+                                            }}
+                                            className="pl-10 pr-4 py-2 rounded-lg border border-black cursor-pointer font-semibold focus:outline-none focus:ring-1 focus:ring-blue-400 appearance-none"
+                                        >
+                                            {availableCurrencies.map((currency) => (
+                                                <option
+                                                    key={currency}
+                                                    value={currency}
+                                                >
+                                                    {currency}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         </div>
                     </div>
                 </div>
             </header>
 
             {/* Second Header */}
-            <header className="bg-white shadow-md sticky top-21  z-60">
-                <div className="max-w-7xl mx-auto px-4 py-3">
+            <header className="bg-white shadow-md sticky md:top-21  z-60">
+                <div className="max-w-7xl mx-auto md:px-4 md:py-3">
                     <div className="flex justify-center items-center">
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex md:space-x-3 lg:space-x-10 items-center font-semibold font-serif">
@@ -246,8 +276,8 @@ const Header = () => {
                             <Link to="/manufacturers" className="flex items-center hover:text-indigo-600 transition-colors text-md">
                                 <FaIndustry className="mr-2" /> Manufacturers
                             </Link>
-                            <Link to="/consultants" className="flex items-center hover:text-indigo-600 transition-colors text-md">
-                                <FaUserTie className="mr-2" /> Consultants
+                            <Link to="/faq" className="flex items-center hover:text-indigo-600 transition-colors text-md">
+                                <FaQq className="mr-2" /> FAQ
                             </Link>
                             <Link to="/contact" className="flex items-center hover:text-indigo-600 transition-colors text-md">
                                 <FaEnvelope className="mr-2" /> Contact Us
@@ -257,16 +287,9 @@ const Header = () => {
                             </Link>
                         </nav>
 
-                        
+
                     </div>
-{/* Mobile Menu Button */}
-<button
-                            className="md:hidden focus:outline-none text-start"
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            aria-label="Toggle menu"
-                        >
-                            {mobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-                        </button>
+
                     {/* Mobile Menu */}
                     {mobileMenuOpen && (
                         <nav className="md:hidden mt-4 pb-4 space-y-3">
@@ -308,14 +331,18 @@ const Header = () => {
                             <Link to="/manufacturers" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
                                 <FaIndustry className="mr-2" /> Manufacturers
                             </Link>
-                            <Link to="/consultants" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
-                                <FaUserTie className="mr-2" /> Consultants
+                            <Link to="/faq" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
+                                <FaUserTie className="mr-2" /> FAQ
                             </Link>
                             <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
-                                <FaEnvelope className="mr-2" /> Contact Us
+                                <FaQq className="mr-2" /> Contact Us
                             </Link>
                             <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
                                 <FaBlog className="mr-2" /> Blog
+                            </Link>
+                            <Link to="/account" className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
+                                <FaUser className=" mr-2" />
+                                <span className="font-medium">Login</span>
                             </Link>
                         </nav>
                     )}

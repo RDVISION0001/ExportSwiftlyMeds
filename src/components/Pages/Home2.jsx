@@ -96,7 +96,7 @@ function Home2() {
             </div>
             <div className='py-20'>
                 <h2 className='text-4xl font-bold text-gray-800 mb-4 text-center'>Our Valuable Brand</h2>
-                <div className='flex justify-center items-center space-x-10 '>
+                <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 space-x-10 '>
                     {brand.map((img, index) => (
                         <div key={index}
                             className="bg-white shadow-xl rounded-lg p-4 cursor-pointer mt-10 

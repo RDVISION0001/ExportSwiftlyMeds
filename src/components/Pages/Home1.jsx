@@ -8,12 +8,12 @@ import Customer from '../../assets/support_icon.png';
 import Price from '../../assets/bestPrise.jpg';
 import { FiChevronLeft } from "react-icons/fi";
 import { FiChevronRight } from "react-icons/fi";
-import eye from '../../assets/testimonial/eye.avif';
-import femal from '../../assets/testimonial/female.avif';
-import hair from '../../assets/testimonial/hair.avif';
-import nature from '../../assets/testimonial/natural.avif';
-import pain from '../../assets/testimonial/pain.avif';
-import erectile from '../../assets/testimonial/Erectiledysfunction.avif';
+import eye from '../../assets/catagory/eye.avif';
+import femal from '../../assets/catagory/female.avif';
+import hair from '../../assets/catagory/hair.avif';
+import nature from '../../assets/catagory/natural.avif';
+import pain from '../../assets/catagory/pain.avif';
+import erectile from '../../assets/catagory/Erectiledysfunction.avif';
 import { Link } from 'react-router-dom';
 function Home1() {
 
@@ -77,8 +77,8 @@ function Home1() {
   const sliderRef = useRef(null);
   const intervalRef = useRef(null);
 
-  const cardWidthDesktop = 320; // Desktop card width
-  const cardWidthMobile = 280; // Mobile card width
+  const cardWidthDesktop = 120; // Desktop card width
+  const cardWidthMobile = 140; // Mobile card width
   const gap = 16;
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -96,7 +96,7 @@ function Home1() {
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => {
-        const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 3;
+        const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 5;
         return prevIndex >= maxIndex ? 0 : prevIndex + 1;
       });
     }, 5000);
@@ -112,13 +112,13 @@ function Home1() {
   };
 
   const goToPrev = () => {
-    const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 3;
+    const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 5;
     setCurrentIndex(prev => (prev === 0 ? maxIndex : prev - 1));
     resetInterval();
   };
 
   const goToNext = () => {
-    const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 3;
+    const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 5;
     setCurrentIndex(prev => (prev >= maxIndex ? 0 : prev + 1));
     resetInterval();
   };
@@ -127,14 +127,14 @@ function Home1() {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => {
-        const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 3;
+        const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 5;
         return prevIndex >= maxIndex ? 0 : prevIndex + 1;
       });
     }, 5000);
   };
 
   const cardWidth = isMobile ? cardWidthMobile : cardWidthDesktop;
-  const visibleCards = isMobile ? 1 : 3;
+  const visibleCards = isMobile ? 2 : 5;
 
 
   return (
@@ -187,7 +187,7 @@ function Home1() {
                 {/* Left Arrow */}
                 <button
                   onClick={goToPrev}
-                  className="absolute hidden sm:block left-2 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition"
+                  className="absolute hidden sm:block left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition cursor-pointer"
                 >
                   <FiChevronLeft className="w-6 h-6 text-gray-700" />
                 </button>
@@ -209,11 +209,18 @@ function Home1() {
                       <Link
                         key={testimonial.id}
                         to={testimonial.path}
-                        className="flex-shrink-0 bg-[#F2FAF4] rounded-lg shadow-lg p-4"
-                        style={{ width: `${cardWidth}px` }}
+                        className="flex-shrink-0 bg-[#F2FAF4] rounded-lg shadow-lg p-2 flex flex-col"
+                        style={{
+                          width: `${cardWidth}px`,
+                          maxHeight: '170px' // Added minimum height
+                        }}
                       >
-                        <div className='items-center flex justify-center'>
-                          <img src={testimonial.image} alt="" className='w-36' />
+                        <div className='flex-grow flex items-center justify-center'>
+                          <img
+                            src={testimonial.image}
+                            alt={testimonial.name}
+                            className='w-36 h-auto max-h-[120px] object-contain'
+                          />
                         </div>
                         <div className="text-lg text-center text-gray-700 mt-2">
                           {testimonial.name}
@@ -226,13 +233,13 @@ function Home1() {
                 {/* Right Arrow */}
                 <button
                   onClick={goToNext}
-                  className="absolute hidden sm:block right-2 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition"
+                  className="absolute hidden sm:block right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition cursor-pointer"
                 >
                   <FiChevronRight className="w-6 h-6 text-gray-700" />
                 </button>
 
                 {/* Navigation Dots */}
-                <div className="flex justify-center mt-6 space-x-2">
+                {/* <div className="flex justify-center mt-6 space-x-2">
                   {Array.from({ length: testimonials.length - (isMobile ? 0 : 2) }).map((_, index) => (
                     <button
                       key={index}
@@ -241,7 +248,7 @@ function Home1() {
                       aria-label={`Go to testimonial ${index + 1}`}
                     />
                   ))}
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -249,7 +256,7 @@ function Home1() {
         </div>
 
         {/* Floating Features */}
-        <div className="absolute -bottom-12 sm:-bottom-16 left-0 right-0 px-2">
+        <div className="absolute -bottom-26 sm:-bottom-16 left-0 right-0 px-2">
           <div className="max-w-6xl mx-auto px-2 sm:px-4">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
               {floatingFeatures.map((feature, index) => (
