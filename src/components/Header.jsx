@@ -3,14 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import {
     FaUser,
     FaShoppingCart,
-    FaHeart,
     FaGlobe,
     FaMoneyBillWave,
     FaHome,
     FaBars,
     FaTimes,
     FaBoxes,
-    FaIndustry,
     FaUserTie,
     FaEnvelope,
     FaBlog,
@@ -32,24 +30,15 @@ import { useAuth } from "../AuthContext/AuthContext";
 import axios from "axios";
 const Header = () => {
     const { cart, amount } = useAuth(); // Get cart and amount from context
+    
     const navigate = useNavigate();
     // Calculate total item count
-    const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-    // Country-currency mapping
-    const fetchCountry = async () => {
-        try {
-            const response = await axios.get('https://libretranslate.com/languages');
-            const indicesToExtract = [0, 1, 11, 14];
-            const selectedLanguages = indicesToExtract.map(index => response.data[index]);
+    const cartItemCount = cart 
+    ? Array.isArray(cart) 
+        ? cart.reduce((sum, item) => sum + (item.quantity || 1), 0)
+        : 1 // If cart is a single product object
+    : 0; // If cart is null/undefined
 
-            console.log('Selected Languages:', selectedLanguages, response);
-        } catch (error) {
-            console.log('error', error);
-        }
-    }
-    useEffect(() => {
-        fetchCountry();
-    }, [])
     const countryOptions = [
         { code: 'US', name: 'United States', currency: 'USD', language: 'English' },
         { code: 'GB', name: 'United Kingdom', currency: 'GBP', language: 'English' },
@@ -273,9 +262,9 @@ const Header = () => {
                             <Link to="/about" className="flex items-center hover:text-indigo-600 transition-colors text-md">
                                 <FaUser className="mr-2" /> About
                             </Link>
-                            <Link to="/manufacturers" className="flex items-center hover:text-indigo-600 transition-colors text-md">
+                            {/* <Link to="/manufacturers" className="flex items-center hover:text-indigo-600 transition-colors text-md">
                                 <FaIndustry className="mr-2" /> Manufacturers
-                            </Link>
+                            </Link> */}
                             <Link to="/faq" className="flex items-center hover:text-indigo-600 transition-colors text-md">
                                 <FaQq className="mr-2" /> FAQ
                             </Link>
@@ -328,9 +317,9 @@ const Header = () => {
                             <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
                                 <FaUser className="mr-2" /> About
                             </Link>
-                            <Link to="/manufacturers" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
+                            {/* <Link to="/manufacturers" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
                                 <FaIndustry className="mr-2" /> Manufacturers
-                            </Link>
+                            </Link> */}
                             <Link to="/faq" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
                                 <FaUserTie className="mr-2" /> FAQ
                             </Link>

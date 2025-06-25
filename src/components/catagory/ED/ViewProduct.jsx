@@ -7,14 +7,14 @@ const ViagraProductPage = () => {
 
     const topRef = useRef(null);
 
-    useEffect(() =>{
-        topRef.current?.scrollIntoView({ behavior : 'smooth'});
+    useEffect(() => {
+        topRef.current?.scrollIntoView({ behavior: 'smooth' });
         window.scrollTo({
             top: 0,
             behavior: 'smooth'
         });
     }, [])
-    const { setProduct, setCart, setAmount, cart,product } = useAuth();
+    const { setProduct, setCart, setAmount, cart, product } = useAuth();
     const [selectedDosage, setSelectedDosage] = useState('100mg');
     const navigate = useNavigate();
     const dosageOptions = ['100mg', '75mg', '50mg', '25mg'];
@@ -61,59 +61,77 @@ const ViagraProductPage = () => {
     ];
     const AddToCart = (data) => {
         // Set the selected product
-        setProduct({
+        const perPillValue = parseFloat(data.perPill.replace('$', '')) || 0;
+        const perPackValue = parseFloat(data.perPack.replace('$', '')) || 0;
+        const savingsValue = parseFloat(data.savings.replace('$', '')) || 0;
+    
+        // Calculate the discounted price (already done in perPack)
+        const discountedPrice = savingsValue > 0 ? perPackValue - savingsValue : perPackValue;
+    
+        // Set the selected product with formatted values
+        const productToAdd = {
             id: data.id,
             dosage: selectedDosage,
             pills: data.pills,
-            perPill: data.perPill,
-            perPack: data.perPack,
-            savings: data.savings,
-        });
- console.log('product',product);
+            perPill: `$${perPillValue.toFixed(2)}`,
+            perPack: `$${discountedPrice.toFixed(2)}`,
+            savings: savingsValue > 0 ? `$${savingsValue.toFixed(2)}` : '',
+            originalPrice: `$${perPackValue.toFixed(2)}`,
+            packagePrice: discountedPrice // Add numeric value for calculations
+        };
+    
+        setProduct(productToAdd);
+    
+        // Safely handle cart (initialize as array if null/undefined)
+        const currentCart = Array.isArray(cart) ? cart : (cart ? [cart] : []);
+    
         // Update cart
-        const existingItem = cart.find(item => item.id === data.id && item.dosage === selectedDosage);
+        const existingItem = currentCart.find(item => item.id === data.id && item.dosage === selectedDosage);
         let updatedCart;
+    
         if (existingItem) {
             // If item exists, update quantity
-            updatedCart = cart.map(item =>
+            updatedCart = currentCart.map(item =>
                 item.id === data.id && item.dosage === selectedDosage
-                    ? { ...item, quantity: item.quantity + 1 }
+                    ? { 
+                        ...item, 
+                        quantity: (item.quantity || 1) + 1,
+                        packagePrice: discountedPrice // Update package price
+                      }
                     : item
             );
         } else {
             // Add new item to cart
             updatedCart = [
-                ...cart,
+                ...currentCart,
                 {
-                    id: data.id,
-                    dosage: selectedDosage,
-                    pills: data.pills,
-                    perPill: data.perPill,
-                    perPack: data.perPack,
-                    savings: data.savings,
+                    ...productToAdd,
                     quantity: 1
                 }
             ];
         }
+    
         setCart(updatedCart);
-        console.log('cart',cart);
-        // Calculate total amount
+    
+        // Calculate total amount correctly
         const totalAmount = updatedCart.reduce((sum, item) => {
-            const price = parseFloat(item.perPill.replace('$', '')) * item.pills * item.quantity;
-            return sum + price;
+            // Use packagePrice multiplied by quantity
+            return sum + (item.packagePrice * (item.quantity || 1));
         }, 0);
+    
         setAmount(totalAmount.toFixed(2));
-
+        console.log('TotalAmount', totalAmount);
+    
         // Navigate to shipping page
         navigate('/shipping');
     };
     return (
         <div ref={topRef} className="max-w-6xl mx-auto px-4 py-8">
             {/* Product Header */}
-           <div className='flex justify-between items-center mb-6'>
-           <h1 className="text-3xl font-bold text-gray-800 mb-2">Viagra</h1>
-           <button onClick={() => navigate('/ed')} className='bg-[#A8F1FF] px-4 py-1 rounded-lg'>Back To shop</button>
-           </div>
+            <div className='flex justify-between items-center mb-6'>
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">Viagra</h1>
+                <button onClick={() => navigate('/ed')} className='bg-[#A8F1FF] px-4 py-1 rounded-lg'>Back To shop</button>
+            </div>
             <p className="text-gray-600 mb-4">
                 Viagra is often the first treatment tried for erectile dysfunction in men and pulmonary arterial hypertension.
             </p>

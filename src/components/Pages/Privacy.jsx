@@ -18,8 +18,6 @@ const Privacy = () => {
         <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">Privacy Policy</h1>
         <p className="mt-4 text-lg text-gray-600">Last Updated: {new Date().toLocaleDateString()}</p>
       </div>
-
-      <div className="bg-white shadow rounded-lg p-6 sm:p-8">
         <section className="mb-10">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Introduction</h2>
           <p className="text-gray-600">
@@ -77,7 +75,7 @@ const Privacy = () => {
               <li>Opt-out of marketing communications</li>
               <li>Request data portability</li>
             </ul>
-            <p>To exercise these rights, contact us at <a href="mailto:support@swiftlymeds.com" className="text-blue-600 hover:underline">support@swiftlymeds.com</a></p>
+            <p>To exercise these rights, contact us at <a href="mailto:support@swiftlymeds.com" className="text-blue-600 hover:underline">info@SwiftlyMeds.com</a></p>
           </div>
         </section>
 
@@ -93,10 +91,9 @@ const Privacy = () => {
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Contact Us</h2>
           <p className="text-gray-600">
             For any privacy-related questions, please contact us at:<br />
-            <a href="mailto:support@swiftlymeds.com" className="text-blue-600 hover:underline">support@swiftlymeds.com</a>
+            <a href="mailto:support@swiftlymeds.com" className="text-blue-600 hover:underline">info@SwiftlyMeds.com</a>
           </p>
         </section>
-      </div>
     </div>
   );
 };
