@@ -14,6 +14,10 @@ import hair from '../../assets/catagory/hair.avif';
 import nature from '../../assets/catagory/natural.avif';
 import pain from '../../assets/catagory/pain.avif';
 import erectile from '../../assets/catagory/Erectiledysfunction.avif';
+import hiv from '../../assets/catagory/hiv.jpg';
+import cancer from '../../assets/catagory/cancer.webp';
+import kidney from '../../assets/catagory/kidney.jpeg';
+import arthritics from '../../assets/catagory/arthritics.jpg';
 import { Link } from 'react-router-dom';
 function Home1() {
 
@@ -71,13 +75,37 @@ function Home1() {
       name: "Ayurvedic",
       path: "/nature"
     },
+    {
+      id: 7,
+      image: hiv,
+      name: 'HIV',
+      path: '/hiv'
+    },
+    {
+      id: 8,
+      image: cancer,
+      name: 'Anti Cancer',
+      path: '/cancer'
+    },
+    {
+      id: 9,
+      image: kidney,
+      name: 'Kidney disease',
+      path: '/kidney'
+    },
+    {
+      id: 10,
+      image: arthritics,
+      name: 'Arthritis Medicine',
+      path: '/arthritis'
+    },
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const sliderRef = useRef(null);
   const intervalRef = useRef(null);
 
-  const cardWidthDesktop = 120; // Desktop card width
+  const cardWidthDesktop = 180; // Desktop card width
   const cardWidthMobile = 140; // Mobile card width
   const gap = 16;
 
@@ -134,7 +162,7 @@ function Home1() {
   };
 
   const cardWidth = isMobile ? cardWidthMobile : cardWidthDesktop;
-  const visibleCards = isMobile ? 2 : 5;
+  const visibleCards = isMobile ? 2 : 6;
 
 
   return (
@@ -180,7 +208,7 @@ function Home1() {
               </button>
             </div>
             {/* Drug Savings Section */}
-            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative overflow-hidden'>
+            <div className='max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative overflow-hidden'>
               <h1 className='text-xl md:text-4xl font-semibold text-center py-4 text-white'>Popular Categories</h1>
 
               <div className="relative w-full overflow-hidden">

@@ -6,23 +6,34 @@ import { IoArrowBackOutline } from "react-icons/io5";
 import { BsCartX } from "react-icons/bs";
 
 function ShippingCart() {
-  const { product } = useAuth();
+  const { product, setProduct, setAmount, setCart } = useAuth();
   console.log('productShippingCartData: ', product);
   const navigate = useNavigate();
   const topRef = useRef(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedBonus, setSelectedBonus] = useState('Vlagra 100 mg × 2 pills');
   const [selectedShipping, setSelectedShipping] = useState('AirMail');
+  const [totalAmount, setTotalAmount] = useState(0);
 
   const handleIncrement = () => setQuantity(prev => prev + 1);
   const handleDecrement = () => setQuantity(prev => Math.max(1, prev - 1));
 
   useEffect(() => {
     topRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
+    // Calculate initial total amount
+    if (product) {
+      const initialTotal = Array.isArray(product)
+        ? product.reduce((sum, item) => sum + (item.perPack * 0.9), 0)
+        : product.perPack * 0.9;
+      setTotalAmount(initialTotal);
+    }
+  }, [product]);
 
   const calculateTotal = () => {
-    if (!product?.perPack) return 0;
+    if (!product) return 0;
+    if (Array.isArray(product)) {
+      return product.reduce((sum, item) => sum + (item.perPack * 0.9 * quantity), 0).toFixed(2);
+    }
     return (product.perPack * 0.9 * quantity).toFixed(2);
   };
 
@@ -50,7 +61,34 @@ function ShippingCart() {
     'Levitra 20 mg × 2 pills'
   ];
 
-  if (!product || product.length === 0) {
+  const handleRemove = (productId) => {
+    if (Array.isArray(product)) {
+      // Find the product to get its price
+      const removedProduct = product.find(item => item.id === productId);
+      if (removedProduct) {
+        // Update total amount
+        setTotalAmount(prev => prev - (removedProduct.perPack * 0.9));
+        // Update cart count
+        setCart(prev => prev - 1);
+        // Remove the product
+        setProduct(prevItems => prevItems.filter(item => item.id !== productId));
+        // Update the amount in context if needed
+        setAmount(prev => prev - (removedProduct.perPack * 0.9));
+      }
+    } else {
+      // Handle single product case
+      setTotalAmount(0);
+      setCart(0);
+      setProduct(null);
+      setAmount(0);
+    }
+  };
+
+
+  // Check if product is empty or null
+  const isEmpty = !product || (Array.isArray(product) && product.length === 0);
+
+  if (isEmpty) {
     return (
       <div className='w-full flex justify-center items-center min-h-[60vh]'>
         <div className='text-center space-y-4'>
@@ -66,6 +104,9 @@ function ShippingCart() {
       </div>
     );
   }
+
+  // Convert single product to array for consistent rendering
+  const productsToRender = Array.isArray(product) ? product : [product];
 
   return (
     <div ref={topRef} className="max-w-6xl mx-auto px-4 py-8">
@@ -92,40 +133,42 @@ function ShippingCart() {
             </tr>
           </thead>
           <tbody className="">
-            <tr className="hover:bg-gray-50 transition-colors">
-              <td className="p-4 border-t border-gray-200 font-medium text-blue-300">Viagra</td>
-              <td className="p-4 border-t border-gray-200 text-gray-600">
-                {product?.dosage}*{product?.pills}
-              </td>
-              <td className="p-4 border-t border-gray-200">
-                <div className="flex items-center">
-                  <button
-                    onClick={handleDecrement}
-                    className="px-3 py-1 border border-gray-300 rounded-l-md hover:bg-gray-100 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    aria-label="Decrease quantity"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 py-1 border-t border-b border-gray-300 bg-white text-center w-12">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={handleIncrement}
-                    className="px-3 py-1 border border-gray-300 rounded-r-md hover:bg-gray-100 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    aria-label="Increase quantity"
-                  >
-                    +
-                  </button>
-                </div>
-              </td>
-              <td className="p-4 border-t border-gray-200 font-medium">{product?.perPack}</td>
-              <td className='p-4 border-t border-gray-200'>
-                <TiDeleteOutline
-                  className='text-red-500 text-2xl hover:text-red-600 cursor-pointer'
-                  aria-label="Remove item"
-                />
-              </td>
-            </tr>
+            {productsToRender.map((item) => (
+              <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                <td className="p-4 border-t border-gray-200 font-medium text-blue-300">Viagra</td>
+                <td className="p-4 border-t border-gray-200 text-gray-600">
+                  {item?.dosage}*{item?.pills}
+                </td>
+                <td className="p-4 border-t border-gray-200">
+                  <div className="flex items-center">
+                    <button
+                      onClick={handleDecrement}
+                      className="px-3 py-1 border border-gray-300 rounded-l-md hover:bg-gray-100 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      aria-label="Decrease quantity"
+                    >
+                      -
+                    </button>
+                    <span className="px-4 py-1 border-t border-b border-gray-300 bg-white text-center w-12">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={handleIncrement}
+                      className="px-3 py-1 border border-gray-300 rounded-r-md hover:bg-gray-100 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+                  </div>
+                </td>
+                <td className="p-4 border-t border-gray-200 font-medium">{item?.perPack}</td>
+                <td onClick={() => handleRemove(item.id)} className='p-4 border-t border-gray-200'>
+                  <TiDeleteOutline
+                    className='text-red-500 text-2xl hover:text-red-600 cursor-pointer'
+                    aria-label="Remove item"
+                  />
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
