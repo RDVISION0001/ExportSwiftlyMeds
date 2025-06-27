@@ -11,6 +11,7 @@ import ContactUs from './components/Pages/ContactUs';
 import Privacy from './components/Pages/Privacy';
 import FAQ from './components/Pages/Faq';
 import Blog from './components/blog/Blog';
+import Manufacturer from './components/Pages/Manufacuter';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path='/privacy' element={<Privacy />} />
         <Route path='/faq' element={<FAQ />} />
         <Route path='/blog' element={<Blog />} />
+        <Route path='/manufacture' element={<Manufacturer/>}/>
       </Routes>
       <Footer />
     </Router>
