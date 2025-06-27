@@ -22,7 +22,8 @@ import {
     FaLeaf,
     FaShieldAlt,
     FaPills,
-    FaQq
+    FaQq,
+    FaIndustry
 } from 'react-icons/fa';
 
 import Logo from '../assets/logo.png';
@@ -262,9 +263,9 @@ const Header = () => {
                             <Link to="/about" className="flex items-center hover:text-indigo-600 transition-colors text-md">
                                 <FaUser className="mr-2" /> About
                             </Link>
-                            {/* <Link to="/manufacturers" className="flex items-center hover:text-indigo-600 transition-colors text-md">
+                            <Link to="/manufacture" className="flex items-center hover:text-indigo-600 transition-colors text-md">
                                 <FaIndustry className="mr-2" /> Manufacturers
-                            </Link> */}
+                            </Link>
                             <Link to="/faq" className="flex items-center hover:text-indigo-600 transition-colors text-md">
                                 <FaQq className="mr-2" /> FAQ
                             </Link>
@@ -317,9 +318,9 @@ const Header = () => {
                             <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
                                 <FaUser className="mr-2" /> About
                             </Link>
-                            {/* <Link to="/manufacturers" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
+                            <Link to="/manufacture" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
                                 <FaIndustry className="mr-2" /> Manufacturers
-                            </Link> */}
+                            </Link>
                             <Link to="/faq" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
                                 <FaUserTie className="mr-2" /> FAQ
                             </Link>

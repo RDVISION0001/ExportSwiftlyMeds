@@ -20,6 +20,10 @@ function ShippingCart() {
 
   useEffect(() => {
     topRef.current?.scrollIntoView({ behavior: 'smooth' });
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
     // Calculate initial total amount
     if (product) {
       const initialTotal = Array.isArray(product)
@@ -90,13 +94,13 @@ function ShippingCart() {
 
   if (isEmpty) {
     return (
-      <div className='w-full flex justify-center items-center min-h-[60vh]'>
+      <div className='w-full flex justify-center items-center py-20'>
         <div className='text-center space-y-4'>
           <BsCartX className='text-5xl mx-auto text-gray-400' />
           <p className='text-lg font-medium'>Your shopping cart is empty!</p>
           <button
             onClick={() => navigate('/ed')}
-            className='bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors cursor-pointer'
+            className='bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors cursor-pointer font-medium'
           >
             Continue Shopping
           </button>
