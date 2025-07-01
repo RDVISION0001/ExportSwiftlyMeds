@@ -1,7 +1,7 @@
 // App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './components/Pages/Home';
-import Header from './components/header';
+import Header from './components/Header';
 import EdProduct from './components/catagory/ED/EdProduct';
 import ViewProduct from './components/catagory/ED/ViewProduct';
 import Footer from './components/Footer';
