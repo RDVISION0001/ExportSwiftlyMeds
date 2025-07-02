@@ -26,19 +26,19 @@ import {
     FaIndustry
 } from 'react-icons/fa';
 
-import Logo from '../assets/logo.png';
+import Logo from '../assets/Tlogo.png';
 import { useAuth } from "../AuthContext/AuthContext";
 import axios from "axios";
 const Header = () => {
     const { cart, amount } = useAuth(); // Get cart and amount from context
-    
+
     const navigate = useNavigate();
     // Calculate total item count
-    const cartItemCount = cart 
-    ? Array.isArray(cart) 
-        ? cart.reduce((sum, item) => sum + (item.quantity || 1), 0)
-        : 1 // If cart is a single product object
-    : 0; // If cart is null/undefined
+    const cartItemCount = cart
+        ? Array.isArray(cart)
+            ? cart.reduce((sum, item) => sum + (item.quantity || 1), 0)
+            : 1 // If cart is a single product object
+        : 0; // If cart is null/undefined
 
     const countryOptions = [
         { code: 'US', name: 'United States', currency: 'USD', language: 'English' },
@@ -69,7 +69,7 @@ const Header = () => {
         {
             name: "Anti Cancer (Injection)",
             path: "/anti-cancer-injection",
-            icon: <FaSyringe className="mr-2" />
+            icon: <FaSyringe className="mr-2"/>
         },
         {
             name: "Hepatitis C",
@@ -122,8 +122,8 @@ const Header = () => {
     return (
         <>
             {/* First Header */}
-            <header className="bg-gradient-to-r from-[#4DA8DA] to-[#56DFCF] shadow-sm sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 md:px-20 py-3">
+            <header className="bg-gradient-to-r from-[#BBFBFF] to-[#A8F1FF] shadow-sm sticky top-0 z-50">
+                <div className="max-w-8xl mx-auto px-4 md:px-20 py-3">
                     <div className="flex items-center justify-between">
                         {/* Mobile Menu Button */}
                         <button
@@ -136,7 +136,7 @@ const Header = () => {
                         {/* Logo - Always visible */}
                         <div className="flex-shrink-0">
                             <Link to="/" className="flex items-center">
-                                <img src={Logo} alt="" className="w-30 h-15" />
+                                <img src={Logo} alt="" className="w-45 h-20" />
                             </Link>
                         </div>
 
@@ -152,23 +152,6 @@ const Header = () => {
                                     3
                                 </span>
                             </Link> */}
-
-                            <Link to="/shipping" className="p-2 text-white hover:text-gray-200 relative transition-colors">
-                                <FaShoppingCart className="text-xl text-black" />
-                                <span className="absolute -top-1 -right-1 bg-blue-500  text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                    {cartItemCount}
-                                </span>
-                            </Link>
-                            <span className="text-white text-xs md:text-xl">
-                                ${parseFloat(amount).toFixed(2)}
-                            </span>
-                            {/* Login - visible on all screens */}
-                            <div className="relative group hidden md:block">
-                                <Link to="/account" className="flex items-center space-x-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                                    <FaUser className="text-xl" />
-                                    <span className="hidden md:inline  font-medium">Login</span>
-                                </Link>
-                            </div>
                             {/* Language & Currency Selectors - Hidden on mobile */}
                             <div className="flex-1 max-w-2xl mx-4 hidden md:block">
                                 <div className="flex items-center space-x-4">
@@ -216,13 +199,29 @@ const Header = () => {
                                     </div>
                                 </div>
                             </div>
+                            {/* Login - visible on all screens */}
+                            <div className="relative group hidden md:block">
+                                <Link to="/login" className="flex items-center space-x-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+                                    <FaUser className="text-xl" />
+                                    <span className="hidden md:inline  font-medium">Login</span>
+                                </Link>
+                            </div>
+                            <Link to="/shipping" className="p-2 text-white hover:text-gray-200 relative transition-colors">
+                                <FaShoppingCart className="text-xl text-black" />
+                                <span className="absolute -top-1 -right-1 bg-blue-500  text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {cartItemCount}
+                                </span>
+                            </Link>
+                            <span className=" text-xs md:text-xl">
+                                ${parseFloat(amount).toFixed(2)}
+                            </span>
                         </div>
                     </div>
                 </div>
             </header>
 
             {/* Second Header */}
-            <header className="bg-white shadow-md sticky md:top-21  z-60">
+            <header className="bg-white shadow-md sticky md:top-26 z-60">
                 <div className="max-w-7xl mx-auto md:px-4 md:py-3">
                     <div className="flex justify-center items-center">
                         {/* Desktop Navigation */}

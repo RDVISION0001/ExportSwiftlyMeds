@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 
 const FAQ = () => {
     const [activeIndex, setActiveIndex] = useState(null);
+
+    const topRef = useRef(null);
+    useEffect(() => {
+        topRef.current?.scrollIntoView({behavior: 'smooth'});
+        window.scrollTo({
+            top:0,
+            behavior: 'smooth'
+        });
+    }, [])
 
     const faqs = [
         {
@@ -80,7 +89,7 @@ const FAQ = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8">
+        <div ref={topRef} className="max-w-4xl mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold mb-8 text-center">FREQUENTLY ASKED QUESTIONS</h1>
 
             <div className="space-y-4">
