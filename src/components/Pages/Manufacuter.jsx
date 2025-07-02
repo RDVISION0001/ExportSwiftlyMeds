@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import lupin from '../../assets/manufacture/lupin.png';
 import itc from '../../assets/manufacture/itcLogo.png';
 import marico from '../../assets/manufacture/marico.jpg';
@@ -16,6 +16,13 @@ import myLan from '../../assets/manufacture/Mylan.png';
 import natco from '../../assets/manufacture/natco.png';
 
 function Manufacturer() {
+
+  const topRef = useRef(null);
+
+  useEffect(() => {
+    topRef.current?.scrollIntoView({ behavior: 'smooth'});
+    window.scrollTo({ top: 0, behavior:'smooth'});
+  }, [])
   const imgData = [
     { id: 1, img: lupin, name: 'Lupin' },
     { id: 2, img: itc, name: 'ITC' },
@@ -35,7 +42,7 @@ function Manufacturer() {
   ];
 
   return (
-    <div className='w-full max-w-7xl mx-auto px-4 py-8'>
+    <div ref={topRef} className='w-full max-w-7xl mx-auto px-4 py-8'>
       <h2 className='text-2xl font-bold text-center mb-8'>Our Manufacturing Partners</h2>
       <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6'>
         {imgData.map((item) => (

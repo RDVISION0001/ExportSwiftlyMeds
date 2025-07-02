@@ -120,7 +120,7 @@ function EdProduct() {
                                         </div>
                                     </div>
 
-                                    <button onClick={() => navigate('/view')} className="mt-auto cursor-pointe bg-white text-green-600 border border-green-600 rounded-full px-6 py-2 hover:bg-green-600 hover:text-white transition-colors hover:shadow-md transform hover:-translate-y-1">
+                                    <button onClick={() => navigate('/view')} className="mt-auto cursor-pointer bg-white text-green-600 border border-green-600 rounded-full px-6 py-2 hover:bg-green-600 hover:text-white transition-colors hover:shadow-md transform hover:-translate-y-1">
                                         BUY NOW
                                     </button>
                                 </div>

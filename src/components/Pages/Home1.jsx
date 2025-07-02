@@ -18,9 +18,11 @@ import hiv from '../../assets/catagory/hiv.jpg';
 import cancer from '../../assets/catagory/cancer.webp';
 import kidney from '../../assets/catagory/kidney.jpeg';
 import arthritics from '../../assets/catagory/arthritics.jpg';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import Upload from '../Upload';
 function Home1() {
 
+  const [uploadModal,setUploadModal] = useState(false);
   const features = [
     { name: 'Worldwide Shipping', image: Wolrd },
     { name: 'Money Back Guarantee', image: Money, tag: '100% MONEY BACK!' },
@@ -162,8 +164,7 @@ function Home1() {
   };
 
   const cardWidth = isMobile ? cardWidthMobile : cardWidthDesktop;
-  const visibleCards = isMobile ? 2 : 6;
-
+  const visibleCards = isMobile ? 2 : 6; 
 
   return (
     <>
@@ -198,7 +199,7 @@ function Home1() {
               />
 
               {/* Upload Button (Left Side) */}
-              <button className="absolute right-22 sm:right-34 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-[#4ED7F1] to-[#A8F1FF] text-gray-800 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full flex items-center hover:opacity-90 transition-opacity shadow-md text-sm sm:text-base font-medium cursor-pointer">
+              <button onClick={() => setUploadModal(true)} className="absolute right-22 sm:right-34 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-[#4ED7F1] to-[#A8F1FF] text-gray-800 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full flex items-center hover:opacity-90 transition-opacity shadow-md text-sm sm:text-base font-medium cursor-pointer">
                 <FaUpload className="mr-1 sm:mr-2" /> Upload
               </button>
 
@@ -215,7 +216,7 @@ function Home1() {
                 {/* Left Arrow */}
                 <button
                   onClick={goToPrev}
-                  className="absolute hidden sm:block left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition cursor-pointer"
+                  className="absolute  left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition cursor-pointer"
                 >
                   <FiChevronLeft className="w-6 h-6 text-gray-700" />
                 </button>
@@ -261,7 +262,7 @@ function Home1() {
                 {/* Right Arrow */}
                 <button
                   onClick={goToNext}
-                  className="absolute hidden sm:block right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition cursor-pointer"
+                  className="absolute  right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition cursor-pointer"
                 >
                   <FiChevronRight className="w-6 h-6 text-gray-700" />
                 </button>
@@ -302,7 +303,7 @@ function Home1() {
 
       {/* Content Section */}
       <div className='max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16'>
-        <h2 className='text-3xl sm:text-4xl md:text-5xl font-semibold text-center mt-10 sm:mt-20 py-6 sm:py-10'>
+        <h2 className='text-xl sm:text-4xl md:text-5xl font-semibold text-center mt-20 md:mt-8 py-2'>
           Best Pharmaceutical Exporter and Supplier in India
         </h2>
         <p className='text-base sm:text-lg md:text-xl text-gray-700 mt-6 sm:mt-10 text-center leading-relaxed'>
@@ -332,6 +333,11 @@ function Home1() {
           ))}
         </div>
       </div>
+      {uploadModal && (
+        <div className="fixed inset-0 backdrop-brightness-50 flex items-center justify-center z-50 p-4">
+         <Upload onClose={setUploadModal}/>
+        </div>
+      )}
     </>
   );
 }

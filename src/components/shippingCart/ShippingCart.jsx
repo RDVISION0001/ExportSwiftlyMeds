@@ -249,12 +249,12 @@ function ShippingCart() {
       <div className="flex justify-between mt-8">
         <button
           onClick={() => navigate('/ed')}
-          className="px-6 py-2 border rounded hover:bg-gray-100 cursor-pointer transition-colors"
+          className="px-6 py-2 border rounded hover:bg-gray-100 cursor-pointer transition-colors text-xs md:text-lg"
         >
           CONTINUE SHOPPING
         </button>
         <button
-          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer transition-colors"
+          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer transition-colors text-xs md:text-lg"
           onClick={() => navigate('/checkout')}
         >
           CHECKOUT

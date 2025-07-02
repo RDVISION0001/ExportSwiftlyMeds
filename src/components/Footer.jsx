@@ -1,11 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+
 
 const Footer = () => {
   return (
     <footer className="bg-[#06202B] text-white py-12 px-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           {/* Company Info */}
           <div className="md:col-span-2">
@@ -20,7 +22,7 @@ const Footer = () => {
                 <FaFacebook size={24} />
               </Link>
               <Link to="" className=" hover:text-blue-400 transition-colors">
-                <FaTwitter size={24} />
+                <FaXTwitter size={24} />
               </Link>
               <Link to="" className=" hover:text-pink-600 transition-colors">
                 <FaInstagram size={24} />
@@ -95,40 +97,36 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-3">Shop</h4>
             <ul className="space-y-2">
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Browse Medications</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">New Arrivals</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Best Sellers</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Swiftly Marketplace</Link></li>
+              <li><Link to="/newArive" className="hover:text-blue-600 hover:underline">New Arrivals</Link></li>
+              <li><Link to="/seller" className="hover:text-blue-600 hover:underline">Best Sellers</Link></li>
+              <li><Link to="/marketPlace" className="hover:text-blue-600 hover:underline">Swiftly Marketplace</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-semibold mb-3">Services</h4>
             <ul className="space-y-2">
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Contact Doctor</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">For Providers</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Prescription Refills</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Home Delivery</Link></li>
+              <li><Link to="/proserve" className="hover:text-blue-600 hover:underline">Product & service details with pricing structure</Link></li>
+              <li><Link to="/blog" className="hover:text-blue-600 hover:underline">Blog</Link></li>
+              <li><Link to="/priRefil" className="hover:text-blue-600 hover:underline">Prescription Refills</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-semibold mb-3">Company</h4>
             <ul className="space-y-2">
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Our Mission</Link></li>
+              <li><Link to="/our" className="hover:text-blue-600 hover:underline">Our Mission</Link></li>
               <li><Link to="/about" className="hover:text-blue-600 hover:underline">About Us</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Careers</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Press</Link></li>
+              <li><Link to="/career" className="hover:text-blue-600 hover:underline">Careers</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-semibold mb-3">Support</h4>
             <ul className="space-y-2">
-              <li><Link to="" className="hover:text-blue-600 hover:underline">FAQs</Link></li>
+              <li><Link to="/faq" className="hover:text-blue-600 hover:underline">FAQs</Link></li>
               <li><Link to="/contact" className="hover:text-blue-600 hover:underline">Contact Us</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Shipping Info</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Returns</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Delivery & Shipping Policy</Link></li>                 
             </ul>
           </div>
 
@@ -136,9 +134,8 @@ const Footer = () => {
             <h4 className="font-semibold mb-3">Legal</h4>
             <ul className="space-y-2">
               <li><Link to="/privacy" className="hover:text-blue-600 hover:underline">Privacy Policy</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">CA Privacy</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">HIPAA Policy</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Terms of Service</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Terms & conditions</Link></li>
+              <li><Link to="" className="hover:text-blue-600 hover:underline">Refund and cancellation policy</Link></li>
             </ul>
           </div>
         </div>
