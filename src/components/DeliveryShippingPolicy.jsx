@@ -219,9 +219,8 @@ const DeliveryShippingPolicy = () => {
             </p>
             <div className="mt-2 space-y-1">
               <p className="font-medium">SwiftlyMeds Shipping Department</p>
-              <p>Email: shipping@swiftlymeds.com</p>
-              <p>Phone: [Your Shipping Department Number]</p>
-              <p>Hours: [Your Shipping Department Hours]</p>
+              <p>Email: <a href="mailto:info@mensvitaminshop.com" className="hover:underline text-gray-600 hover:text-gray-800">info@SwiftlyMeds.com</a></p>
+              <p>Phone: <a href="tel:088580 43370" className="hover:underline text-gray-600 hover:text-gray-800"> 088580 43370</a></p> 
             </div>
             <p className="text-gray-700 mt-4">
               Please include your order number in all communications for faster service.

@@ -117,9 +117,9 @@ const HipaaPolicy = () => {
           </p>
           <div className="mt-3 p-4 bg-white rounded-md">
             <p className="font-medium">SwiftlyMeds Privacy Officer</p>
-            <p>Email: privacy@swiftlymeds.com</p>
-            <p>Phone: [Your Contact Number]</p>
-            <p>Address: [Your Company Address]</p>
+            <p>Email:<a href="mailto:info@mensvitaminshop.com" className="hover:underline text-gray-600 hover:text-gray-800">info@SwiftlyMeds.com</a></p>
+            <p>Phone:<a href="tel:088580 43370" className="hover:underline text-gray-600 hover:text-gray-800"> 088580 43370</a></p>
+            <p>Address: <a href="https://www.google.com/maps/search/H-6-K+Chandra+Chauraha+SA+20%2F205+Ashapur+Road+Hanuman+Nagar+Ashapur+Varanasi+Uttar+Pradesh+221007" target="_blank" rel="noopener noreferrer"  className="hover:underline hover:text-gray-700">  H-6-K, Chandra Chauraha, SA 20/205, Ashapur Road, Hanuman Nagar, Ashapur, Varanasi, Uttar Pradesh 221007 </a></p>
           </div>
           <p className="text-gray-700 mt-3">
             This policy was last updated on [Insert Date] and may be updated periodically to reflect changes in our 
