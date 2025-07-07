@@ -1,12 +1,19 @@
-import React from "react";
+import React, { useEffect, useReducer, useRef } from "react";
 import { Link } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
 
 const Footer = () => {
+
+  const topRef = useRef(null);
+
+  useEffect(() =>{
+    topRef.current?.scrollIntoView({ behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [])
   return (
-    <footer className="bg-[#06202B] text-white py-12 px-4">
+    <footer ref={topRef} className="bg-[#06202B] text-white py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           {/* Company Info */}
@@ -126,7 +133,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li><Link to="/faq" className="hover:text-blue-600 hover:underline">FAQs</Link></li>
               <li><Link to="/contact" className="hover:text-blue-600 hover:underline">Contact Us</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Delivery & Shipping Policy</Link></li>                 
+              <li><Link to="/deliveryShipping" className="hover:text-blue-600 hover:underline">Delivery & Shipping Policy</Link></li>                 
             </ul>
           </div>
 
@@ -134,15 +141,16 @@ const Footer = () => {
             <h4 className="font-semibold mb-3">Legal</h4>
             <ul className="space-y-2">
               <li><Link to="/privacy" className="hover:text-blue-600 hover:underline">Privacy Policy</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Terms & conditions</Link></li>
-              <li><Link to="" className="hover:text-blue-600 hover:underline">Refund and cancellation policy</Link></li>
+              <li><Link to="/hipaa" className="hover:text-blue-600 hover:underline">Hipaa Policy</Link></li>
+              <li><Link to="/terms" className="hover:text-blue-600 hover:underline">Terms & conditions</Link></li>
+              <li><Link to="/refund" className="hover:text-blue-600 hover:underline">Refund and cancellation policy</Link></li>
             </ul>
           </div>
         </div>
 
         {/* Copyright */}
         <div className="border-t border-gray-200 pt-6 text-sm text-center md:text-left">
-          <p>© 2025 Swiftly Meds Private Limited. All rights reserved.</p>
+          <p>© 2025 Swiftly Meds Private Limited. All rights reserved CIN: U21001UP2024PTC211871</p>
         </div>
       </div>
     </footer>
