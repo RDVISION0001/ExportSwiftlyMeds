@@ -21,6 +21,10 @@ import PrescriptionRelief from './components/PrescriptionRefills';
 import OurMission from './components/OurMissin';
 import Career from './components/Career';
 import Login from './AuthContext/Login';
+import HipaaPolicy from './components/HipaaPolicy';
+import TermsCondition from './components/TermsCondition';
+import RefundPolicy from './components/RefundPolicy';
+import DeliveryShippingPolicy from './components/DeliveryShippingPolicy';
 
 function App() {
   return (
@@ -46,6 +50,10 @@ function App() {
         <Route path='/our' element={<OurMission/>}/>
         <Route path='/career' element={<Career/>}/>
         <Route path='/login' element={<Login/>}/>
+        <Route path='/hipaa' element={<HipaaPolicy/>}/>
+        <Route path='/terms' element={<TermsCondition/>}/>
+        <Route path='/refund' element={<RefundPolicy/>}/>
+        <Route path='/deliveryShipping' element={<DeliveryShippingPolicy/>}/>
       </Routes>
       <Footer />
     </Router>
