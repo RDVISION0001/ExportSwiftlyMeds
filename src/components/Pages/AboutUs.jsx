@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import about from "../../assets/about.png";
+import about from "../../assets/about.jpeg";
 
 function AboutUs() {
   const topRef = useRef(null);
@@ -24,9 +24,7 @@ function AboutUs() {
         }}
         className='min-h-[300px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[600px] w-full flex items-center justify-center px-4 py-16'
       >
-        <h2 className='text-[#1E201E] text-xl sm:text-2xl md:text-4xl font-bold text-center max-w-3xl px-4'>
-          Empowering lives through timely access to care—one day at a time.
-        </h2>
+        
       </div>
 
       {/* About Content */}
