@@ -1,6 +1,7 @@
 import React, { useEffect, useReducer, useRef } from "react";
 import { Link } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube } from "react-icons/fa";
+
 import { FaXTwitter } from "react-icons/fa6";
 
 
@@ -8,7 +9,7 @@ const Footer = () => {
 
   const topRef = useRef(null);
 
-  useEffect(() =>{
+  useEffect(() => {
     topRef.current?.scrollIntoView({ behavior: 'smooth' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [])
@@ -25,21 +26,46 @@ const Footer = () => {
 
             {/* Social Media Icons */}
             <div className="flex space-x-4 mb-6">
-              <Link to="" className=" hover:text-blue-600 transition-colors">
-                <FaFacebook size={24} />
-              </Link>
-              <Link to="" className=" hover:text-blue-400 transition-colors">
-                <FaXTwitter size={24} />
-              </Link>
-              <Link to="" className=" hover:text-pink-600 transition-colors">
-                <FaInstagram size={24} />
-              </Link>
-              <Link to="" className=" hover:text-blue-700 transition-colors">
-                <FaLinkedin size={24} />
-              </Link>
-              <Link to="" className=" hover:text-red-600 transition-colors">
-                <FaYoutube size={24} />
-              </Link>
+                <a
+                  href="https://www.facebook.com/profile.php?id=61573859501526"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  <FaFacebook size={24} />
+                </a>
+              <a
+                  href="https://x.com/swiftlymeds"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white hover:text-gray-300 transition-colors"
+                >
+                 <FaXTwitter size={24} />
+                </a>
+              <a
+                  href="https://www.instagram.com/swiftlymeds/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#FF0B55] hover:text-[#CF0F47] transition-colors"
+                >
+                 <FaInstagram size={24} />
+                </a>
+              {/* <a
+                  href="https://www.instagram.com/swiftlymeds/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                 <FaLinkedin size={24} />
+                </a> */}
+              <a
+                  href="https://www.youtube.com/@SwiftlyMeds"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#CB0404] hover:text-[#EA2F14] transition-colors"
+                >
+                 <FaYoutube size={24} />
+                </a>
             </div>
           </div>
 
@@ -77,9 +103,7 @@ const Footer = () => {
                 <svg className="w-5 h-5 mt-1 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <a href="mailto:info@mensvitaminshop.com" className="hover:underline hover:text-gray-300">
-                  info@SwiftlyMeds.com
-                </a>
+                <a href="mailto:info@swiftlymeds.com" className="hover:underline text-white hover:text-gray-300">info@swiftlymeds.com</a>
               </div>
               <div className="flex items-start">
                 <svg className="w-5 h-5 mt-1 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,7 +157,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li><Link to="/faq" className="hover:text-blue-600 hover:underline">FAQs</Link></li>
               <li><Link to="/contact" className="hover:text-blue-600 hover:underline">Contact Us</Link></li>
-              <li><Link to="/deliveryShipping" className="hover:text-blue-600 hover:underline">Delivery & Shipping Policy</Link></li>                 
+              <li><Link to="/deliveryShipping" className="hover:text-blue-600 hover:underline">Delivery & Shipping Policy</Link></li>
             </ul>
           </div>
 
