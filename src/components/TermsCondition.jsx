@@ -121,8 +121,8 @@ const TermsCondition = () => {
         <section className="bg-blue-50 rounded-lg p-6">
           <h3 className="text-xl font-semibold text-blue-700 mb-3">8. Governing Law & Jurisdiction</h3>
           <p className="text-gray-700">
-            These terms will be governed by and interpreted in accordance with the laws of [Your Country/State], and you submit 
-            to the non-exclusive jurisdiction of the state and federal courts located in [Your Country/State] for the resolution 
+            These terms will be governed by and interpreted in accordance with the laws of [Varanasi/UP], and you submit 
+            to the non-exclusive jurisdiction of the state and federal courts located in [Varanasi/UP] for the resolution 
             of any disputes.
           </p>
         </section>
