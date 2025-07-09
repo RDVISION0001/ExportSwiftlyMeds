@@ -26,12 +26,12 @@ import {
     FaIndustry
 } from 'react-icons/fa';
 
-import Logo from '../assets/Tlogo.png';
+import Logo from '../assets/Nlogo.png';
 import { useAuth } from "../AuthContext/AuthContext";
 import axios from "axios";
+import axiosInstance from "../AuthContext/AxiosInstance";
 const Header = () => {
-    const { cart, amount } = useAuth(); // Get cart and amount from context
-
+    const { cart, amount,category,setCategory,catId,setCatProduct,setLoading } = useAuth(); // Get cart and amount from context
     const navigate = useNavigate();
     // Calculate total item count
     const cartItemCount = cart
@@ -60,58 +60,39 @@ const Header = () => {
     const [categoriesOpen, setCategoriesOpen] = useState(false);
     const [hoveredCategory, setHoveredCategory] = useState(null);
 
-    const categories = [
-        {
-            name: "Anti Cancer (Capsules)",
-            path: "/anti-cancer-capsules",
-            icon: <FaCapsules className="mr-2" />
-        },
-        {
-            name: "Anti Cancer (Injection)",
-            path: "/anti-cancer-injection",
-            icon: <FaSyringe className="mr-2"/>
-        },
-        {
-            name: "Hepatitis C",
-            path: "/hepatitis-c",
-            icon: <FaVirus className="mr-2" />
-        },
-        {
-            name: "HIV",
-            path: "/hiv",
-            icon: <FaClinicMedical className="mr-2" />
-        },
-        {
-            name: "Arthritis Medicine",
-            path: "/arthritis-medicine",
-            icon: <FaBone className="mr-2" />
-        },
-        {
-            name: "Erectile Dysfunction",
-            path: "/ed",
-            icon: <FaHeartbeat className="mr-2" />
-        },
-        {
-            name: "Kidney Disease Drugs",
-            path: "/kidney-disease-drugs",
-            icon: <FaClinicMedical className="mr-2" /> // Alternative for kidneys
-        },
-        {
-            name: "Ayurvedic Medicine",
-            path: "/ayurvedic-medicine",
-            icon: <FaLeaf className="mr-2" />
-        },
-        {
-            name: "Immunosuppressive Medicine",
-            path: "/immunosuppressive-medicine",
-            icon: <FaShieldAlt className="mr-2" />
-        },
-        {
-            name: "Diabetes Medication",
-            path: "/diabetes-medication",
-            icon: <FaPills className="mr-2" />
+    const fetchCategory = async () => {
+        setLoading(true);
+        try {
+            const response = await axiosInstance.get('/product/get/productCategory');
+            console.log('dfdf', response);
+            setCategory(response.data.data);
+        } catch (error) {
+            console.log('rer', error);
+        } finally{
+            setLoading(false);
         }
-    ];
+    }
+    
+    useEffect(() =>{
+        fetchCategory();
+    }, [])
+
+    const fetchCatProduct = async() => {
+        setLoading(true);
+        try{
+     const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${10}&currentPage=${1}`);
+     console.log('product',response);
+     setCatProduct(response.data.productList);
+        }catch(error){
+      console.log('error',error);
+        } finally{
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        fetchCatProduct();
+    }, [catId])
 
     const handleCountryChange = (countryCode) => {
         const selected = countryOptions.find(c => c.code === countryCode);
@@ -136,7 +117,7 @@ const Header = () => {
                         {/* Logo - Always visible */}
                         <div className="flex-shrink-0">
                             <Link to="/" className="flex items-center">
-                                <img src={Logo} alt="" className="w-45 h-20" />
+                                <img src={Logo} alt="" className="md:w-48 w-40"/>
                             </Link>
                         </div>
 
@@ -221,7 +202,7 @@ const Header = () => {
             </header>
 
             {/* Second Header */}
-            <header className="bg-white shadow-md sticky md:top-26 z-60">
+            <header className="bg-white shadow-md sticky md:top-18.5 z-60">
                 <div className="max-w-7xl mx-auto md:px-4 md:py-3">
                     <div className="flex justify-center items-center">
                         {/* Desktop Navigation */}
@@ -243,16 +224,16 @@ const Header = () => {
                                 origin-top transform-gpu
                                 scale-y-0 group-hover:scale-y-100 
                                 opacity-0 group-hover:opacity-100
-                                transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
-                                    {categories.map((category, index) => (
+                                transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] h-[400px] overflow-y-auto">
+                                    {category.map((category, index) => (
                                         <Link
                                             key={index}
                                             to={category.path}
-                                            className="flex items-center px-4 py-2 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-200"
+                                            className="flex items-center px-4 py-2 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-200 "
                                             onClick={() => setHoveredCategory(null)}
                                         >
-                                            {category.icon}
-                                            {category.name}
+                                            {/* {category.icon} */}
+                                            {category.categoryName}
                                         </Link>
                                     ))}
                                 </div>

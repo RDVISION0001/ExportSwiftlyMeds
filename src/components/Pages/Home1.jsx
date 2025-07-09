@@ -8,7 +8,6 @@ import Customer from '../../assets/support_icon.png';
 import Price from '../../assets/bestPrise.jpg';
 import { FiChevronLeft } from "react-icons/fi";
 import { FiChevronRight } from "react-icons/fi";
-import eye from '../../assets/catagory/eye.avif';
 import femal from '../../assets/catagory/female.avif';
 import hair from '../../assets/catagory/hair.avif';
 import nature from '../../assets/catagory/natural.avif';
@@ -20,9 +19,10 @@ import kidney from '../../assets/catagory/kidney.jpeg';
 import arthritics from '../../assets/catagory/arthritics.jpg';
 import { Link, useNavigate } from 'react-router-dom';
 import Upload from '../Upload';
+import ShopByCategory from '../catagory/ShopByCategory';
 function Home1() {
 
-  const [uploadModal,setUploadModal] = useState(false);
+  const [uploadModal, setUploadModal] = useState(false);
   const features = [
     { name: 'Worldwide Shipping', image: Wolrd },
     { name: 'Money Back Guarantee', image: Money, tag: '100% MONEY BACK!' },
@@ -31,140 +31,12 @@ function Home1() {
     { name: 'Best Price Guarantee', image: Price, tag: 'BEST PRICE' }
   ];
 
-  const quickCategories = ['Pain Relief', 'Diabetes', 'Heart Care', 'Vitamins', 'Antibiotics'];
-
   const floatingFeatures = [
     { icon: <FaUser className="text-2xl" />, title: "Expert Consultation" },
     { icon: <FaShoppingCart className="text-2xl" />, title: "Easy Ordering" },
     { icon: <FaHeart className="text-2xl" />, title: "Trusted Quality" },
     { icon: <FaSearch className="text-2xl" />, title: "Wide Selection" }
   ];
-
-  const testimonials = [
-    {
-      id: 1,
-      image: eye,
-      name: "Eye Care",
-      path: '/eyeCare'
-    },
-    {
-      id: 2,
-      image: femal,
-      name: "Female Wellness",
-      path: "/femaleWellness"
-    },
-    {
-      id: 3,
-      image: hair,
-      name: "Hair Care",
-      path: "/hairCare"
-    },
-    {
-      id: 4,
-      image: erectile,
-      name: "Erectile Dysfunction",
-      path: "/ed"
-    },
-    {
-      id: 5,
-      image: pain,
-      name: "Swelling Relief",
-      path: "/pain"
-    },
-    {
-      id: 6,
-      image: nature,
-      name: "Ayurvedic",
-      path: "/nature"
-    },
-    {
-      id: 7,
-      image: hiv,
-      name: 'HIV',
-      path: '/hiv'
-    },
-    {
-      id: 8,
-      image: cancer,
-      name: 'Anti Cancer',
-      path: '/cancer'
-    },
-    {
-      id: 9,
-      image: kidney,
-      name: 'Kidney disease',
-      path: '/kidney'
-    },
-    {
-      id: 10,
-      image: arthritics,
-      name: 'Arthritis Medicine',
-      path: '/arthritis'
-    },
-  ];
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const sliderRef = useRef(null);
-  const intervalRef = useRef(null);
-
-  const cardWidthDesktop = 180; // Desktop card width
-  const cardWidthMobile = 140; // Mobile card width
-  const gap = 16;
-
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Auto-scroll
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setCurrentIndex((prevIndex) => {
-        const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 5;
-        return prevIndex >= maxIndex ? 0 : prevIndex + 1;
-      });
-    }, 5000);
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [isMobile, testimonials.length]);
-
-  const goToSlide = (index) => {
-    setCurrentIndex(index);
-    resetInterval();
-  };
-
-  const goToPrev = () => {
-    const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 5;
-    setCurrentIndex(prev => (prev === 0 ? maxIndex : prev - 1));
-    resetInterval();
-  };
-
-  const goToNext = () => {
-    const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 5;
-    setCurrentIndex(prev => (prev >= maxIndex ? 0 : prev + 1));
-    resetInterval();
-  };
-
-  const resetInterval = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => {
-      setCurrentIndex((prevIndex) => {
-        const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 5;
-        return prevIndex >= maxIndex ? 0 : prevIndex + 1;
-      });
-    }, 5000);
-  };
-
-  const cardWidth = isMobile ? cardWidthMobile : cardWidthDesktop;
-  const visibleCards = isMobile ? 2 : 6; 
 
   return (
     <>
@@ -177,7 +49,7 @@ function Home1() {
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'
           }}
-          className='min-h-[400px] md:min-h-[500px] lg:min-h-[600px] w-full flex items-center justify-center px-4 py-16'
+          className='min-h-[400px]  w-full flex items-center justify-center px-4 py-16'
         >
           <div className='max-w-8xl mx-auto text-center px-4 sm:px-6'>
             {/* Main Heading */}
@@ -208,80 +80,7 @@ function Home1() {
                 <FaSearch className="mr-1 sm:mr-2" /> Search
               </button>
             </div>
-            {/* Drug Savings Section */}
-            <div className='max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative overflow-hidden'>
-              <h1 className='text-xl md:text-4xl font-semibold text-center py-4 text-white'>Popular Categories</h1>
-
-              <div className="relative w-full overflow-hidden">
-                {/* Left Arrow */}
-                <button
-                  onClick={goToPrev}
-                  className="absolute  left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition cursor-pointer"
-                >
-                  <FiChevronLeft className="w-6 h-6 text-gray-700" />
-                </button>
-
-                {/* Slider Container */}
-                <div
-                  className="mx-auto overflow-hidden"
-                  style={{ width: `calc(${visibleCards} * ${cardWidth}px + ${(visibleCards - 1) * gap}px)` }}
-                >
-                  <div
-                    ref={sliderRef}
-                    className="flex transition-transform duration-500 ease-in-out"
-                    style={{
-                      transform: `translateX(-${currentIndex * (cardWidth + gap)}px)`,
-                      gap: `${gap}px`
-                    }}
-                  >
-                    {testimonials.map((testimonial) => (
-                      <Link
-                        key={testimonial.id}
-                        to={testimonial.path}
-                        className="flex-shrink-0 bg-[#F2FAF4] rounded-lg shadow-lg p-2 flex flex-col"
-                        style={{
-                          width: `${cardWidth}px`,
-                          maxHeight: '170px' // Added minimum height
-                        }}
-                      >
-                        <div className='flex-grow flex items-center justify-center'>
-                          <img
-                            src={testimonial.image}
-                            alt={testimonial.name}
-                            className='w-36 h-auto max-h-[120px] object-contain'
-                          />
-                        </div>
-                        <div className="text-lg text-center text-gray-700 mt-2">
-                          {testimonial.name}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Right Arrow */}
-                <button
-                  onClick={goToNext}
-                  className="absolute  right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition cursor-pointer"
-                >
-                  <FiChevronRight className="w-6 h-6 text-gray-700" />
-                </button>
-
-                {/* Navigation Dots */}
-                {/* <div className="flex justify-center mt-6 space-x-2">
-                  {Array.from({ length: testimonials.length - (isMobile ? 0 : 2) }).map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => goToSlide(index)}
-                      className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-amber-600' : 'bg-gray-300'}`}
-                      aria-label={`Go to testimonial ${index + 1}`}
-                    />
-                  ))}
-                </div> */}
-              </div>
-            </div>
           </div>
-
         </div>
 
         {/* Floating Features */}
@@ -300,14 +99,21 @@ function Home1() {
           </div>
         </div>
       </div>
-
+      <div className='mt-20'>
+        <ShopByCategory />
+      </div>
       {/* Content Section */}
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 py-2'>
         <h2 className='text-xl sm:text-4xl md:text-5xl font-semibold text-center mt-20 md:mt-8 py-2'>
           Best Pharmaceutical Exporter and Supplier in India
         </h2>
         <p className='text-base sm:text-lg md:text-xl text-gray-700 mt-6 sm:mt-10 text-center leading-relaxed'>
-          The accessible, simple and affordable medicines in no time! Chawla Medicos, one of the world's leading suppliers/ exporters, has been known for providing affordable medicines globally around the world for so long. We aim to provide prescription medicines so that our customers can have smooth and seamless healthcare experience. Your health is of paramount importance to us so we cater to provide quality medicines at the cost that won't hamper your pocket. With so many medicines in the warehouse, we strive to deliver the best in class for our patients suffering from chronic ailments. Chawla Medicos is your one-stop shop destination for medicines like Hepatitis B(HIV), Hepatitis C, AntiCancer, Ayurvedic, chronic Kidney disease, arthritis medicines. For many people around the globe, we have been one of the most trusted sources where they can find medicine they need for their ailment.
+          Accessible, simple, and affordable medicines—delivered swiftly! SwiftlyMeds is a trusted global supplier of high-quality prescription medications, providing cost-effective healthcare solutions worldwide. We ensure a seamless experience by delivering FDA-approved and generic medicines at prices that won’t strain your budget. Your health is our priority, which is why we maintain a well-stocked warehouse to serve patients with chronic conditions efficiently.
+          <br /><br />
+          SwiftlyMeds is your one-stop destination for essential treatments, including:
+          <strong>Hepatitis B & C, Anti-Cancer therapies, Ayurvedic remedies, Chronic Kidney Disease medications, and Arthritis relief.</strong>
+          <br /><br />
+          For patients across the globe, we remain a reliable source for life-saving medications—combining affordability, speed, and trust.
         </p>
 
         {/* Features Grid */}
@@ -335,7 +141,7 @@ function Home1() {
       </div>
       {uploadModal && (
         <div className="fixed inset-0 backdrop-brightness-50 flex items-center justify-center z-50 p-4">
-         <Upload onClose={setUploadModal}/>
+          <Upload onClose={setUploadModal} />
         </div>
       )}
     </>

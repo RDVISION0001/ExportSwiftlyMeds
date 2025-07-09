@@ -72,7 +72,7 @@ const FAQ = () => {
         },
         {
             question: "What payments do you accept?",
-            answer: "We accept: Visa, MasterCard, American Express, Bitcoin and other cryptocurrencies, bank transfers, and select e-wallets. All payments are processed through secure, encrypted channels."
+            answer: "We accept: Visa, MasterCard, American Express, bank transfers, and select e-wallets. All payments are processed through secure, encrypted channels."
         },
         {
             question: "Do you have a money back guarantee?",
