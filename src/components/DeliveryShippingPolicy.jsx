@@ -1,9 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const DeliveryShippingPolicy = () => {
 
 
     const topRef = useRef(null);
+    const [currentTime,setCurrentTime] = useState(new Date());
+
+    useEffect(() =>{
+      const timer = setInterval(() => {
+        setCurrentTime(new Date());
+      }, 1000)
+
+      return() => clearInterval(timer);
+    }, [])
 
     useEffect(() =>{
         topRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -215,11 +224,11 @@ const DeliveryShippingPolicy = () => {
           <h3 className="text-xl font-semibold text-blue-700 mb-3">8. Contact Information</h3>
           <div className="p-4 bg-white rounded-md">
             <p className="text-gray-700">
-              For shipping inquiries or issues, please contact:
+              For shipping inquiries or issues, please contact: 
             </p>
             <div className="mt-2 space-y-1">
               <p className="font-medium">SwiftlyMeds Shipping Department</p>
-              <p>Email: <a href="mailto:info@mensvitaminshop.com" className="hover:underline text-gray-600 hover:text-gray-800">info@SwiftlyMeds.com</a></p>
+              <p>Email: <a href="mailto:info@swiftlymeds.com" className="hover:underline text-gray-600 hover:text-gray-800">info@SwiftlyMeds.com</a></p>
               <p>Phone: <a href="tel:088580 43370" className="hover:underline text-gray-600 hover:text-gray-800"> 088580 43370</a></p> 
             </div>
             <p className="text-gray-700 mt-4">
@@ -231,7 +240,7 @@ const DeliveryShippingPolicy = () => {
         <section className="bg-blue-50 rounded-lg p-6">
           <h3 className="text-xl font-semibold text-blue-700 mb-3">9. Policy Updates</h3>
           <p className="text-gray-700">
-            This policy was last updated on [Insert Date]. We may update our shipping methods and policies periodically to 
+            This policy was last updated on {currentTime.toLocaleString()}. We may update our shipping methods and policies periodically to 
             ensure the best service possible.
           </p>
         </section>

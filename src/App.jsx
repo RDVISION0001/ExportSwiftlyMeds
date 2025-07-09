@@ -1,4 +1,4 @@
-// App.jsx
+// App.css
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './components/Pages/Home';
 import Header from './components/Header';
@@ -25,6 +25,7 @@ import HipaaPolicy from './components/HipaaPolicy';
 import TermsCondition from './components/TermsCondition';
 import RefundPolicy from './components/RefundPolicy';
 import DeliveryShippingPolicy from './components/DeliveryShippingPolicy';
+import ShopByCategoryProduct from './components/catagory/ShopByCategoryProduct';
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
         <Route path='/terms' element={<TermsCondition/>}/>
         <Route path='/refund' element={<RefundPolicy/>}/>
         <Route path='/deliveryShipping' element={<DeliveryShippingPolicy/>}/>
+        <Route path='/CatProduct' element={<ShopByCategoryProduct/>}/>
       </Routes>
       <Footer />
     </Router>
