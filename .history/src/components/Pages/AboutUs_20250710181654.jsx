@@ -91,7 +91,7 @@ function AboutUs() {
             <div className="text-blue-600 text-4xl mb-4">⚡</div>
             <h3 className="font-bold text-lg sm:text-xl mb-3">Efficiency</h3>
             <p className="text-gray-700 text-sm sm:text-base">
-              From order to delivery, we've optimized every processes to save your time and money.
+              From order to delivery, we've optimized every process to save you time and money.
             </p>
           </div>
         </div>

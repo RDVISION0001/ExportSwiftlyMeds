@@ -178,7 +178,7 @@ function Home1() {
           Accessible, simple, and affordable medicines—delivered swiftly! SwiftlyMeds is a trusted global supplier of high-quality prescription medications, providing cost-effective healthcare solutions worldwide. We ensure a seamless experience by delivering FDA-approved and generic medicines at prices that won't strain your budget. Your health is our priority, which is why we maintain a well-stocked warehouse to serve patients with chronic conditions efficiently.
           <br /><br />
           SwiftlyMeds is your one-stop destination for essential treatments, including:
-          <strong>Hepatitis B & C, Anti-Cancer therapies, Chronic Kidney Disease medications, and Arthritis relief.</strong>
+          <strong>Hepatitis B & C, Anti-Cancer therapies,Chronic Kidney Disease medications, and Arthritis relief.</strong>
           <br /><br />
           For patients across the globe, we remain a reliable source for life-saving medications—combining affordability, speed, and trust.
         </motion.p>

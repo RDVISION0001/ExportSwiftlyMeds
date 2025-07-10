@@ -137,7 +137,7 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-3">Services</h4>
             <ul className="space-y-2">
-              <li><Link to="/proserve" className="hover:text-blue-600 hover:underline">Products & services details with pricing structure</Link></li>
+              <li><Link to="/proserve" className="hover:text-blue-600 hover:underline">Product & service details with pricing structure</Link></li>
               <li><Link to="/blog" className="hover:text-blue-600 hover:underline">Blog</Link></li>
               <li><Link to="/priRefil" className="hover:text-blue-600 hover:underline">Prescription Refills</Link></li>
             </ul>
