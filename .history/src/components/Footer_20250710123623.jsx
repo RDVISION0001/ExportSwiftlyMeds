@@ -174,7 +174,7 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="border-t border-gray-200 pt-6 text-sm text-center md:text-left">
-          <div className="flex justify-start items-center gap-2 ">
+          <div className="flex justst ">
 
             {/* DMCA Badge */}
             <a

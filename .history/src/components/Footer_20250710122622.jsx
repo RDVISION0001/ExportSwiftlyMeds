@@ -174,7 +174,12 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="border-t border-gray-200 pt-6 text-sm text-center md:text-left">
-          <div className="flex justify-start items-center gap-2 ">
+          <div className="flex ">
+
+
+            <p>
+              © 2025 Swiftly Meds Private Limited. All rights reserved CIN: U21001UP2024PTC211871
+            </p>
 
             {/* DMCA Badge */}
             <a
@@ -189,9 +194,6 @@ const Footer = () => {
                 alt="DMCA.com Protection Status"
               />
             </a>
-            <p>
-              © 2025 Swiftly Meds Private Limited. All rights reserved CIN: U21001UP2024PTC211871
-            </p>
 
 
 

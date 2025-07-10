@@ -174,31 +174,27 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="border-t border-gray-200 pt-6 text-sm text-center md:text-left">
-          <div className="flex justify-start items-center gap-2 ">
+          <p>
+            © 2025 Swiftly Meds Private Limited. All rights reserved CIN: U21001UP2024PTC211871
+          </p>
 
-            {/* DMCA Badge */}
-            <a
-              href="//www.dmca.com/Protection/Status.aspx?ID=43247472-5597-4c7e-8677-b13660b7a2ab"
-              title="DMCA.com Protection Status"
-              className="dmca-badge"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                src="https://images.dmca.com/Badges/dmca_protected_sml_120n.png?ID=43247472-5597-4c7e-8677-b13660b7a2ab"
-                alt="DMCA.com Protection Status"
-              />
-            </a>
-            <p>
-              © 2025 Swiftly Meds Private Limited. All rights reserved CIN: U21001UP2024PTC211871
-            </p>
-
+          {/* DMCA Badge */}
+          <a
+            href="//www.dmca.com/Protection/Status.aspx?ID=43247472-5597-4c7e-8677-b13660b7a2ab"
+            title="DMCA.com Protection Status"
+            className="dmca-badge inline-block mt-2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="https://images.dmca.com/Badges/dmca_protected_sml_120n.png?ID=43247472-5597-4c7e-8677-b13660b7a2ab"
+              alt="DMCA.com Protection Status"
+            />
+          </a>
 
 
-            {/* Load DMCA Badge Script */}
-            <script src="https://images.dmca.com/Badges/DMCABadgeHelper.min.js"></script>
-
-          </div>
+          {/* Load DMCA Badge Script */}
+          <script src="https://images.dmca.com/Badges/DMCABadgeHelper.min.js"></script>
         </div>
 
       </div>

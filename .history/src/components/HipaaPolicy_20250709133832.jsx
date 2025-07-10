@@ -10,8 +10,8 @@ const HipaaPolicy = () => {
   }, [])
   return (
     <div ref={topRef} className="max-w-4xl mx-auto px-4 py-8">
-      <div className=''>
-        <img className='h-8 w-30 -ml-2' src="https://www.hipaajournal.com/wp-content/themes/Nexus-child/images/the-hipaa-journal.svg" alt="" />
+      <div className='border'>
+        <img className='h-8 w-30 -ml-' src="https://www.hipaajournal.com/wp-content/themes/Nexus-child/images/the-hipaa-journal.svg" alt="" />
         <h1 className="text-3xl font-bold text-blue-800 mb-6">HIPAA Compliance Policy</h1>
 
       </div>
