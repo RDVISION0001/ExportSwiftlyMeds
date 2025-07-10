@@ -14,6 +14,20 @@ import sun from '../../assets/manufacture/sun.jpg';
 import reddy from '../../assets/manufacture/reddy.jpeg';
 import myLan from '../../assets/manufacture/Mylan.png';
 import natco from '../../assets/manufacture/natco.png';
+import m3 from '../../assets/manufacture/3m.webp';
+import bd from '../../assets/manufacture/bd.png';
+import cipla from '../../assets/manufacture/cipla.png';
+import emami from '../../assets/manufacture/emami.webp';
+import furist from '../../assets/manufacture/furist.png';
+import galderma from '../../assets/manufacture/galderma.png';
+import lucius from '../../assets/manufacture/lucius.jpeg';
+import mama from '../../assets/manufacture/mama.png';
+import omron from '../../assets/manufacture/omron.avif';
+import pg from '../../assets/manufacture/p&g.png';
+import roche from '../../assets/manufacture/roche.png';
+import romson from '../../assets/manufacture/romson.png';
+import sanofi from '../../assets/manufacture/sanofi.png';
+import trueCure from '../../assets/manufacture/trueCure.png';
 
 function Manufacturer() {
 
@@ -39,6 +53,20 @@ function Manufacturer() {
     { id: 13, img: reddy, name: 'Dr.Reddy'},
     { id: 14, img: myLan, name: 'Mylan Pharma'},
     { id: 15, img: natco, name: 'Natco Pharma'},
+    { id: 16, img: m3, name: '3M'},
+    { id: 17, img: bd, name: 'b&g'},
+    { id: 18, img: cipla, name: 'Cipla Health' },
+    { id: 19, img: emami, name: 'Emami' },
+    { id: 20, img: furist, name: 'Furist' },
+    { id: 21, img: galderma, name: 'Galderma' },
+    { id: 22, img: lucius, name: 'Lucius' },
+    { id: 23, img: mama, name: 'Mamaearth' },
+    { id: 24, img: omron, name: 'Omron' },
+    { id: 25, img: pg, name: 'p&g' },
+    { id: 26, img: roche, name: 'roche' },
+    { id: 27,img: romson, name: 'Romsons' },
+    { id: 28, img: sanofi, name: 'Sanofi' },
+    { id: 29, img: trueCure, name: 'TrueCure' },
   ];
 
   return (

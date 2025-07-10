@@ -31,7 +31,7 @@ import { useAuth } from "../AuthContext/AuthContext";
 import axios from "axios";
 import axiosInstance from "../AuthContext/AxiosInstance";
 const Header = () => {
-    const { cart, amount,category,setCategory,catId,setCatProduct,setLoading } = useAuth(); // Get cart and amount from context
+    const { cart, amount, category, setCategory, catId, setCatProduct, setLoading } = useAuth(); // Get cart and amount from context
     const navigate = useNavigate();
     // Calculate total item count
     const cartItemCount = cart
@@ -68,24 +68,26 @@ const Header = () => {
             setCategory(response.data.data);
         } catch (error) {
             console.log('rer', error);
-        } finally{
+            setLoading(false);
+        } finally {
             setLoading(false);
         }
     }
-    
-    useEffect(() =>{
+
+    useEffect(() => {
         fetchCategory();
     }, [])
 
-    const fetchCatProduct = async() => {
+    const fetchCatProduct = async () => {
         setLoading(true);
-        try{
-     const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${10}&currentPage=${1}`);
-     console.log('product',response);
-     setCatProduct(response.data.productList);
-        }catch(error){
-      console.log('error',error);
-        } finally{
+        try {
+            const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${10}&currentPage=${1}`);
+            console.log('product', response);
+            setCatProduct(response.data.productList);
+        } catch (error) {
+            console.log('error', error);
+            setLoading(false);
+        } finally {
             setLoading(false);
         }
     }
@@ -117,7 +119,7 @@ const Header = () => {
                         {/* Logo - Always visible */}
                         <div className="flex-shrink-0">
                             <Link to="/" className="flex items-center">
-                                <img src={Logo} alt="" className="md:w-48 w-40"/>
+                                <img src={Logo} alt="" className="md:w-48 w-40" />
                             </Link>
                         </div>
 
