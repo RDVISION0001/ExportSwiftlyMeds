@@ -63,13 +63,13 @@ function ShopByCategory() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-32">
-          <span className="loading loading-spinner loading-md"></span>
-        </div>
-      ) : !category || category.length === 0 ? (
         <div className="w-full flex flex-col items-center justify-center py-12">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-600"></div>
         <p className="text-gray-500 text-sm mt-4">Loading products...</p>
+    </div>
+      ) : !category || category.length === 0 ? (
+        <div className="w-full flex flex-col items-center justify-center py-12">
+        <p className="text-gray-500 text-sm mt-4">Data not found</p>
     </div>
       ) : showAll ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
