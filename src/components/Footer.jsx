@@ -26,30 +26,30 @@ const Footer = () => {
 
             {/* Social Media Icons */}
             <div className="flex space-x-4 mb-6">
-                <a
-                  href="https://www.facebook.com/profile.php?id=61573859501526"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  <FaFacebook size={24} />
-                </a>
               <a
-                  href="https://x.com/swiftlymeds"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white hover:text-gray-300 transition-colors"
-                >
-                 <FaXTwitter size={24} />
-                </a>
+                href="https://www.facebook.com/profile.php?id=61573859501526"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                <FaFacebook size={24} />
+              </a>
               <a
-                  href="https://www.instagram.com/swiftlymeds/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#FF0B55] hover:text-[#CF0F47] transition-colors"
-                >
-                 <FaInstagram size={24} />
-                </a>
+                href="https://x.com/swiftlymeds"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:text-gray-300 transition-colors"
+              >
+                <FaXTwitter size={24} />
+              </a>
+              <a
+                href="https://www.instagram.com/swiftlymeds/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#FF0B55] hover:text-[#CF0F47] transition-colors"
+              >
+                <FaInstagram size={24} />
+              </a>
               {/* <a
                   href="https://www.instagram.com/swiftlymeds/"
                   target="_blank"
@@ -59,13 +59,13 @@ const Footer = () => {
                  <FaLinkedin size={24} />
                 </a> */}
               <a
-                  href="https://www.youtube.com/@SwiftlyMeds"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#CB0404] hover:text-[#EA2F14] transition-colors"
-                >
-                 <FaYoutube size={24} />
-                </a>
+                href="https://www.youtube.com/@SwiftlyMeds"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#CB0404] hover:text-[#EA2F14] transition-colors"
+              >
+                <FaYoutube size={24} />
+              </a>
             </div>
           </div>
 
@@ -174,8 +174,33 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="border-t border-gray-200 pt-6 text-sm text-center md:text-left">
-          <p>© 2025 Swiftly Meds Private Limited. All rights reserved CIN: U21001UP2024PTC211871</p>
+          <div className="flex justify-start items-center gap-2 ">
+
+            {/* DMCA Badge */}
+            <a
+              href="//www.dmca.com/Protection/Status.aspx?ID=43247472-5597-4c7e-8677-b13660b7a2ab"
+              title="DMCA.com Protection Status"
+              className="dmca-badge"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src="https://images.dmca.com/Badges/dmca_protected_sml_120n.png?ID=43247472-5597-4c7e-8677-b13660b7a2ab"
+                alt="DMCA.com Protection Status"
+              />
+            </a>
+            <p>
+              © 2025 Swiftly Meds Private Limited. All rights reserved CIN: U21001UP2024PTC211871
+            </p>
+
+
+
+            {/* Load DMCA Badge Script */}
+            <script src="https://images.dmca.com/Badges/DMCABadgeHelper.min.js"></script>
+
+          </div>
         </div>
+
       </div>
     </footer>
   );
