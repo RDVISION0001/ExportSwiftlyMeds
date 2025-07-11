@@ -147,7 +147,7 @@ const ShopByCategoryProduct = () => {
                                     <img
                                         src={product.imageUrls[0]}
                                         alt={product.name}
-                                        className="max-h-30 w-40 object-contain group-hover:scale-105 transition-transform"
+                                        className="max-h-30 w-40 object-contain group-hover:scale-105 transition-transform rounded-lg"
                                     />
                                     <div className='bg-blue-50 rounded-xl p-3 flex justify-center items-center group-hover:bg-blue-100 transition-colors'>
                                         <div className='flex flex-col items-center'>
