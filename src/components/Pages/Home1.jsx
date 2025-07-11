@@ -89,7 +89,7 @@ function Home1() {
               variants={slideUp}
               className='text-gray-200 text-base sm:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto'
             >
-              Discover a wide range of medicines with guaranteed quality and best prices
+              Discover  wide range of medicines with guaranteed quality and best prices
             </motion.p>
 
             {/* Search Bar */}
@@ -165,7 +165,7 @@ function Home1() {
           transition={{ duration: 0.6 }}
           className='text-xl sm:text-4xl md:text-5xl font-semibold text-center mt-20 md:mt-8 py-2'
         >
-          Best Pharmaceutical Exporter and Supplier in India
+          Good Pharmaceutical Exporter and Supplier in India
         </motion.h2>
 
         <motion.p 
@@ -175,10 +175,10 @@ function Home1() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className='text-base sm:text-lg md:text-xl text-gray-700 mt-6 sm:mt-10 text-center leading-relaxed'
         >
-          Accessible, simple, and affordable medicines—delivered swiftly! SwiftlyMeds is a trusted global supplier of high-quality prescription medications, providing cost-effective healthcare solutions worldwide. We ensure a seamless experience by delivering FDA-approved and generic medicines at prices that won't strain your budget. Your health is our priority, which is why we maintain a well-stocked warehouse to serve patients with chronic conditions efficiently.
+          Accessible, simple, and affordable medicines—delivered swiftly! SwiftlyMeds is a trusted global supplier of high-quality prescription medications, providing cost-effective healthcare solutions worldwide. We ensure a seamless experience by delivering FDA-approved and generic medicines at prices that won't strain your budget. Your health is our priority, that is why we maintain a well-stocked warehouse to serve patients with even chronic conditions efficiently.
           <br /><br />
           SwiftlyMeds is your one-stop destination for essential treatments, including:
-          <strong>Hepatitis B & C, Anti-Cancer therapies, Chronic Kidney Disease medications, and Arthritis relief.</strong>
+          <strong>Hepatitis B & C, anticancer therapies, chronic kidney disease medications, and Arthritis relief.</strong>
           <br /><br />
           For patients across the globe, we remain a reliable source for life-saving medications—combining affordability, speed, and trust.
         </motion.p>
