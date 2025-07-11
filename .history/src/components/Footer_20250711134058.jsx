@@ -127,8 +127,8 @@ const Footer = () => {
         {/* Footer Links */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8 border-t border-gray-200 pt-8">
           <div>
-            <h4 className="font-semibold mb-3  border-b-1 border-gray-600 inline pb-1 ">Shop</h4>
-            <ul className="space-y-2 mt-2">
+            <h4 className="font-semibold mb-3">Shop</h4>
+            <ul className="space-y-2">
               <li><Link to="/newArive" className="hover:text-blue-600 hover:underline">New Arrivals</Link></li>
               <li><Link to="/seller" className="hover:text-blue-600 hover:underline">Best Sellers</Link></li>
               <li><Link to="/marketPlace" className="hover:text-blue-600 hover:underline">Swiftly Marketplace</Link></li>
@@ -136,8 +136,8 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-3  border-b-1 border-gray-600 inline pb-1">Services</h4>
-            <ul className="space-y-2 mt-2">
+            <h4 className="font-semibold mb-3">Services</h4>
+            <ul className="space-y-2">
               <li><Link to="/proserve" className="hover:text-blue-600 hover:underline">Products & services details with pricing structure</Link></li>
               <li><Link to="/blog" className="hover:text-blue-600 hover:underline">Blog</Link></li>
               <li><Link to="/priRefil" className="hover:text-blue-600 hover:underline">Prescription Refills</Link></li>
@@ -145,8 +145,8 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-3  border-b-1 border-gray-600 inline pb-1">Company</h4>
-            <ul className="space-y-2 mt-2 ">
+            <h4 className="font-semibold mb-3">Company</h4>
+            <ul className="space-y-2">
               <li><Link to="/our" className="hover:text-blue-600 hover:underline">Our Mission</Link></li>
               <li><Link to="/about" className="hover:text-blue-600 hover:underline">About Us</Link></li>
               <li><Link to="/career" className="hover:text-blue-600 hover:underline">Careers</Link></li>
@@ -154,8 +154,8 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-3  border-b-1 border-gray-600 inline pb-1">Support</h4>
-            <ul className="space-y-2 mt-2">
+            <h4 className="font-semibold mb-3 ">Support</h4>
+            <ul className="space-y-2">
               <li><Link to="/faq" className="hover:text-blue-600 hover:underline">FAQs</Link></li>
               <li><Link to="/contact" className="hover:text-blue-600 hover:underline">Contact Us</Link></li>
               <li><Link to="/deliveryShipping" className="hover:text-blue-600 hover:underline">Delivery & Shipping Policy</Link></li>
@@ -163,8 +163,8 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-3  border-b-1 border-gray-600 inline pb-1">Legal</h4>
-            <ul className="space-y-2 mt-2">
+            <h4 className="font-semibold mb-3">Legal</h4>
+            <ul className="space-y-2">
               <li><Link to="/privacy" className="hover:text-blue-600 hover:underline">Privacy Policy</Link></li>
               <div className="flex justify-start items-center gap-2">
                 <li><Link to="/hipaa" className="hover:text-blue-600 hover:underline">Hipaa Policy</Link></li>

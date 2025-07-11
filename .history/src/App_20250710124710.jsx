@@ -26,7 +26,6 @@ import TermsCondition from './components/TermsCondition';
 import RefundPolicy from './components/RefundPolicy';
 import DeliveryShippingPolicy from './components/DeliveryShippingPolicy';
 import ShopByCategoryProduct from './components/catagory/ShopByCategoryProduct';
-import PCIDSS from './components/PCIDSS';
 
 function App() {
   return (
@@ -41,23 +40,22 @@ function App() {
         <Route path='/contact' element={<ContactUs />} />
         <Route path='/faq' element={<FAQ />} />
         <Route path='/blog' element={<Blog />} />
-        <Route path='/manufacture' element={<Manufacturer />} />
-        <Route path='/privacy' element={<PrivacyPolicy />} />
-        <Route path='/newArive' element={<NewArrive />} />
-        <Route path='/seller' element={<BestSeller />} />
-        <Route path='/marketPlace' element={<SwiftlyMarket />} />
-        <Route path='/proserve' element={<ProductServices />} />
-        <Route path='/review' element={<GoogleReviews />} />
-        <Route path='/priRefil' element={<PrescriptionRelief />} />
-        <Route path='/our' element={<OurMission />} />
-        <Route path='/career' element={<Career />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/hipaa' element={<HipaaPolicy />} />
-        <Route path='/terms' element={<TermsCondition />} />
-        <Route path='/refund' element={<RefundPolicy />} />
-        <Route path='/deliveryShipping' element={<DeliveryShippingPolicy />} />
-        <Route path='/CatProduct' element={<ShopByCategoryProduct />} />
-        <Route path='/pci-dss' element={<PCIDSS />} />
+        <Route path='/manufacture' element={<Manufacturer/>}/>
+        <Route path='/privacy' element={<PrivacyPolicy/>}/>
+        <Route path='/newArive' element={<NewArrive/>}/>
+        <Route path='/seller' element={<BestSeller/>}/>
+        <Route path='/marketPlace' element={<SwiftlyMarket/>}/>
+        <Route path='/proserve' element={<ProductServices/>}/>
+        <Route path='/review' element={<GoogleReviews/>}/>
+        <Route path='/priRefil' element={<PrescriptionRelief/>}/>
+        <Route path='/our' element={<OurMission/>}/>
+        <Route path='/career' element={<Career/>}/>
+        <Route path='/login' element={<Login/>}/>
+        <Route path='/hipaa' element={<HipaaPolicy/>}/>
+        <Route path='/terms' element={<TermsCondition/>}/>
+        <Route path='/refund' element={<RefundPolicy/>}/>
+        <Route path='/deliveryShipping' element={<DeliveryShippingPolicy/>}/>
+        <Route path='/CatProduct' element={<ShopByCategoryProduct/>}/>
       </Routes>
       <Footer />
     </Router>

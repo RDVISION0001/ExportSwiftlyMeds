@@ -128,7 +128,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8 border-t border-gray-200 pt-8">
           <div>
             <h4 className="font-semibold mb-3  border-b-1 border-gray-600 inline pb-1 ">Shop</h4>
-            <ul className="space-y-2 mt-2">
+            <ul className="space-y-2">
               <li><Link to="/newArive" className="hover:text-blue-600 hover:underline">New Arrivals</Link></li>
               <li><Link to="/seller" className="hover:text-blue-600 hover:underline">Best Sellers</Link></li>
               <li><Link to="/marketPlace" className="hover:text-blue-600 hover:underline">Swiftly Marketplace</Link></li>
