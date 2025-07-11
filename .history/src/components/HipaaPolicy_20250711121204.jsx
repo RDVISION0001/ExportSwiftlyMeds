@@ -9,10 +9,10 @@ const HipaaPolicy = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [])
   return (
-    <div ref={topRef} className="max-w-4xl mx-auto px-4 py-8 ">
-      <div className='flex justify-between items-center shadow-md py-2 px-4 my-2 rounded-md'>
+    <div ref={topRef} className="max-w-4xl mx-auto px-4 py-8">
+      <div className='flex justify-between items-center shadow-md p-2 my-2 rounde'>
         <h1 className="text-3xl font-bold text-blue-800 mb-6">HIPAA Compliance Policy</h1>
-        <img className='h-10 w-30 -ml-2' src="https://www.hipaajournal.com/wp-content/themes/Nexus-child/images/the-hipaa-journal.svg" alt="" />
+        <img className='h-8 w-30 -ml-2' src="https://www.hipaajournal.com/wp-content/themes/Nexus-child/images/the-hipaa-journal.svg" alt="" />
 
       </div>
 
