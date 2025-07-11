@@ -3,14 +3,11 @@ import axios from "axios";
 
 const axiosInstance = axios.create({
 
-    // Production Env
-    baseURL: 'https://backend.rdvision.in',
-
     // UAT Env
-    // baseURL: 'http://192.168.1.20:8081/',
+    baseURL: 'http://192.168.1.20:8081/',
 
     // For Backend Env
-    // baseURL:'http://192.168.1.67:8081/'
+//    baseURL:'https://crmbackend.swiftlymeds.com'
 });
 
 
