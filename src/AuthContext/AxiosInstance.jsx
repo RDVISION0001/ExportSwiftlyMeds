@@ -7,7 +7,7 @@ const axiosInstance = axios.create({
     // baseURL: 'https://backend.rdvision.in',
 
     // UAT Env
-    baseURL: 'http://192.168.1.10:8083/',
+    baseURL: 'http://192.168.1.20:8081/',
 
     // For Backend Env
     // baseURL:'http://192.168.1.67:8081/'
