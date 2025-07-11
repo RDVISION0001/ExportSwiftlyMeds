@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
     const [catId, setCatId] = useState('');
     const [catProduct, setCatProduct] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [selectCountry, setSelectCountry] = useState('INR')
+    const [selectCountry, setSelectCountry] = useState({})
 
     // Save to localStorage whenever cart, product, or amount changes
     useEffect(() => {

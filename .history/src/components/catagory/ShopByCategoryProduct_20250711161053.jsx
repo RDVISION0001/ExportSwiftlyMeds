@@ -51,10 +51,9 @@ const ShopByCategoryProduct = () => {
 
     // Function to convert price to selected currency
     const convertPrice = (price, fromCurrency = 'USD') => {
-        if (!price) return price;
+        if (!price || !selectCountry?.currency) return price;
         
-        // Use selected country's currency or default to USD
-        const toCurrency = selectCountry?.currency || 'USD';
+        const toCurrency = selectCountry.currency;
         if (fromCurrency === toCurrency) return price;
         
         // Convert to USD first if needed
@@ -65,10 +64,9 @@ const ShopByCategoryProduct = () => {
 
     // Function to format price with currency symbol
     const formatPrice = (price) => {
-        if (!price) return '';
+        if (!price || !selectCountry?.currency) return '';
         
-        // Use selected country's currency or default to USD
-        const currency = selectCountry?.currency || 'USD';
+        const currency = selectCountry.currency;
         const convertedPrice = convertPrice(price);
         
         // Format based on currency

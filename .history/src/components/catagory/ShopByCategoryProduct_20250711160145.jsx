@@ -1,27 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { IoSearchOutline, IoArrowForward } from "react-icons/io5";
 import { useAuth } from '../../AuthContext/AuthContext';
-import { useNavigate } from 'react-router-dom';
-
-// Currency conversion rates (example rates - in production, fetch from an API)
-const currencyRates = {
-  USD: 1,
-  EUR: 0.85,
-  GBP: 0.73,
-  INR: 75.0,
-  CAD: 1.25,
-  AUD: 1.35,
-  JPY: 110.0,
-  RUB: 75.0,
-};
 
 const ShopByCategoryProduct = () => {
-    const { category, catProduct, setCatId, catId, loading, selectCountry } = useAuth();
+    const { category, catProduct, setCatId, catId, loading,selectCountry } = useAuth();
     const [activePage, setActivePage] = useState(catId);
     const [selectedBrand, setSelectedBrand] = useState('');
     const [selectedManufacturer, setSelectedManufacturer] = useState('');
     const [expandedCategory, setExpandedCategory] = useState('');
-    const navigate = useNavigate();
 
     const brands = [
         { id: 'adel', name: 'Adel' },
@@ -47,54 +33,11 @@ const ShopByCategoryProduct = () => {
     useEffect(() => {
         topRef.current?.scrollIntoView({ behavior: 'smooth' });
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        console.log("Produvt page",selectCountry)
     }, [selectCountry]);
 
-    // Function to convert price to selected currency
-    const convertPrice = (price, fromCurrency = 'USD') => {
-        if (!price) return price;
-        
-        // Use selected country's currency or default to USD
-        const toCurrency = selectCountry?.currency || 'USD';
-        if (fromCurrency === toCurrency) return price;
-        
-        // Convert to USD first if needed
-        const usdAmount = price / (currencyRates[fromCurrency] || 1);
-        // Then convert to target currency
-        return usdAmount * (currencyRates[toCurrency] || 1);
-    };
-
-    // Function to format price with currency symbol
-    const formatPrice = (price) => {
-        if (!price) return '';
-        
-        // Use selected country's currency or default to USD
-        const currency = selectCountry?.currency || 'USD';
-        const convertedPrice = convertPrice(price);
-        
-        // Format based on currency
-        switch(currency) {
-            case 'USD':
-                return `$${convertedPrice.toFixed(2)}`;
-            case 'EUR':
-                return `€${convertedPrice.toFixed(2)}`;
-            case 'GBP':
-                return `£${convertedPrice.toFixed(2)}`;
-            case 'INR':
-                return `₹${convertedPrice.toFixed(2)}`;
-            case 'CAD':
-                return `CA$${convertedPrice.toFixed(2)}`;
-            case 'AUD':
-                return `A$${convertedPrice.toFixed(2)}`;
-            case 'JPY':
-                return `¥${Math.round(convertedPrice)}`;
-            case 'RUB':
-                return `${convertedPrice.toFixed(2)} ₽`;
-            default:
-                return `$${convertedPrice.toFixed(2)}`;
-        }
-    };
-
     const renderProducts = () => {
+        // Show loading state
         if (loading) {
             return (
                 <div className="w-full flex flex-col items-center justify-center py-12">
@@ -104,6 +47,7 @@ const ShopByCategoryProduct = () => {
             );
         }
 
+        // Show data not found if catProduct is null or empty
         if (!catProduct || catProduct.length === 0) {
             return (
                 <div className="w-full flex flex-col items-center justify-center py-12">
@@ -117,58 +61,52 @@ const ShopByCategoryProduct = () => {
             );
         }
 
+        // Render products if available
         return (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-4">
-                {catProduct.map((product, index) => {
-                    // Get the original price and currency
-                    const originalPrice = product.prices?.[0]?.maxPrice / 100;
-                    const originalCurrency = product.prices?.[0]?.currency || 'USD';
-                    
-                    // Calculate per pill price (assuming 100 pills per pack)
-                    const perPillPrice = originalPrice ? originalPrice / 100 : 0;
-                    
-                    return (
-                        <div
-                            key={index}
-                            className="border border-gray-300 rounded-lg p-4 transition-all duration-300 hover:shadow-lg hover:border-green-200 hover:scale-[1.02] group cursor-pointer"
-                            onClick={() => navigate('/view')}
-                        >
-                            <div className="flex flex-col h-full">
-                                <div className="mb-3">
-                                    <h3 className="text-lg font-semibold text-blue-600 group-hover:text-blue-800 transition-colors">
-                                        {product.name}
-                                    </h3>
-                                    <p className="text-sm text-green-600 mt-1 line-clamp-2">
-                                        {product.genericName}
-                                    </p>
-                                </div>
-
-                                <div className="flex justify-center items-center gap-4 my-4 flex-grow">
-                                    <img
-                                        src={product.imageUrls[0]}
-                                        alt={product.name}
-                                        className="max-h-30 w-40 object-contain group-hover:scale-105 transition-transform"
-                                    />
-                                    <div className='bg-blue-50 rounded-xl p-3 flex justify-center items-center group-hover:bg-blue-100 transition-colors'>
-                                        <div className='flex flex-col items-center'>
-                                            <p className="text-xl font-bold text-green-600 group-hover:text-green-700">
-                                                {formatPrice(perPillPrice)}
-                                            </p>
-                                            <span className='text-xs text-gray-500'>per pill</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={() => navigate('/view')}
-                                    className="mt-auto cursor-pointer bg-white text-green-600 border border-green-600 rounded-full px-6 py-2 hover:bg-green-600 hover:text-white transition-colors hover:shadow-md transform hover:-translate-y-1"
-                                >
-                                    BUY NOW
-                                </button>
+                {catProduct.map((product, index) => (
+                    <div
+                        key={index}
+                        className="border border-gray-300 rounded-lg p-4 transition-all duration-300 hover:shadow-lg hover:border-green-200 hover:scale-[1.02] group cursor-pointer"
+                        onClick={() => navigate('/view')}
+                    >
+                        <div className="flex flex-col h-full">
+                            <div className="mb-3">
+                                <h3 className="text-lg font-semibold text-blue-600 group-hover:text-blue-800 transition-colors">
+                                    {product.name}
+                                </h3>
+                                <p className="text-sm text-green-600 mt-1 line-clamp-2">
+                                    {product.genericName}
+                                </p>
                             </div>
+
+                            <div className="flex justify-center items-center gap-4 my-4 flex-grow">
+                                <img
+                                    src={product.imageUrls[0]}
+                                    alt={product.name}
+                                    className="max-h-30 w-40 object-contain group-hover:scale-105 transition-transform"
+                                />
+                                <div className='bg-blue-50 rounded-xl p-3 flex justify-center items-center group-hover:bg-blue-100 transition-colors'>
+                                    <div className='flex flex-col items-center'>
+                                        <p className="text-xl font-bold text-green-600 group-hover:text-green-700">
+                                            ${product.prices?.[0]?.maxPrice / 100 ?? ''}
+                                        </p>
+                                        <span className='text-xs text-gray-500'>per pill</span>
+                                    </div>
+                                    <span>{console.log("AAA",product.prices[0]?.currency)}</span>
+                                    <span>{product.prices?.currency}</span>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => navigate('/view')}
+                                className="mt-auto cursor-pointer bg-white text-green-600 border border-green-600 rounded-full px-6 py-2 hover:bg-green-600 hover:text-white transition-colors hover:shadow-md transform hover:-translate-y-1"
+                            >
+                                BUY NOW
+                            </button>
                         </div>
-                    );
-                })}
+                    </div>
+                ))}
             </div>
         );
     };
