@@ -33,8 +33,8 @@ const Header = () => {
         : 0; // If cart is null/undefined
 
     const countryOptions = [
-        { code: 'US', name: 'United States', currency: 'USD', language: 'English' },
         { code: 'IN', name: 'India', currency: 'INR', language: 'Hindi' },
+        { code: 'US', name: 'United States', currency: 'USD', language: 'English' },
         { code: 'GB', name: 'United Kingdom', currency: 'GBP', language: 'English' },
         { code: 'FR', name: 'France', currency: 'EUR', language: 'French' },
         { code: 'DE', name: 'Germany', currency: 'EUR', language: 'German' },
@@ -91,13 +91,10 @@ const Header = () => {
 
     const handleCountryChange = (countryCode) => {
         const selected = countryOptions.find(c => c.code === countryCode);
-        console.log("Selected country:", selected);
-        setSelectedCountry(selected);
-        // const selectedString = JSON.stringify(selected);
-        setSelectCountry(selected);
-       
-    };
 
+        setSelectCountry(selected)
+     
+    };
 
 
     return (
