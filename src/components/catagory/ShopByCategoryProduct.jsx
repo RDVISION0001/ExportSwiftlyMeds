@@ -50,11 +50,6 @@ const ShopByCategoryProduct = () => {
         if (!catProduct || catProduct.length === 0) {
             return (
                 <div className="w-full flex flex-col items-center justify-center py-12">
-                    <img
-                        src="/empty-state.svg"
-                        alt="No products found"
-                        className="w-48 h-48 mb-4"
-                    />
                     <h3 className="text-lg font-medium text-gray-700 mb-2">
                         No products found
                     </h3>
@@ -88,12 +83,12 @@ const ShopByCategoryProduct = () => {
                                 <img
                                     src={product.imageUrls[0]}
                                     alt={product.name}
-                                    className="max-h-40 object-contain group-hover:scale-105 transition-transform"
+                                    className="max-h-30 w-40 object-contain group-hover:scale-105 transition-transform"
                                 />
                                 <div className='bg-blue-50 rounded-xl p-3 flex justify-center items-center group-hover:bg-blue-100 transition-colors'>
                                     <div className='flex flex-col items-center'>
                                         <p className="text-xl font-bold text-green-600 group-hover:text-green-700">
-                                            {product.price}
+                                            ${product.prices?.[0]?.maxPrice / 100 ?? ''}
                                         </p>
                                         <span className='text-xs text-gray-500'>per pill</span>
                                     </div>
