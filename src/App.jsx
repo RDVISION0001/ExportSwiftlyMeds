@@ -26,6 +26,7 @@ import TermsCondition from './components/TermsCondition';
 import RefundPolicy from './components/RefundPolicy';
 import DeliveryShippingPolicy from './components/DeliveryShippingPolicy';
 import ShopByCategoryProduct from './components/catagory/ShopByCategoryProduct';
+import ChatCircle from './components/chatbot/ChatCircle';
 
 function App() {
   return (
@@ -57,6 +58,7 @@ function App() {
         <Route path='/deliveryShipping' element={<DeliveryShippingPolicy/>}/>
         <Route path='/CatProduct' element={<ShopByCategoryProduct/>}/>
       </Routes>
+       <ChatCircle />
       <Footer />
     </Router>
   );
