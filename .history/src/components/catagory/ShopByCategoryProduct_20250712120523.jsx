@@ -436,7 +436,7 @@ const ShopByCategoryProduct = () => {
                     />
                 )}
 
-                <div className="w-full md:w-[80%] overflow-y-auto hide-scrollbar" style={{ maxHeight: 'calc(100vh - 100px)' }}>
+                <div className="w-full md:w-[80%] overflow-y-auto" style={{ maxHeight: 'calc(100vh - 100px)' }}>
                     <main className="mt-6">
                         {renderProducts()}
                     </main>

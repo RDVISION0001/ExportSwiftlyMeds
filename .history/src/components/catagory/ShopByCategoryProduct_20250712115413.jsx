@@ -53,17 +53,6 @@ const ShopByCategoryProduct = () => {
         }
     }, [catProduct]);
 
-    // Filter products based on selected brand and manufacturer
-    const filteredProducts = React.useMemo(() => {
-        if (!catProduct) return [];
-        
-        return catProduct.filter(product => {
-            const brandMatch = !selectedBrand || product.brand === selectedBrand;
-            const manufacturerMatch = !selectedManufacturer || product.manufacturer === selectedManufacturer;
-            return brandMatch && manufacturerMatch;
-        });
-    }, [catProduct, selectedBrand, selectedManufacturer]);
-
     // Filter brands and manufacturers based on search
     const filteredBrands = brands.filter(brand => 
         brand.name.toLowerCase().includes(searchBrand.toLowerCase())
@@ -74,11 +63,11 @@ const ShopByCategoryProduct = () => {
     );
 
     // Pagination
-    const totalItems = filteredProducts?.length || 0;
+    const totalItems = catProduct?.length || 0;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-    const currentItems = filteredProducts?.slice(startIndex, endIndex) || [];
+    const currentItems = catProduct?.slice(startIndex, endIndex) || [];
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -123,27 +112,7 @@ const ShopByCategoryProduct = () => {
         setExpandedCategory(expandedCategory === categoryId ? '' : categoryId);
         setActivePage(categoryId);
         setCatId(categoryId);
-        // Reset filters when category changes
-        setSelectedBrand('');
-        setSelectedManufacturer('');
-        setCurrentPage(1);
         if (window.innerWidth < 768) setShowMobileSidebar(false);
-    };
-
-    const handleBrandSelect = (brandName) => {
-        setSelectedBrand(selectedBrand === brandName ? '' : brandName);
-        setCurrentPage(1); // Reset to first page when filter changes
-    };
-
-    const handleManufacturerSelect = (manufacturerName) => {
-        setSelectedManufacturer(selectedManufacturer === manufacturerName ? '' : manufacturerName);
-        setCurrentPage(1); // Reset to first page when filter changes
-    };
-
-    const clearAllFilters = () => {
-        setSelectedBrand('');
-        setSelectedManufacturer('');
-        setCurrentPage(1);
     };
 
     const renderPagination = () => (
@@ -207,55 +176,11 @@ const ShopByCategoryProduct = () => {
             <div className="w-full flex flex-col items-center justify-center py-12">
                 <h3 className="text-lg font-medium text-gray-700 mb-2">No products found</h3>
                 <p className="text-gray-500 text-sm">Try changing your filters or check back later</p>
-                {(selectedBrand || selectedManufacturer) && (
-                    <button
-                        onClick={clearAllFilters}
-                        className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
-                    >
-                        Clear all filters
-                    </button>
-                )}
             </div>
         );
 
         return (
             <>
-                {/* Filter indicators */}
-                {(selectedBrand || selectedManufacturer) && (
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mx-4 mb-4">
-                        <div className="flex items-center flex-wrap gap-2">
-                            {selectedBrand && (
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800">
-                                    Brand: {selectedBrand}
-                                    <button 
-                                        onClick={() => setSelectedBrand('')}
-                                        className="ml-2 p-0.5 rounded-full hover:bg-teal-200"
-                                    >
-                                        <IoClose className="w-3 h-3" />
-                                    </button>
-                                </span>
-                            )}
-                            {selectedManufacturer && (
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                    Manufacturer: {selectedManufacturer}
-                                    <button 
-                                        onClick={() => setSelectedManufacturer('')}
-                                        className="ml-2 p-0.5 rounded-full hover:bg-blue-200"
-                                    >
-                                        <IoClose className="w-3 h-3" />
-                                    </button>
-                                </span>
-                            )}
-                        </div>
-                        <button
-                            onClick={clearAllFilters}
-                            className="text-sm text-teal-600 hover:text-teal-800 font-medium"
-                        >
-                            Clear all
-                        </button>
-                    </div>
-                )}
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
                     {currentItems.map((product) => {
                         const originalPrice = product.prices?.[0]?.maxPrice / 100 || 0;
@@ -279,11 +204,11 @@ const ShopByCategoryProduct = () => {
 
                                     <div className="flex justify-center items-center gap-4 my-4 flex-grow">
                                         <img
-                                            src={product.imageUrls?.[0] || ''}
+                                            src={product.imageUrls?.[0] || 'https://via.placeholder.com/150'}
                                             alt={product.name}
                                             className="max-h-30 w-40 object-contain group-hover:scale-105 transition-transform rounded-lg"
                                             onError={(e) => {
-                                                e.target.src = '';
+                                                e.target.src = 'https://via.placeholder.com/150';
                                             }}
                                         />
                                         <div className='bg-blue-50 rounded-xl p-3 flex justify-center items-center group-hover:bg-blue-100 transition-colors'>
@@ -324,8 +249,8 @@ const ShopByCategoryProduct = () => {
                 </button>
 
                 {/* Sidebar */}
-                <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block w-full md:w-[20%] bg-white z-20 md:z-0 fixed md:sticky top-0 h-screen overflow-y-auto hide-scrollbar border border-gray-100 rounded-lg`}>
-                    <div className="p-4 md:p-0 bg-white h-full overflow-y-auto hide-scrollbar">
+                <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block w-full md:w-[20%] bg-white z-20 md:z-0 fixed md:sticky top-0 h-screen overflow-y-auto border border-gray-100 rounded-lg`}>
+                    <div className="p-4 md:p-0 bg-white h-full overflow-y-auto">
                         <div className="flex justify-between items-center md:hidden p-4 border-b border-gray-200">
                             <h2 className="text-xl font-semibold text-gray-800">Filters</h2>
                             <button onClick={() => setShowMobileSidebar(false)} className="p-1 rounded-full hover:bg-gray-100">
@@ -376,7 +301,7 @@ const ShopByCategoryProduct = () => {
                                                 type="checkbox"
                                                 id={`brand-${brand.id}`}
                                                 checked={selectedBrand === brand.name}
-                                                onChange={() => handleBrandSelect(brand.name)}
+                                                onChange={() => setSelectedBrand(selectedBrand === brand.name ? '' : brand.name)}
                                                 className="mr-3 h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
                                             />
                                             <label htmlFor={`brand-${brand.id}`} className="text-sm text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis">
@@ -406,7 +331,7 @@ const ShopByCategoryProduct = () => {
                                                 type="checkbox"
                                                 id={`manu-${manu.id}`}
                                                 checked={selectedManufacturer === manu.name}
-                                                onChange={() => handleManufacturerSelect(manu.name)}
+                                                onChange={() => setSelectedManufacturer(selectedManufacturer === manu.name ? '' : manu.name)}
                                                 className="mr-2 h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded"
                                             />
                                             <label htmlFor={`manu-${manu.id}`} className="text-sm text-gray-600 whitespace-nowrap overflow-hidden text-ellipsis">
@@ -436,7 +361,7 @@ const ShopByCategoryProduct = () => {
                     />
                 )}
 
-                <div className="w-full md:w-[80%] overflow-y-auto hide-scrollbar" style={{ maxHeight: 'calc(100vh - 100px)' }}>
+                <div className="w-full md:w-[80%] overflow-y-auto" style={{ maxHeight: 'calc(100vh - 100px)' }}>
                     <main className="mt-6">
                         {renderProducts()}
                     </main>

@@ -69,7 +69,7 @@ const Header = () => {
 
     useEffect(() => {
         fetchCategory();
-    }, [])
+    }, [itemsPerpage])
 
     const fetchCatProduct = async () => {
         setLoading(true);
@@ -87,7 +87,7 @@ const Header = () => {
 
     useEffect(() => {
         fetchCatProduct();
-    }, [catId,itemsPerpage])
+    }, [catId])
 
     const handleCountryChange = (countryCode) => {
         const selected = countryOptions.find(c => c.code === countryCode);

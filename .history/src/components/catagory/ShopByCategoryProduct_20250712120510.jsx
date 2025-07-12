@@ -325,7 +325,7 @@ const ShopByCategoryProduct = () => {
 
                 {/* Sidebar */}
                 <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block w-full md:w-[20%] bg-white z-20 md:z-0 fixed md:sticky top-0 h-screen overflow-y-auto hide-scrollbar border border-gray-100 rounded-lg`}>
-                    <div className="p-4 md:p-0 bg-white h-full overflow-y-auto hide-scrollbar">
+                    <div className="p-4 md:p-0 bg-white h-full overflow-y-auto">
                         <div className="flex justify-between items-center md:hidden p-4 border-b border-gray-200">
                             <h2 className="text-xl font-semibold text-gray-800">Filters</h2>
                             <button onClick={() => setShowMobileSidebar(false)} className="p-1 rounded-full hover:bg-gray-100">
@@ -436,7 +436,7 @@ const ShopByCategoryProduct = () => {
                     />
                 )}
 
-                <div className="w-full md:w-[80%] overflow-y-auto hide-scrollbar" style={{ maxHeight: 'calc(100vh - 100px)' }}>
+                <div className="w-full md:w-[80%] overflow-y-auto" style={{ maxHeight: 'calc(100vh - 100px)' }}>
                     <main className="mt-6">
                         {renderProducts()}
                     </main>

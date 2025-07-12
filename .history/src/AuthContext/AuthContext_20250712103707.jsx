@@ -24,7 +24,7 @@ export function AuthProvider({ children }) {
     const [catProduct, setCatProduct] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectCountry, setSelectCountry] = useState('INR')
-    const [itemsPerpage, setItemsPerpage] = useState(20)
+    const [itemsPerpage,setItemsPerpage] = useState(20)
 
     // Save to localStorage whenever cart, product, or amount changes
     useEffect(() => {
@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
             catProduct, setCatProduct,
             loading, setLoading,
             selectCountry, setSelectCountry,
-            itemsPerpage, setItemsPerpage
+            itemsPerpage,setItemsPerpage
         }}>
             {children}
         </AuthContext.Provider>

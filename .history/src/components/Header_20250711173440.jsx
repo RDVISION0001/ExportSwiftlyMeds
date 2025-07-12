@@ -24,7 +24,7 @@ import axiosInstance from "../AuthContext/AxiosInstance";
 
 const Header = () => {
     const navigate = useNavigate();
-    const { cart, amount, category, setCategory, catId, setCatId, setCatProduct, setLoading, selectCountry, setSelectCountry ,itemsPerpage,setItemsPerpage} = useAuth(); // Get cart and amount from context
+    const { cart, amount, category, setCategory, catId, setCatId, setCatProduct, setLoading, selectCountry, setSelectCountry } = useAuth(); // Get cart and amount from context
     // Calculate total item count
     const cartItemCount = cart
         ? Array.isArray(cart)
@@ -74,7 +74,7 @@ const Header = () => {
     const fetchCatProduct = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${itemsPerpage}&currentPage=${1}`);
+            const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${10}&currentPage=${1}`);
             console.log('product', response);
             setCatProduct(response.data.productList);
         } catch (error) {
@@ -87,7 +87,7 @@ const Header = () => {
 
     useEffect(() => {
         fetchCatProduct();
-    }, [catId,itemsPerpage])
+    }, [catId])
 
     const handleCountryChange = (countryCode) => {
         const selected = countryOptions.find(c => c.code === countryCode);

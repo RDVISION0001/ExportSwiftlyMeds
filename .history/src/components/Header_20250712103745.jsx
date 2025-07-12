@@ -74,7 +74,7 @@ const Header = () => {
     const fetchCatProduct = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${itemsPerpage}&currentPage=${1}`);
+            const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${10}&currentPage=${1}`);
             console.log('product', response);
             setCatProduct(response.data.productList);
         } catch (error) {
@@ -87,7 +87,7 @@ const Header = () => {
 
     useEffect(() => {
         fetchCatProduct();
-    }, [catId,itemsPerpage])
+    }, [catId])
 
     const handleCountryChange = (countryCode) => {
         const selected = countryOptions.find(c => c.code === countryCode);
