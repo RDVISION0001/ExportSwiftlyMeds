@@ -1,6 +1,8 @@
+import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import { FaComment, FaTimes, FaPaperPlane, FaUser, FaPhone, FaPrescriptionBottleAlt, FaBoxOpen, FaQuestionCircle, FaExpand, FaCompress, FaSearchPlus, FaSearchMinus } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import axiosInstance from "../../AuthContext/AxiosInstance";
 
 const ChatCircle = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,13 +20,14 @@ const ChatCircle = () => {
   const [otp, setOtp] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isZoomed, setIsZoomed] = useState(false); // Only two states: normal and zoomed
+  const [isZoomed, setIsZoomed] = useState(false);
   const [unreadCount, setUnreadCount] = useState(1);
-
+  const [loading, setLoading] = useState(false);
   const chatBodyRef = useRef(null);
   const nameInputRef = useRef(null);
   const dragStart = useRef({ x: 0, y: 0 });
   const chatContainerRef = useRef(null);
+  const [sndingOtp,setResendingOtp] = useState(false)
 
   const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
 
@@ -108,30 +111,96 @@ const ChatCircle = () => {
     setMessages((prev) => [...prev, { text: reply, sender: "user" }]);
   };
 
-  const handleFormSubmit = (e) => {
-    
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      setShowForm(false);
-      setShowOtpInput(true);
       setMessages((prev) => [
         ...prev,
         { text: `We've sent a verification code to ${formData.email}. Please enter it below.`, sender: "bot" },
       ]);
+      try {
+        setLoading(true);
+        const response = await axiosInstance.post(`/auth/otp/send`, {
+          email: formData.email,
+          phone: formData.mobile,
+          name: formData.name
+        });
+        console.log(response);
+        setShowForm(false);
+        setShowOtpInput(true);
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+        setMessages((prev) => [
+          ...prev,
+          { text: "Failed to send OTP. Please try again.", sender: "bot" },
+        ]);
+        setLoading(false);
+      }
     }
-    alert("heelo Login")
   };
 
-  const handleVerifyOtp = (e) => {
+  const handleResendOTP = async () => {
+    try {
+      setResendingOtp(true);
+      const response = await axiosInstance.post(`/auth/otp/send`, {
+        email: formData.email,
+        phone: formData.mobile,
+        name: formData.name
+      });
+      console.log(response);
+      setMessages((prev) => [
+        ...prev,
+        { text: `We've resent the verification code to ${formData.email}.`, sender: "bot" },
+      ]);
+      setResendingOtp(false);
+    } catch (error) {
+      console.log(error);
+      setMessages((prev) => [
+        ...prev,
+        { text: `Failed to resend OTP. Please try again later.`, sender: "bot" },
+      ]);
+      setResendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!otp.trim()) return;
-    setShowOtpInput(false);
-    setMessages((prev) => [
-      ...prev,
-      { text: otp, sender: "user" },
-      { text: `Verification successful!`, sender: "bot" },
-      { text: `👩‍⚕️ Hello ${formData.name}, how can I assist you today?`, sender: "agent" },
-    ]);
+
+    setLoading(true);
+
+    try {
+      const response = await axiosInstance.post(`/auth/otp/verify`, {
+        email: formData.email,
+        otp: otp
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        { text: otp, sender: "user" },
+        { text: `Verification successful!`, sender: "bot" },
+        // { text: `👩‍⚕️ Hello ${formData.name}, how can I assist you today?`, sender: "agent" },
+      ]);
+      setFormData({
+        email: '',
+        mobile: '',
+        name: ''
+      });
+      setOtp("");
+      setShowOtpInput(false);
+    } catch (error) {
+      console.error("Verification error:", error);
+      const errorMessage = error.response?.data || "Verification failed. Please try again.";
+
+      setMessages((prev) => [
+        ...prev,
+        { text: otp, sender: "user" },
+        { text: `❌ ${errorMessage}`, sender: "bot" },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleToggleChat = (e) => {
@@ -155,7 +224,7 @@ const ChatCircle = () => {
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
     if (!isFullscreen) {
-      setIsZoomed(false); // Reset to normal size when entering fullscreen
+      setIsZoomed(false);
     }
   };
 
@@ -190,10 +259,6 @@ const ChatCircle = () => {
     };
   };
 
-  const handleResendOTP = () => {
-    alert("resend OTP successfully")
-  }
-
   return (
     <>
       {isOpen && (
@@ -210,7 +275,7 @@ const ChatCircle = () => {
             >
               <div className="flex items-center font-semibold">
                 <FaComment className="mr-2 text-lg" />
-                <span>PharmaCare Support</span>
+                <span>SwiftlyMeds Support</span>
               </div>
               <div className="flex items-center space-x-2">
                 {!isFullscreen && (
@@ -247,8 +312,8 @@ const ChatCircle = () => {
                 <div
                   key={i}
                   className={`mb-3 max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-snug relative animate-message-in ${msg.sender === 'user'
-                      ? 'ml-auto bg-gradient-to-r from-[#3d8287] to-[#09939d] text-white cursor-move select-none" onMouseDown={startDrag}] to-[#12b9c5] text-white rounded-br-sm'
-                      : 'mr-auto bg-white text-gray-800 rounded-bl-sm shadow-sm'
+                    ? 'ml-auto bg-gradient-to-r from-[#3d8287] to-[#09939d] text-white cursor-move select-none" onMouseDown={startDrag}] to-[#12b9c5] text-white rounded-br-sm'
+                    : 'mr-auto bg-white text-gray-800 rounded-bl-sm shadow-sm'
                     }`}
                 >
                   <div>{msg.text}</div>
@@ -289,19 +354,18 @@ const ChatCircle = () => {
                   <div className="flex gap-2 mt-4">
                     <button
                       type="submit"
-                      className=" py-1 px-4 bg-[#12b9c5] text-white text-sm rounded-lg font-medium hover:bg-[#4b8f94] transition-colors cursor-pointer"
+                      className="py-1 px-4 bg-[#12b9c5] text-white text-sm rounded-lg font-medium hover:bg-[#4b8f94] transition-colors cursor-pointer"
                     >
-                      Submit
+                      {loading ? <span className="loading loading-spinner loading-sm"></span> : 'Submit'}
                     </button>
                     <button
                       type="button"
-                      className=" py-1 px-4 bg-white cursor-pointer text-gray-600 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                      className="py-1 px-4 bg-white cursor-pointer text-gray-600 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
                       onClick={() => setShowForm(false)}
                     >
                       Cancel
                     </button>
                   </div>
-
                 </form>
               )}
 
@@ -310,7 +374,7 @@ const ChatCircle = () => {
                   className="bg-white p-4 rounded-xl shadow-sm mt-3"
                   onSubmit={handleVerifyOtp}
                 >
-                  <div className="mb-3">                    
+                  <div className="mb-3">
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#12b9c5] focus:border-[#42d5e0]"
@@ -320,16 +384,21 @@ const ChatCircle = () => {
                       onChange={(e) => setOtp(e.target.value)}
                     />
                     <div className="text-xs text-gray-500 mt-1">Check your email for the verification code</div>
-                    <button className="text-xs hover:cursor-pointer px-4 py-0.5 rounded-xl bg-green-200 text-green-800"
+                    <button 
+                      type="button" 
+                      className="text-xs hover:cursor-pointer px-4 py-0.5 rounded-xl bg-green-200 text-green-800 mt-1"
                       onClick={handleResendOTP}
-                    >Resend OTP</button>
+                      disabled={loading}
+                    >
+                      {sndingOtp ? 'Sending...' : 'Resend OTP'}
+                    </button>
                   </div>
                   <div className="flex gap-2 mt-4">
                     <button
                       type="submit"
                       className="px-4 py-1 text-xs bg-[#12b9c5] text-white rounded-lg font-medium hover:bg-[#376a6e] transition-colors cursor-pointer"
                     >
-                      Verify
+                      {loading ? <span className="loading loading-spinner loading-sm"></span> : 'Verify'}
                     </button>
                     <button
                       type="button"
