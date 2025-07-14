@@ -36,7 +36,7 @@ const ShopByCategoryProduct = () => {
             const uniqueBrands = [...new Set(catProduct
                 .filter(product => product.brand)
                 .map(product => product.brand))];
-            
+
             const uniqueManufacturers = [...new Set(catProduct
                 .filter(product => product.manufacturer)
                 .map(product => product.manufacturer))];
@@ -56,7 +56,7 @@ const ShopByCategoryProduct = () => {
     // Filter products based on selected brand and manufacturer
     const filteredProducts = React.useMemo(() => {
         if (!catProduct) return [];
-        
+
         return catProduct.filter(product => {
             const brandMatch = !selectedBrand || product.brand === selectedBrand;
             const manufacturerMatch = !selectedManufacturer || product.manufacturer === selectedManufacturer;
@@ -65,11 +65,11 @@ const ShopByCategoryProduct = () => {
     }, [catProduct, selectedBrand, selectedManufacturer]);
 
     // Filter brands and manufacturers based on search
-    const filteredBrands = brands.filter(brand => 
+    const filteredBrands = brands.filter(brand =>
         brand.name.toLowerCase().includes(searchBrand.toLowerCase())
     );
-    
-    const filteredManufacturers = manufacturers.filter(manu => 
+
+    const filteredManufacturers = manufacturers.filter(manu =>
         manu.name.toLowerCase().includes(searchManufacturer.toLowerCase())
     );
 
@@ -227,7 +227,7 @@ const ShopByCategoryProduct = () => {
                             {selectedBrand && (
                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800">
                                     Brand: {selectedBrand}
-                                    <button 
+                                    <button
                                         onClick={() => setSelectedBrand('')}
                                         className="ml-2 p-0.5 rounded-full hover:bg-teal-200"
                                     >
@@ -238,7 +238,7 @@ const ShopByCategoryProduct = () => {
                             {selectedManufacturer && (
                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                                     Manufacturer: {selectedManufacturer}
-                                    <button 
+                                    <button
                                         onClick={() => setSelectedManufacturer('')}
                                         className="ml-2 p-0.5 rounded-full hover:bg-blue-200"
                                     >
@@ -262,47 +262,57 @@ const ShopByCategoryProduct = () => {
                         const perPillPrice = originalPrice ? originalPrice / 100 : 0;
 
                         return (
-                            <div
+                            <article
                                 key={`product-${product.id}`}
-                                className="border border-gray-300 rounded-lg p-4 transition-all duration-300 hover:shadow-lg hover:border-green-200 hover:scale-[1.02] group cursor-pointer"
+                                className="border border-gray-300 rounded-lg p-4 transition-all duration-300 hover:shadow-lg hover:border-green-200 hover:scale-[1.02] group cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
                                 onClick={() => navigate('/view')}
+                                onKeyDown={(e) => e.key === 'Enter' && navigate('/view')}
+                                tabIndex={0}
+                                aria-label={`View details for ${product.name}`}
                             >
                                 <div className="flex flex-col h-full">
-                                    <div className="mb-3">
+                                    <header className="mb-3">
                                         <h3 className="text-lg font-semibold text-blue-600 group-hover:text-blue-800 transition-colors">
                                             {product.name || 'Product Name'}
                                         </h3>
-                                        <p className="text-sm text-green-600 mt-1 line-clamp-2">
-                                            {product.genericName || 'Generic Name'}
-                                        </p>
-                                    </div>
+                                        {product.genericName && (
+                                            <p className="text-sm text-green-600 mt-1 line-clamp-2">
+                                                {product.genericName}
+                                            </p>
+                                        )}
+                                    </header>
 
                                     <div className="flex justify-center items-center gap-4 my-4 flex-grow">
-                                        <img
-                                            src={product.imageUrls?.[0] || ''}
-                                            alt={product.name}
-                                            className="max-h-30 w-40 object-contain group-hover:scale-105 transition-transform rounded-lg"
-                                            onError={(e) => {
-                                                e.target.src = '';
-                                            }}
-                                        />
-                                        <div className='bg-blue-50 rounded-xl p-3 flex justify-center items-center group-hover:bg-blue-100 transition-colors'>
-                                            <div className='flex flex-col items-center'>
+                                        <figure className="flex justify-center items-center">
+                                            <img
+                                                src={product.imageUrls?.[0] || ''}
+                                                alt={product.name}
+                                                className="max-h-30 w-40 object-contain group-hover:scale-105 transition-transform rounded-lg"
+                                                onError={(e) => {
+                                                    e.target.src = '';
+                                                    e.target.alt = 'Product image not available';
+                                                }}
+                                                loading="lazy"
+                                            />
+                                        </figure>
+                                        <div className="bg-blue-50 rounded-xl p-3 flex justify-center items-center group-hover:bg-blue-100 transition-colors">
+                                            <div className="flex flex-col items-center">
                                                 <p className="text-xl font-bold text-green-600 group-hover:text-green-700">
                                                     {formatPrice(perPillPrice)}
                                                 </p>
-                                                <span className='text-xs text-gray-500'>per pill</span>
+                                                <span className="text-xs text-gray-500">per pill</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <button
-                                        className="mt-auto cursor-pointer bg-white text-green-600 border border-green-600 rounded-full px-6 py-2 hover:bg-green-600 hover:text-white transition-colors hover:shadow-md transform hover:-translate-y-1"
+                                        className="mt-auto bg-white text-green-600 border border-green-600 rounded-full px-6 py-2 hover:bg-green-600 hover:text-white transition-colors hover:shadow-md transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                        aria-label={`Buy ${product.name} now`}
                                     >
                                         BUY NOW
                                     </button>
                                 </div>
-                            </div>
+                            </article>
                         );
                     })}
                 </div>
@@ -436,8 +446,8 @@ const ShopByCategoryProduct = () => {
                     />
                 )}
 
-                <div className="w-full md:w-[80%] overflow-y-auto hide-scrollbar" style={{ maxHeight: 'calc(100vh - 100px)' }}>
-                    <main className="mt-6">
+                <div className="w-full  md:w-[80%] overflow-y-auto hide-scrollbar" style={{ maxHeight: 'calc(100vh - 100px)' }}>
+                    <main className="">
                         {renderProducts()}
                     </main>
                 </div>
