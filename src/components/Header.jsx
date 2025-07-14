@@ -20,6 +20,7 @@ import {
 import Logo from '../assets/Nlogo.png';
 import { useAuth } from "../AuthContext/AuthContext";
 import axiosInstance from "../AuthContext/AxiosInstance";
+import axios from "axios";
 
 
 const Header = () => {
@@ -56,7 +57,7 @@ const Header = () => {
     const fetchCategory = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get('/product/get/productCategory');
+            const response = await axios.get('http://192.168.1.13:8081/product/get/productCategory');
             console.log('dfdf', response);
             setCategory(response.data.data);
         } catch (error) {
@@ -74,7 +75,7 @@ const Header = () => {
     const fetchCatProduct = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${itemsPerpage}&currentPage=${1}`);
+            const response = await axios.get(`http://192.168.1.13:8081/product/getProductByPage?categoryId=${catId}&itemPerPage=${itemsPerpage}&currentPage=${1}`);
             console.log('product', response);
             setCatProduct(response.data.productList);
         } catch (error) {
@@ -212,7 +213,7 @@ const Header = () => {
                             {/* Categories Dropdown */}
                             <div className="relative group">
                                 <button
-                                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center"
+                                    className="px-3 py-2 rounded-md cursor-pointer text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setCategoriesOpen(!categoriesOpen);
@@ -288,7 +289,7 @@ const Header = () => {
                                 <Link
                                     to="/"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center"
+                                    className="px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center"
                                 >
                                     <FaHome className="mr-3 text-indigo-500" />
                                     Home
@@ -340,7 +341,7 @@ const Header = () => {
                                         key={item.path}
                                         to={item.path}
                                         onClick={() => setMobileMenuOpen(false)}
-                                        className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center"
+                                        className="px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center"
                                     >
                                         {item.icon}
                                         {item.label}
@@ -352,7 +353,7 @@ const Header = () => {
                                 <Link
                                     to="/account"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center"
+                                    className="px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center"
                                 >
                                     <FaUser className="mr-3 text-indigo-500" />
                                     <span>Login</span>

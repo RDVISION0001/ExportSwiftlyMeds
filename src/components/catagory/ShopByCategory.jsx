@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../AuthContext/AuthContext';
 
 function ShopByCategory() {
-  const { category, setCatId, loading } = useAuth();
+  const { category, setCatId, loading, searchItem } = useAuth();
   const [showAll, setShowAll] = useState(false);
   const sliderRef = useRef(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -45,6 +45,8 @@ function ShopByCategory() {
     }
   };
 
+  const filtereCategory = category.filter(cat => cat.categoryName.toLowerCase().includes(searchItem.toLowerCase()));
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Product Categories */}
@@ -64,16 +66,16 @@ function ShopByCategory() {
 
       {loading ? (
         <div className="w-full flex flex-col items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-600"></div>
-        <p className="text-gray-500 text-sm mt-4">Loading products...</p>
-    </div>
-      ) : !category || category.length === 0 ? (
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-600"></div>
+          <p className="text-gray-500 text-sm mt-4">Loading products...</p>
+        </div>
+      ) : !filtereCategory || filtereCategory.length === 0 ? (
         <div className="w-full flex flex-col items-center justify-center py-12">
-        <p className="text-gray-500 text-sm mt-4">Data not found</p>
-    </div>
+          <p className="text-gray-500 text-sm mt-4">Data not found</p>
+        </div>
       ) : showAll ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {category.map((item) => (
+          {filtereCategory.map((item) => (
             <div
               key={item.id}
               onClick={() => {
@@ -101,7 +103,7 @@ function ShopByCategory() {
             className="overflow-x-hidden scroll-smooth flex gap-4 px-2"
             style={{ scrollSnapType: 'x mandatory', maxWidth: '100%' }}
           >
-            {category.map((item) => (
+            {filtereCategory.map((item) => (
               <div
                 key={item.id}
                 onClick={() => {
