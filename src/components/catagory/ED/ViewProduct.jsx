@@ -130,7 +130,7 @@ const ViagraProductPage = () => {
             {/* Product Header */}
             <div className='flex justify-between items-center mb-6'>
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">Viagra</h1>
-                <button onClick={() => navigate('/ed')} className='bg-[#A8F1FF] px-4 py-1 rounded-lg'>Back To shop</button>
+                <button onClick={() => navigate('/CatProduct')} className='bg-[#A8F1FF] px-4 py-1 rounded-lg'>Back To shop</button>
             </div>
             <p className="text-gray-600 mb-4">
                 Viagra is often the first treatment tried for erectile dysfunction in men and pulmonary arterial hypertension.

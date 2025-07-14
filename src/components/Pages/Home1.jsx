@@ -9,8 +9,10 @@ import Customer from '../../assets/support_icon.png';
 import Price from '../../assets/bestPrise.jpg';
 import Upload from '../Upload';
 import ShopByCategory from '../catagory/ShopByCategory';
+import { useAuth } from '../../AuthContext/AuthContext';
 
 function Home1() {
+  const { searchItem, setSearchItem } = useAuth();
   const [uploadModal, setUploadModal] = useState(false);
 
   const features = [
@@ -77,7 +79,7 @@ function Home1() {
         >
           <div className='max-w-8xl mx-auto text-center px-4 sm:px-6'>
             {/* Main Heading */}
-            <motion.h1 
+            <motion.h1
               variants={slideUp}
               className='text-white text-3xl sm:text-4xl md:text-4xl font-bold mb-4 sm:mb-6 leading-tight'
             >
@@ -85,7 +87,7 @@ function Home1() {
             </motion.h1>
 
             {/* Subheading */}
-            <motion.p 
+            <motion.p
               variants={slideUp}
               className='text-gray-200 text-base sm:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto'
             >
@@ -93,28 +95,30 @@ function Home1() {
             </motion.p>
 
             {/* Search Bar */}
-            <motion.div 
+            <motion.div
               variants={scaleUp}
               className="relative max-w-2xl mx-auto"
             >
               <input
                 type="text"
                 placeholder="Search for medicines, brands or categories..."
+                value={searchItem}
+                onChange={e => setSearchItem(e.target.value)}
                 className="w-full py-2 sm:py-3 px-4 sm:px-6 pr-32 sm:pr-40 rounded-full bg-white/90 border-none focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg text-gray-800 text-sm sm:text-base"
               />
 
               {/* Upload Button (Left Side) */}
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setUploadModal(true)} 
+                onClick={() => setUploadModal(true)}
                 className="absolute right-22 sm:right-34 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-[#4ED7F1] to-[#A8F1FF] text-gray-800 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full flex items-center hover:opacity-90 transition-opacity shadow-md text-sm sm:text-base font-medium cursor-pointer"
               >
                 <FaUpload className="mr-1 sm:mr-2" /> Upload
               </motion.button>
 
               {/* Search Button (Right Side) */}
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-3 sm:px-6 py-1 sm:py-2 rounded-full flex items-center hover:bg-blue-700 transition-colors shadow-md text-sm sm:text-base cursor-pointer"
@@ -126,7 +130,7 @@ function Home1() {
         </motion.div>
 
         {/* Floating Features */}
-        <motion.div 
+        <motion.div
           initial="hidden"
           animate="show"
           variants={container}
@@ -135,8 +139,8 @@ function Home1() {
           <div className="max-w-6xl mx-auto px-2 sm:px-4">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
               {floatingFeatures.map((feature, index) => (
-                <motion.div 
-                  key={index} 
+                <motion.div
+                  key={index}
                   variants={item}
                   whileHover={{ y: -5 }}
                   className="bg-white p-2 sm:p-4 rounded-lg shadow-lg flex flex-col items-center text-center hover:shadow-xl transition-shadow"
@@ -158,7 +162,7 @@ function Home1() {
 
       {/* Content Section */}
       <div className='max-w-7xl mx-auto px-4 sm:px-6 py-2'>
-        <motion.h2 
+        <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -168,7 +172,7 @@ function Home1() {
           Good Pharmaceutical Exporter and Supplier in India
         </motion.h2>
 
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -184,7 +188,7 @@ function Home1() {
         </motion.p>
 
         {/* Features Grid */}
-        <motion.div 
+        <motion.div
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
@@ -192,13 +196,13 @@ function Home1() {
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6 py-10 sm:py-16"
         >
           {features.map((feature, index) => (
-            <motion.div 
-              key={index} 
+            <motion.div
+              key={index}
               variants={item}
               whileHover={{ scale: 1.05 }}
               className="flex flex-col items-center text-center p-4 sm:p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow"
             >
-              <motion.div 
+              <motion.div
                 whileHover={{ rotate: 10 }}
                 className="rounded-full mb-3 sm:mb-4"
               >
@@ -212,7 +216,7 @@ function Home1() {
                 {feature.name}
               </h3>
               {feature.tag && (
-                <motion.span 
+                <motion.span
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ repeat: Infinity, duration: 2 }}
                   className="text-xs sm:text-sm font-bold text-blue-600"
@@ -226,7 +230,7 @@ function Home1() {
       </div>
 
       {uploadModal && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
