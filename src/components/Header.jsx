@@ -53,12 +53,12 @@ const Header = () => {
     );
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [categoriesOpen, setCategoriesOpen] = useState(false);
-    const [openModal,setOpenModal] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
 
     const fetchCategory = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('http://192.168.1.13:8081/product/get/productCategory');
+            const response = await axiosInstance.get('/product/get/productCategory');
             console.log('dfdf', response);
             setCategory(response.data.data);
         } catch (error) {
@@ -76,7 +76,7 @@ const Header = () => {
     const fetchCatProduct = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`http://192.168.1.13:8081/product/getProductByPage?categoryId=${catId}&itemPerPage=${itemsPerpage}&currentPage=${1}`);
+            const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${itemsPerpage}&currentPage=${1}`);
             console.log('product', response);
             setCatProduct(response.data.productList);
         } catch (error) {
@@ -91,31 +91,35 @@ const Header = () => {
         fetchCatProduct();
     }, [catId, itemsPerpage])
 
-    const handleCountryChange = (countryCode) => {
-        const selected = countryOptions.find(c => c.code === countryCode);
-        console.log("Selected country:", selected);
-        setSelectedCountry(selected);
-        // const selectedString = JSON.stringify(selected);
-        setSelectCountry(selected);
+   
 
-    };
-    useEffect(() =>{
-        setTimeout(() => {
-          setOpenModal(true)  
-        }, 5000);
-        return clearTimeout()
-    }, [])
-    useEffect(() => {
-        if (openModal) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'auto';
-        }
+    const handleCountryChange = (value) => {
+  const selected = countryOptions.find(
+    (c) => c.code === value || c.currency === value
+  );
+  if (selected) {
+    setSelectedCountry(selected);
+     setSelectCountry(selected);
+  }
+};
 
-        return () => {
-            document.body.style.overflow = 'auto';
-        };
-    }, [openModal]);
+    // useEffect(() =>{
+    //     setTimeout(() => {
+    //       setOpenModal(true)  
+    //     }, 5000);
+    //     return clearTimeout()
+    // }, [])
+    // useEffect(() => {
+    //     if (openModal) {
+    //         document.body.style.overflow = 'hidden';
+    //     } else {
+    //         document.body.style.overflow = 'auto';
+    //     }
+
+    //     return () => {
+    //         document.body.style.overflow = 'auto';
+    //     };
+    // }, [openModal]);
 
     return (
         <>
@@ -170,19 +174,11 @@ const Header = () => {
                                         <select
                                             name="currency"
                                             value={selectedCountry.currency}
-                                            onChange={(e) => {
-                                                const selected = countryOptions.find(
-                                                    c => c.currency === e.target.value
-                                                );
-                                                setSelectedCountry(selected);
-                                            }}
+                                            onChange={(e) => handleCountryChange(e.target.value)}
                                             className="pl-10 pr-4 py-2 rounded-lg border border-black cursor-pointer font-semibold focus:outline-none focus:ring-1 focus:ring-blue-400 appearance-none"
                                         >
                                             {availableCurrencies.map((currency) => (
-                                                <option
-                                                    key={currency}
-                                                    value={currency}
-                                                >
+                                                <option key={currency} value={currency}>
                                                     {currency}
                                                 </option>
                                             ))}
@@ -210,11 +206,11 @@ const Header = () => {
                     </div>
                 </div>
             </header>
-            {openModal && 
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
-        <Login onClose={setOpenModal}/>
-    </div>
-}
+            {openModal &&
+                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
+                    <Login onClose={setOpenModal} />
+                </div>
+            }
             {/* Second Header */}
             <header className="bg-white shadow-sm sticky top-18.5 z-50 border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
