@@ -21,6 +21,7 @@ import Logo from '../assets/Nlogo.png';
 import { useAuth } from "../AuthContext/AuthContext";
 import axiosInstance from "../AuthContext/AxiosInstance";
 import axios from "axios";
+import Login from "../AuthContext/Login";
 
 
 const Header = () => {
@@ -52,7 +53,7 @@ const Header = () => {
     );
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [categoriesOpen, setCategoriesOpen] = useState(false);
-    const [hoveredCategory, setHoveredCategory] = useState(null);
+    const [openModal,setOpenModal] = useState(false);
 
     const fetchCategory = async () => {
         setLoading(true);
@@ -98,8 +99,23 @@ const Header = () => {
         setSelectCountry(selected);
 
     };
+    useEffect(() =>{
+        setTimeout(() => {
+          setOpenModal(true)  
+        }, 5000);
+        return clearTimeout()
+    }, [])
+    useEffect(() => {
+        if (openModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
 
-
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [openModal]);
 
     return (
         <>
@@ -176,10 +192,10 @@ const Header = () => {
                             </div>
                             {/* Login - visible on all screens */}
                             <div className="relative group hidden md:block">
-                                <Link to="/login" className="flex items-center space-x-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+                                <button className="flex items-center space-x-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors cursor-pointer">
                                     <FaUser className="text-xl" />
                                     <span className="hidden md:inline  font-medium">Login</span>
-                                </Link>
+                                </button>
                             </div>
                             <Link to="/shipping" className="p-2 text-white hover:text-gray-200 relative transition-colors">
                                 <FaShoppingCart className="text-xl text-black" />
@@ -194,7 +210,11 @@ const Header = () => {
                     </div>
                 </div>
             </header>
-
+            {openModal && 
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
+        <Login onClose={setOpenModal}/>
+    </div>
+}
             {/* Second Header */}
             <header className="bg-white shadow-sm sticky top-18.5 z-50 border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
