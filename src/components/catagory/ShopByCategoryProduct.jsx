@@ -26,6 +26,8 @@ const ShopByCategoryProduct = () => {
     const [manufacturers, setManufacturers] = useState([]);
     const [searchBrand, setSearchBrand] = useState('');
     const [searchManufacturer, setSearchManufacturer] = useState('');
+    const [searchProduct, setSearchProduct] = useState(''); // New state for product search
+    const [searchCategory, setSearchCategory] = useState(''); // New state for category search
     const itemsPerPage = itemsPerpage || 20;
     const navigate = useNavigate();
     const topRef = useRef(null);
@@ -53,16 +55,19 @@ const ShopByCategoryProduct = () => {
         }
     }, [catProduct]);
 
-    // Filter products based on selected brand and manufacturer
+    // Filter products based on selected brand, manufacturer, and search term
     const filteredProducts = React.useMemo(() => {
         if (!catProduct) return [];
 
         return catProduct.filter(product => {
             const brandMatch = !selectedBrand || product.brand === selectedBrand;
             const manufacturerMatch = !selectedManufacturer || product.manufacturer === selectedManufacturer;
-            return brandMatch && manufacturerMatch;
+            const nameMatch = !searchProduct || 
+                product.name.toLowerCase().includes(searchProduct.toLowerCase()) ||
+                (product.genericName && product.genericName.toLowerCase().includes(searchProduct.toLowerCase()));
+            return brandMatch && manufacturerMatch && nameMatch;
         });
-    }, [catProduct, selectedBrand, selectedManufacturer]);
+    }, [catProduct, selectedBrand, selectedManufacturer, searchProduct]);
 
     // Filter brands and manufacturers based on search
     const filteredBrands = brands.filter(brand =>
@@ -71,6 +76,11 @@ const ShopByCategoryProduct = () => {
 
     const filteredManufacturers = manufacturers.filter(manu =>
         manu.name.toLowerCase().includes(searchManufacturer.toLowerCase())
+    );
+
+    // Filter categories based on search
+    const filteredCategories = category.filter(cat =>
+        cat.categoryName.toLowerCase().includes(searchCategory.toLowerCase())
     );
 
     // Pagination
@@ -126,23 +136,26 @@ const ShopByCategoryProduct = () => {
         // Reset filters when category changes
         setSelectedBrand('');
         setSelectedManufacturer('');
+        setSearchProduct(''); // Reset product search
         setCurrentPage(1);
         if (window.innerWidth < 768) setShowMobileSidebar(false);
     };
 
     const handleBrandSelect = (brandName) => {
         setSelectedBrand(selectedBrand === brandName ? '' : brandName);
-        setCurrentPage(1); // Reset to first page when filter changes
+        setCurrentPage(1);
     };
 
     const handleManufacturerSelect = (manufacturerName) => {
         setSelectedManufacturer(selectedManufacturer === manufacturerName ? '' : manufacturerName);
-        setCurrentPage(1); // Reset to first page when filter changes
+        setCurrentPage(1);
     };
 
     const clearAllFilters = () => {
         setSelectedBrand('');
         setSelectedManufacturer('');
+        setSearchProduct(''); // Clear product search
+        setSearchCategory(''); // Clear category search
         setCurrentPage(1);
     };
 
@@ -207,7 +220,7 @@ const ShopByCategoryProduct = () => {
             <div className="w-full flex flex-col items-center justify-center py-12">
                 <h3 className="text-lg font-medium text-gray-700 mb-2">No products found</h3>
                 <p className="text-gray-500 text-sm">Try changing your filters or check back later</p>
-                {(selectedBrand || selectedManufacturer) && (
+                {(selectedBrand || selectedManufacturer || searchProduct) && (
                     <button
                         onClick={clearAllFilters}
                         className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
@@ -221,7 +234,7 @@ const ShopByCategoryProduct = () => {
         return (
             <>
                 {/* Filter indicators */}
-                {(selectedBrand || selectedManufacturer) && (
+                {(selectedBrand || selectedManufacturer || searchProduct) && (
                     <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mx-4 mb-4">
                         <div className="flex items-center flex-wrap gap-2">
                             {selectedBrand && (
@@ -246,6 +259,17 @@ const ShopByCategoryProduct = () => {
                                     </button>
                                 </span>
                             )}
+                            {searchProduct && (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                    Search: {searchProduct}
+                                    <button
+                                        onClick={() => setSearchProduct('')}
+                                        className="ml-2 p-0.5 rounded-full hover:bg-purple-200"
+                                    >
+                                        <IoClose className="w-3 h-3" />
+                                    </button>
+                                </span>
+                            )}
                         </div>
                         <button
                             onClick={clearAllFilters}
@@ -265,11 +289,11 @@ const ShopByCategoryProduct = () => {
                             <article
                                 key={`product-${product.id}`}
                                 className="border border-gray-300 rounded-lg p-4 transition-all duration-300 hover:shadow-lg hover:border-green-200 hover:scale-[1.02] group cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
-                                onClick={() => navigate('/view')}
+                                onClick={() => navigate('/view', { state: { product } })}
                                 onKeyDown={(e) => e.key === 'Enter' && navigate('/view')}
                                 tabIndex={0}
                                 aria-label={`View details for ${product.name}`}
-                            >
+                             >
                                 <div className="flex flex-col h-full">
                                     <header className="mb-3">
                                         <h3 className="text-lg font-semibold text-blue-600 group-hover:text-blue-800 transition-colors">
@@ -346,21 +370,35 @@ const ShopByCategoryProduct = () => {
                         <div className='p-4'>
                             <div className="sticky top-0 z-10 p-4 border-b border-gray-200 bg-white">
                                 <h2 className="text-xl font-semibold text-gray-800">Categories</h2>
+                                <div className="relative w-full mt-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Search categories..."
+                                        className="w-full py-2 pl-4 pr-10 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                        value={searchCategory}
+                                        onChange={(e) => setSearchCategory(e.target.value)}
+                                    />
+                                    <IoSearchOutline className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                </div>
                             </div>
                             <nav className='h-[300px] overflow-y-auto'>
-                                {category.map((cat) => (
-                                    <div key={`cat-${cat.productCategoryId}`}>
-                                        <button
-                                            onClick={() => toggleCategory(cat.productCategoryId)}
-                                            className={`flex items-center w-full py-2 text-left transition-colors duration-200 rounded-md hover:bg-gray-100 hover:text-teal-600 ${activePage === cat.productCategoryId ? 'bg-gray-50 text-teal-600' : 'text-gray-600'}`}
-                                        >
-                                            <IoArrowForward
-                                                className={`mr-2 transition-transform duration-200 ${expandedCategory === cat.productCategoryId ? 'rotate-90' : ''}`}
-                                            />
-                                            <span className="text-sm font-medium">{cat.categoryName}</span>
-                                        </button>
-                                    </div>
-                                ))}
+                                {filteredCategories.length > 0 ? (
+                                    filteredCategories.map((cat) => (
+                                        <div key={`cat-${cat.productCategoryId}`}>
+                                            <button
+                                                onClick={() => toggleCategory(cat.productCategoryId)}
+                                                className={`flex items-center w-full py-2 text-left transition-colors duration-200 rounded-md hover:bg-gray-100 hover:text-teal-600 ${activePage === cat.productCategoryId ? 'bg-gray-50 text-teal-600' : 'text-gray-600'}`}
+                                            >
+                                                <IoArrowForward
+                                                    className={`mr-2 transition-transform duration-200 ${expandedCategory === cat.productCategoryId ? 'rotate-90' : ''}`}
+                                                />
+                                                <span className="text-sm font-medium">{cat.categoryName}</span>
+                                            </button>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-sm text-gray-500 py-2">No categories found</p>
+                                )}
                             </nav>
                         </div>
 
@@ -446,7 +484,22 @@ const ShopByCategoryProduct = () => {
                     />
                 )}
 
-                <div className="w-full  md:w-[80%] overflow-y-auto hide-scrollbar" style={{ maxHeight: 'calc(100vh - 100px)' }}>
+                <div className="w-full md:w-[80%] overflow-y-auto hide-scrollbar" style={{ maxHeight: 'calc(100vh - 100px)' }}>
+                    <div className="p-4 bg-white">
+                        <div className="relative w-full max-w-md mb-4">
+                            <input
+                                type="text"
+                                placeholder="Search products..."
+                                className="w-full py-2 pl-4 pr-10 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                value={searchProduct}
+                                onChange={(e) => {
+                                    setSearchProduct(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                            />
+                            <IoSearchOutline className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        </div>
+                    </div>
                     <main className="">
                         {renderProducts()}
                     </main>

@@ -330,20 +330,21 @@ const ChatCircle = () => {
                   onSubmit={handleFormSubmit}
                 >
                   <h4 className="text-sm font-medium text-gray-800 mb-4">Please provide your details:</h4>
-                  {["name", "mobile", "email"].map((field) => (
+                  {[
+                    { field: "name", label: "Full Name", placeholder: "John Smith", type: "text" },
+                    { field: "mobile", label: "Mobile Number", placeholder: "+1 (123) 456-7890", type: "tel" },
+                    { field: "email", label: "Email Address", placeholder: "your@email.com", type: "email" }
+                  ].map(({ field, label, placeholder, type }) => (
                     <div className="mb-3" key={field}>
                       <label className="block text-xs text-gray-600 mb-1 font-medium">
-                        {field === "name" ? "" : field === "mobile" ? "" : ""}
+                        {label}
                         {formErrors[field] && <span className="text-red-500 font-normal"> • {formErrors[field]}</span>}
                       </label>
                       <input
-                        type={field === "email" ? "email" : field === "mobile" ? "tel" : "text"}
+                        type={type}
                         className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#12b9c5] focus:border-[#12b9c5] ${formErrors[field] ? 'border-red-500' : 'border-gray-300'
                           }`}
-                        placeholder={
-                          field === "mobile" ? "+1 (123) 456-7890" :
-                            field === "email" ? "your@email.com" : "John Smith"
-                        }
+                        placeholder={placeholder}
                         id={field}
                         name={field}
                         value={formData[field]}
@@ -385,8 +386,8 @@ const ChatCircle = () => {
                       onChange={(e) => setOtp(e.target.value)}
                     />
                     <div className="text-xs text-gray-500 mt-1">Check your email for the verification code</div>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="text-xs hover:cursor-pointer px-4 py-0.5 rounded-xl bg-green-200 text-green-800 mt-1"
                       onClick={handleResendOTP}
                       disabled={loading}
