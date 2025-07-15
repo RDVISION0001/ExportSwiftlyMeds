@@ -4,6 +4,7 @@ import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaShieldAlt 
 import hippa from '../assets/hippa.png'
 
 import { FaXTwitter } from "react-icons/fa6";
+import ChatCircle from "./chatbot/ChatCircle";
 
 
 const Footer = () => {
@@ -16,6 +17,7 @@ const Footer = () => {
   }, [])
   return (
     <footer ref={topRef} className="bg-[#06202B] text-white py-12 px-4">
+      <ChatCircle/>
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           {/* Company Info */}
