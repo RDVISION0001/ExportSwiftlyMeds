@@ -12,8 +12,6 @@ import Blog from './components/blog/Blog';
 import Manufacturer from './components/Pages/Manufacuter';
 import PrivacyPolicy from './components/Privacy';
 import NewArrive from './components/NewArrive';
-import BestSeller from './components/BestSeller';
-import SwiftlyMarket from './components/SwiftlyMarket';
 import ProductServices from './components/ProductServices';
 import GoogleReviews from './components/GoogleReview';
 import PrescriptionRelief from './components/PrescriptionRefills';
@@ -42,8 +40,6 @@ function App() {
         <Route path='/manufacture' element={<Manufacturer />} />
         <Route path='/privacy' element={<PrivacyPolicy />} />
         <Route path='/newArive' element={<NewArrive />} />
-        <Route path='/seller' element={<BestSeller />} />
-        <Route path='/marketPlace' element={<SwiftlyMarket />} />
         <Route path='/proserve' element={<ProductServices />} />
         <Route path='/review' element={<GoogleReviews />} />
         <Route path='/priRefil' element={<PrescriptionRelief />} />

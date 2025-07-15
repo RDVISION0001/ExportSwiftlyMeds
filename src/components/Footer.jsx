@@ -132,8 +132,8 @@ const Footer = () => {
             <h4 className="font-semibold mb-3  border-b-1 border-gray-600 inline pb-1 ">Shop</h4>
             <ul className="space-y-2 mt-2">
               <li><Link to="/newArive" className="hover:text-blue-600 hover:underline">New Arrivals</Link></li>
-              <li><Link to="/seller" className="hover:text-blue-600 hover:underline">Best Sellers</Link></li>
-              <li><Link to="/marketPlace" className="hover:text-blue-600 hover:underline">Swiftly Marketplace</Link></li>
+              <li><Link to="/manufacture" className="hover:text-blue-600 hover:underline">Best Sellers</Link></li>
+              <li><Link to="/" className="hover:text-blue-600 hover:underline">Swiftly Marketplace</Link></li>
             </ul>
           </div>
 
