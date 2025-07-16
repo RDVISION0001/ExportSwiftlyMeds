@@ -73,7 +73,7 @@ function Manufacturer() {
     { id: 14, img: myLan, name: 'Mylan Pharma'},
     { id: 15, img: natco, name: 'Natco Pharma'},
     { id: 16, img: m3, name: '3M'},
-    { id: 17, img: bd, name: 'b&g'},
+    { id: 17, img: bd, name: 'BD'},
     { id: 18, img: cipla, name: 'Cipla Health' },
     { id: 19, img: emami, name: 'Emami' },
     { id: 20, img: furist, name: 'Furist' },

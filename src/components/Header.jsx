@@ -9,7 +9,6 @@ import {
     FaBars,
     FaTimes,
     FaBoxes,
-    FaUserTie,
     FaEnvelope,
     FaBlog,
     FaChevronDown,
@@ -26,7 +25,7 @@ import Login from "../AuthContext/Login";
 
 const Header = () => {
     const navigate = useNavigate();
-    const { cart, amount, category, setCategory, catId, setCatId, setCatProduct, setLoading, selectCountry, setSelectCountry, itemsPerpage, setItemsPerpage } = useAuth(); // Get cart and amount from context
+    const { cart, amount, category, setCategory, catId, setCatId, setCatProduct, setLoading, setSelectCountry, itemsPerpage, } = useAuth();
     // Calculate total item count
     const cartItemCount = cart
         ? Array.isArray(cart)
@@ -103,23 +102,23 @@ const Header = () => {
   }
 };
 
-    // useEffect(() =>{
-    //     setTimeout(() => {
-    //       setOpenModal(true)  
-    //     }, 5000);
-    //     return clearTimeout()
-    // }, [])
-    // useEffect(() => {
-    //     if (openModal) {
-    //         document.body.style.overflow = 'hidden';
-    //     } else {
-    //         document.body.style.overflow = 'auto';
-    //     }
+    useEffect(() =>{
+        setTimeout(() => {
+          setOpenModal(true)  
+        }, 5000);
+        return clearTimeout()
+    }, [])
+    useEffect(() => {
+        if (openModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
 
-    //     return () => {
-    //         document.body.style.overflow = 'auto';
-    //     };
-    // }, [openModal]);
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [openModal]);
 
     return (
         <>
@@ -206,11 +205,7 @@ const Header = () => {
                     </div>
                 </div>
             </header>
-            {openModal &&
-                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
-                    <Login onClose={setOpenModal} />
-                </div>
-            }
+            
             {/* Second Header */}
             <header className="bg-white shadow-sm sticky top-18.5 z-50 border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -379,6 +374,11 @@ const Header = () => {
                     )}
                 </div>
             </header>
+            {openModal &&
+                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
+                    <Login onClose={setOpenModal} />
+                </div>
+            }
         </>
     );
 };
