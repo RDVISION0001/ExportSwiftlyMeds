@@ -1,6 +1,7 @@
 import { FaShieldAlt, FaLock, FaServer, FaEyeSlash, FaSyncAlt, FaCheckCircle } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import pci from '../assets/PCI.webp';
 
 // Animation variants
 const container = {
@@ -45,9 +46,9 @@ const PciDssCompliance = () => {
                         repeat: Infinity,
                         repeatType: "reverse"
                     }}
-                    className="inline-flex items-center justify-center bg-teal-300 rounded-full p-4 mb-6"
+                    className="inline-flex items-center justify-center bg-teal-300 rounded-full p-2 mb-6"
                 >
-                    <FaShieldAlt className="h-10 w-10 text-teal-600" />
+                    <img src={pci} alt="" className="w-20 h-20"/>
                 </motion.div>
                 <h1 className="text-xl md:text-5xl font-bold mb-6">
                     PCI DSS Compliance

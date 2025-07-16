@@ -1,10 +1,11 @@
-import React, { useEffect, useReducer, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaShieldAlt } from "react-icons/fa";
-import hippa from '../assets/hippa.png'
+import { FaFacebook, FaInstagram, FaYoutube, } from "react-icons/fa";
+import hippa from '../assets/hipaa.jpg'
 
 import { FaXTwitter } from "react-icons/fa6";
 import ChatCircle from "./chatbot/ChatCircle";
+import pci from '../assets/PCI.webp';
 
 
 const Footer = () => {
@@ -160,6 +161,7 @@ const Footer = () => {
             <ul className="space-y-2 mt-2">
               <li><Link to="/faq" className="hover:text-blue-600 hover:underline">FAQs</Link></li>
               <li><Link to="/contact" className="hover:text-blue-600 hover:underline">Contact Us</Link></li>
+              <li><Link to="/terms" className="hover:text-blue-600 hover:underline">Terms & conditions</Link></li>
               <li><Link to="/deliveryShipping" className="hover:text-blue-600 hover:underline">Delivery & Shipping Policy</Link></li>
             </ul>
           </div>
@@ -170,13 +172,12 @@ const Footer = () => {
               <li><Link to="/privacy" className="hover:text-blue-600 hover:underline">Privacy Policy</Link></li>
               <div className="flex justify-start items-center gap-2">
                 <li><Link to="/hipaa" className="hover:text-blue-600 hover:underline">Hipaa Policy</Link></li>
-                <img src={hippa} alt="" className="h-8 w-8 rounded-full" />
+                <img src={hippa} alt="" className="h-10 w-10 rounded-full" />
               </div>
               <div className="flex justify-start items-center gap-2">
                 <li><Link to="/pci-dss" className="hover:text-blue-600 hover:underline">PCI DSS Policy</Link></li>
-                <FaShieldAlt className="h-8 w-8 text-blue-600" />
-              </div>
-              <li><Link to="/terms" className="hover:text-blue-600 hover:underline">Terms & conditions</Link></li>
+                <img src={pci} alt="" className="h-10 w-10 rounded-full" />
+              </div>             
               <li><Link to="/refund" className="hover:text-blue-600 hover:underline">Refund and cancellation policy</Link></li>
             </ul>
           </div>
