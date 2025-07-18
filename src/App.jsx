@@ -23,7 +23,9 @@ import TermsCondition from './components/TermsCondition';
 import RefundPolicy from './components/RefundPolicy';
 import DeliveryShippingPolicy from './components/DeliveryShippingPolicy';
 import ShopByCategoryProduct from './components/catagory/ShopByCategoryProduct';
+import CrmPayment from './components/CRM/CrmPayment';
 import PCIDSS from './components/PCIDSS';
+
 
 function App() {
   return (
@@ -37,6 +39,9 @@ function App() {
         <Route path='/contact' element={<ContactUs />} />
         <Route path='/faq' element={<FAQ />} />
         <Route path='/blog' element={<Blog />} />
+        <Route path='/marketPlace' element={<SwiftlyMarket/>}/>
+        <Route path='/proserve' element={<ProductServices/>}/>
+        <Route path="/checkout/:orderNumber" element={<CrmPayment />} />
         <Route path='/manufacture' element={<Manufacturer />} />
         <Route path='/privacy' element={<PrivacyPolicy />} />
         <Route path='/newArive' element={<NewArrive />} />
