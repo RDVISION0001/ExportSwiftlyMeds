@@ -1,7 +1,7 @@
 import { FaShieldAlt, FaLock, FaServer, FaEyeSlash, FaSyncAlt, FaCheckCircle } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import pci from '../assets/PCI.webp';
+import pci from '../assets/pcidss.png'; // Ensure this path is correct
 
 // Animation variants
 const container = {

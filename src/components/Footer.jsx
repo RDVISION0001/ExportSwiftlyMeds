@@ -1,16 +1,51 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaFacebook, FaInstagram, FaYoutube, } from "react-icons/fa";
 import hippa from '../assets/hipaa.jpg'
 
 import { FaXTwitter } from "react-icons/fa6";
 import ChatCircle from "./chatbot/ChatCircle";
-import pci from '../assets/PCI.webp';
+import pci from '../assets/pcidss.png';
+import { Mail } from "lucide-react";
+import axiosInstance from "../AuthContext/AxiosInstance";
+import Swal from "sweetalert2";
 
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const topRef = useRef(null);
+
+  const handleSubscribe = async () => {
+    try {
+      setLoading(true)
+      const response = await axiosInstance.post(`/update/subscription/subscribeCareerUpdates`, {
+        email: email,
+      })
+      console.log(response.data);
+      setLoading(false);
+      Swal.fire({
+        title: 'Subscribed Successfully',
+        text: 'You will receive updates on your email.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
+      setEmail('');
+
+    } catch (error) {
+      console.error('Error subscribing:', error);
+      setLoading(false);
+      Swal.fire({
+        title: 'Subscription Failed',
+        text: 'Please try again later.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+
+
+    }
+  }
 
   useEffect(() => {
     topRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -18,9 +53,9 @@ const Footer = () => {
   }, [])
   return (
     <footer ref={topRef} className="bg-[#06202B] text-white py-12 px-4">
-      <ChatCircle/>
+      <ChatCircle />
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-4">
           {/* Company Info */}
           <div className="md:col-span-2">
             <h2 className="text-3xl font-bold mb-4">SWIFTLY MEDS PRIVATE LIMITED</h2>
@@ -79,16 +114,7 @@ const Footer = () => {
             <p className="mb-4">
               Subscribe to our newsletter for special offers, new products, and updates.
             </p>
-            <div className="flex flex-col gap-2">
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="px-4 py-3 border border-gray-300 rounded w-full"
-              />
-              <button className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors font-medium">
-                Subscribe
-              </button>
-            </div>
+
           </div>
 
           {/* Contact Info */}
@@ -124,6 +150,36 @@ const Footer = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className=" py-1 px-4">
+          <div className="max-w-7xl mx-auto bg-[#b0f4ff5b] bg-opacity-80 rounded-full flex flex-col md:flex-row items-center justify-between px-4 py-2">
+            {/* Left - Icon and Text */}
+            <div className="flex items-center space-x-3 mb-4 md:mb-0">
+              <Mail className="w-6 h-6 text-black" />
+              <h2 className="text-xl md:text-2xl font-semibold text-[#7bbbc0fb]">
+                Subscribe Our Newsletter
+              </h2>
+            </div>
+
+            {/* Right - Input and Button */}
+            <div className="flex items-center bg-white rounded-full px-4 py-2 w-full md:w-auto gap-2">
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                placeholder="Enter your email"
+                className="flex-grow min-w-[200px] md:min-w-[300px] bg-transparent outline-none text-sm md:text-base text-black border-none"
+              />
+              <button
+                onClick={handleSubscribe}
+                className="bg-[#11b9c5] hover:bg-[#11b6c5] text-white cursor-pointer font-semibold text-sm px-5 py-2 rounded-full transition-all"
+              >
+                {loading ? <span className="loading loading-dots loading-sm"></span> : "SUBSCRIBE"}
+              </button>
+            </div>
+
           </div>
         </div>
 
@@ -177,8 +233,8 @@ const Footer = () => {
               <div className="flex justify-start items-center gap-2">
                 <li><Link to="/pci-dss" className="hover:text-blue-600 hover:underline">PCI DSS Policy</Link></li>
                 <img src={pci} alt="" className="h-10 w-10 rounded-full" />
-              </div>             
-              <li><Link to="/refund" className="hover:text-blue-600 hover:underline">Refund and cancellation policy</Link></li>
+              </div>
+              <li><Link to="/refund" className="hover:text-blue-600 hover:underline">Return / Refund Policy</Link></li>
             </ul>
           </div>
         </div>
