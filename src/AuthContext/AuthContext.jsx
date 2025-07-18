@@ -18,10 +18,14 @@ export function AuthProvider({ children }) {
         return savedAmount ? parseFloat(savedAmount) : 0;
     });
 
-const [category,setCategory] = useState([]);
-const [catId,setCatId] = useState('');
-const [catProduct,setCatProduct] = useState([]);
-const [loading,setLoading] = useState(false);
+
+    const [category, setCategory] = useState([]);
+    const [catId, setCatId] = useState('');
+    const [catProduct, setCatProduct] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [selectCountry, setSelectCountry] = useState('INR')
+    const [itemsPerpage, setItemsPerpage] = useState(20);
+    const [searchItem, setSearchItem] = useState('');
 
     // Save to localStorage whenever cart, product, or amount changes
     useEffect(() => {
@@ -36,10 +40,13 @@ const [loading,setLoading] = useState(false);
             cart, setCart,
             product, setProduct,
             amount, setAmount,
-            category,setCategory,
-            catId,setCatId,
-            catProduct,setCatProduct,
-            loading,setLoading,
+            category, setCategory,
+            catId, setCatId,
+            catProduct, setCatProduct,
+            loading, setLoading,
+            selectCountry, setSelectCountry,
+            itemsPerpage, setItemsPerpage,
+            searchItem, setSearchItem,
         }}>
             {children}
         </AuthContext.Provider>

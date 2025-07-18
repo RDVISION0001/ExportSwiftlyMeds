@@ -9,30 +9,23 @@ import {
     FaBars,
     FaTimes,
     FaBoxes,
-    FaUserTie,
     FaEnvelope,
     FaBlog,
     FaChevronDown,
-    FaCapsules,
-    FaSyringe,
-    FaVirus,
-    FaClinicMedical,
-    FaBone,
-    FaHeartbeat,
-    FaLeaf,
-    FaShieldAlt,
-    FaPills,
     FaQq,
     FaIndustry
 } from 'react-icons/fa';
 
 import Logo from '../assets/Nlogo.png';
 import { useAuth } from "../AuthContext/AuthContext";
-import axios from "axios";
 import axiosInstance from "../AuthContext/AxiosInstance";
+import axios from "axios";
+import Login from "../AuthContext/Login";
+
+
 const Header = () => {
-    const { cart, amount,category,setCategory,catId,setCatProduct,setLoading } = useAuth(); // Get cart and amount from context
     const navigate = useNavigate();
+    const { cart, amount, category, setCategory, catId, setCatId, setCatProduct, setLoading, setSelectCountry, itemsPerpage, } = useAuth();
     // Calculate total item count
     const cartItemCount = cart
         ? Array.isArray(cart)
@@ -42,6 +35,7 @@ const Header = () => {
 
     const countryOptions = [
         { code: 'US', name: 'United States', currency: 'USD', language: 'English' },
+        { code: 'IN', name: 'India', currency: 'INR', language: 'Hindi' },
         { code: 'GB', name: 'United Kingdom', currency: 'GBP', language: 'English' },
         { code: 'FR', name: 'France', currency: 'EUR', language: 'French' },
         { code: 'DE', name: 'Germany', currency: 'EUR', language: 'German' },
@@ -58,47 +52,60 @@ const Header = () => {
     );
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [categoriesOpen, setCategoriesOpen] = useState(false);
-    const [hoveredCategory, setHoveredCategory] = useState(null);
+    const [openModal, setOpenModal] = useState(false);
 
     const fetchCategory = async () => {
         setLoading(true);
         try {
             const response = await axiosInstance.get('/product/get/productCategory');
-            console.log('dfdf', response);
             setCategory(response.data.data);
         } catch (error) {
             console.log('rer', error);
-        } finally{
+            setLoading(false);
+        } finally {
             setLoading(false);
         }
     }
-    
-    useEffect(() =>{
+
+    useEffect(() => {
         fetchCategory();
     }, [])
 
-    const fetchCatProduct = async() => {
+    const fetchCatProduct = async () => {
         setLoading(true);
-        try{
-     const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${10}&currentPage=${1}`);
-     console.log('product',response);
-     setCatProduct(response.data.productList);
-        }catch(error){
-      console.log('error',error);
-        } finally{
+        try {
+            const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${itemsPerpage}&currentPage=${1}`);
+            setCatProduct(response.data.productList);
+        } catch (error) {
+            console.log('error', error);
+            setLoading(false);
+        } finally {
             setLoading(false);
         }
     }
 
     useEffect(() => {
         fetchCatProduct();
-    }, [catId])
+    }, [catId, itemsPerpage])
 
-    const handleCountryChange = (countryCode) => {
-        const selected = countryOptions.find(c => c.code === countryCode);
-        setSelectedCountry(selected);
-    };
+   
 
+    const handleCountryChange = (value) => {
+  const selected = countryOptions.find(
+    (c) => c.code === value || c.currency === value
+  );
+  if (selected) {
+    setSelectedCountry(selected);
+     setSelectCountry(selected);
+  }
+};
+
+    useEffect(() =>{
+        setTimeout(() => {
+          setOpenModal(true)  
+        }, 5000);
+        return clearTimeout()
+    }, [])
 
     return (
         <>
@@ -117,7 +124,7 @@ const Header = () => {
                         {/* Logo - Always visible */}
                         <div className="flex-shrink-0">
                             <Link to="/" className="flex items-center">
-                                <img src={Logo} alt="" className="md:w-48 w-40"/>
+                                <img src={Logo} alt="" className="md:w-48 w-40" />
                             </Link>
                         </div>
 
@@ -126,13 +133,6 @@ const Header = () => {
                         {/* Right Side - Icons and Login - Always visible */}
                         <div className="flex items-center space-x-1 md:space-x-2">
 
-                            {/* Wishlist and Cart - visible on all screens */}
-                            {/* <Link to="/wishlist" className="p-2 text-white hover:text-gray-200 relative transition-colors">
-                                <FaHeart className="text-xl" />
-                                <span className="absolute -top-1 -right-1 bg-white text-blue-600 text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                    3
-                                </span>
-                            </Link> */}
                             {/* Language & Currency Selectors - Hidden on mobile */}
                             <div className="flex-1 max-w-2xl mx-4 hidden md:block">
                                 <div className="flex items-center space-x-4">
@@ -160,19 +160,11 @@ const Header = () => {
                                         <select
                                             name="currency"
                                             value={selectedCountry.currency}
-                                            onChange={(e) => {
-                                                const selected = countryOptions.find(
-                                                    c => c.currency === e.target.value
-                                                );
-                                                setSelectedCountry(selected);
-                                            }}
+                                            onChange={(e) => handleCountryChange(e.target.value)}
                                             className="pl-10 pr-4 py-2 rounded-lg border border-black cursor-pointer font-semibold focus:outline-none focus:ring-1 focus:ring-blue-400 appearance-none"
                                         >
                                             {availableCurrencies.map((currency) => (
-                                                <option
-                                                    key={currency}
-                                                    value={currency}
-                                                >
+                                                <option key={currency} value={currency}>
                                                     {currency}
                                                 </option>
                                             ))}
@@ -182,10 +174,10 @@ const Header = () => {
                             </div>
                             {/* Login - visible on all screens */}
                             <div className="relative group hidden md:block">
-                                <Link to="/login" className="flex items-center space-x-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+                                <button className="flex items-center space-x-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors cursor-pointer">
                                     <FaUser className="text-xl" />
                                     <span className="hidden md:inline  font-medium">Login</span>
-                                </Link>
+                                </button>
                             </div>
                             <Link to="/shipping" className="p-2 text-white hover:text-gray-200 relative transition-colors">
                                 <FaShoppingCart className="text-xl text-black" />
@@ -200,124 +192,180 @@ const Header = () => {
                     </div>
                 </div>
             </header>
-
+            
             {/* Second Header */}
-            <header className="bg-white shadow-md sticky md:top-18.5 z-60">
-                <div className="max-w-7xl mx-auto md:px-4 md:py-3">
-                    <div className="flex justify-center items-center">
+            <header className="bg-white shadow-sm sticky top-18.5 z-50 border-b border-gray-100">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-center items-center h-16"> {/* Changed to justify-center */}
                         {/* Desktop Navigation */}
-                        <nav className="hidden md:flex md:space-x-3 lg:space-x-10 items-center font-semibold font-serif">
-                            <Link to="/" className="flex items-center hover:text-indigo-600 transition-colors text-md">
-                                <FaHome className="mr-2" /> Home
+                        <nav className="hidden md:flex items-center space-x-1">
+                            {/* Home Link */}
+                            <Link
+                                to="/"
+                                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center"
+                            >
+                                <FaHome className="mr-2 text-indigo-500" />
+                                Home
                             </Link>
 
                             {/* Categories Dropdown */}
                             <div className="relative group">
-                                <div className="flex items-center hover:text-indigo-600 transition-colors duration-200 text-md cursor-pointer">
-                                    <FaBoxes className="mr-2" />
+                                <button
+                                    className="px-3 py-2 rounded-md cursor-pointer text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setCategoriesOpen(!categoriesOpen);
+                                    }}
+                                >
+                                    <FaBoxes className="mr-2 text-indigo-500" />
                                     Categories
-                                    <FaChevronDown className="ml-1 text-xs transition-transform duration-200 group-hover:rotate-180" />
-                                </div>
+                                    <FaChevronDown className={`ml-1 text-xs text-gray-500 transition-transform duration-200 ${categoriesOpen ? 'transform rotate-180' : ''}`} />
+                                </button>
 
                                 {/* Dropdown Menu */}
-                                <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-100 
-                                origin-top transform-gpu
-                                scale-y-0 group-hover:scale-y-100 
-                                opacity-0 group-hover:opacity-100
-                                transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] h-[400px] overflow-y-auto">
-                                    {category.map((category, index) => (
-                                        <Link
-                                            key={index}
-                                            to={category.path}
-                                            className="flex items-center px-4 py-2 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-200 "
-                                            onClick={() => setHoveredCategory(null)}
-                                        >
-                                            {/* {category.icon} */}
-                                            {category.categoryName}
-                                        </Link>
-                                    ))}
-                                </div>
+                                {categoriesOpen && (
+                                    <div
+                                        className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 py-2 z-50 max-h-96 overflow-y-auto"
+                                        onMouseLeave={() => setCategoriesOpen(false)}
+                                    >
+                                        {category.map((category, index) => (
+                                            <button
+                                                key={index}
+                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-200 flex items-center"
+                                                onClick={() => {
+                                                    navigate('/CatProduct');
+                                                    setCatId(category.productCategoryId);
+                                                    setCategoriesOpen(false); // Close dropdown when item is clicked
+                                                }}
+                                            >
+                                                <span className="truncate">{category.categoryName}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Other navigation links */}
-                            <Link to="/about" className="flex items-center hover:text-indigo-600 transition-colors text-md">
-                                <FaUser className="mr-2" /> About
-                            </Link>
-                            <Link to="/manufacture" className="flex items-center hover:text-indigo-600 transition-colors text-md">
-                                <FaIndustry className="mr-2" /> Manufacturers
-                            </Link>
-                            <Link to="/faq" className="flex items-center hover:text-indigo-600 transition-colors text-md">
-                                <FaQq className="mr-2" /> FAQ
-                            </Link>
-                            <Link to="/contact" className="flex items-center hover:text-indigo-600 transition-colors text-md">
-                                <FaEnvelope className="mr-2" /> Contact Us
-                            </Link>
-                            <Link to="/blog" className="flex items-center hover:text-indigo-600 transition-colors text-md">
-                                <FaBlog className="mr-2" /> Blog
-                            </Link>
+                            {/* Standard Navigation Links */}
+                            {[
+                                { path: "/about", icon: <FaUser className="mr-2 text-indigo-500" />, label: "About" },
+                                { path: "/manufacture", icon: <FaIndustry className="mr-2 text-indigo-500" />, label: "Manufacturers" },
+                                { path: "/faq", icon: <FaQq className="mr-2 text-indigo-500" />, label: "FAQ" },
+                                { path: "/contact", icon: <FaEnvelope className="mr-2 text-indigo-500" />, label: "Contact" },
+                                { path: "/blog", icon: <FaBlog className="mr-2 text-indigo-500" />, label: "Blog" }
+                            ].map((item) => (
+                                <Link
+                                    key={item.path}
+                                    to={item.path}
+                                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center"
+                                >
+                                    {item.icon}
+                                    {item.label}
+                                </Link>
+                            ))}
                         </nav>
 
-
+                        {/* Mobile Menu Button - Now absolutely positioned to the right */}
+                        {/* <div className="md:hidden absolute right-4">
+                            <button
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-100 focus:outline-none transition duration-150 ease-in-out"
+                                aria-label="Main menu"
+                            >
+                                {mobileMenuOpen ? (
+                                    <FaTimes className="h-6 w-6" />
+                                ) : (
+                                    <FaBars className="h-6 w-6" />
+                                )}
+                            </button>
+                        </div> */}
                     </div>
 
                     {/* Mobile Menu */}
                     {mobileMenuOpen && (
-                        <nav className="md:hidden mt-4 pb-4 space-y-3">
-                            <Link to="/" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
-                                <FaHome className="mr-2" /> Home
-                            </Link>
-                            <button
-                                onClick={() => setCategoriesOpen(!categoriesOpen)}
-                                className="w-full text-left px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center justify-between"
-                            >
-                                <div className="flex items-center">
-                                    <FaBoxes className="mr-2" /> Categories
-                                </div>
-                                <FaChevronDown className={`transition-transform ${categoriesOpen ? 'transform rotate-180' : ''}`} />
-                            </button>
+                        <div className="md:hidden pb-4 border-t border-gray-200">
+                            <div className="pt-2 space-y-1">
+                                <Link
+                                    to="/"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center"
+                                >
+                                    <FaHome className="mr-3 text-indigo-500" />
+                                    Home
+                                </Link>
 
-                            {categoriesOpen && (
-                                <div className="ml-8 space-y-2">
-                                    {categories.map((category, index) => (
-                                        <Link
-                                            key={index}
-                                            to={category.path}
-                                            className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors"
-                                            onClick={() => {
-                                                setMobileMenuOpen(false);
-                                                setCategoriesOpen(false);
-                                            }}
-                                        >
-                                            {category.name}
-                                        </Link>
-                                    ))}
-                                </div>
-                            )}
+                                <div className="border-t border-gray-200"></div>
 
-                            {/* Other mobile menu links */}
-                            <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
-                                <FaUser className="mr-2" /> About
-                            </Link>
-                            <Link to="/manufacture" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
-                                <FaIndustry className="mr-2" /> Manufacturers
-                            </Link>
-                            <Link to="/faq" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
-                                <FaUserTie className="mr-2" /> FAQ
-                            </Link>
-                            <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
-                                <FaQq className="mr-2" /> Contact Us
-                            </Link>
-                            <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
-                                <FaBlog className="mr-2" /> Blog
-                            </Link>
-                            <Link to="/account" className="px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-colors flex items-center">
-                                <FaUser className=" mr-2" />
-                                <span className="font-medium">Login</span>
-                            </Link>
-                        </nav>
+                                <button
+                                    onClick={() => setCategoriesOpen(!categoriesOpen)}
+                                    className="w-full text-left px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                                >
+                                    <div className="flex items-center">
+                                        <FaBoxes className="mr-3 text-indigo-500" />
+                                        Categories
+                                    </div>
+                                    <FaChevronDown className={`transition-transform ${categoriesOpen ? 'transform rotate-180' : ''}`} />
+                                </button>
+
+                                {categoriesOpen && (
+                                    <div className="ml-8 space-y-1 max-h-60 overflow-y-auto">
+                                        {category.map((category, index) => (
+                                            <button
+                                                key={index}
+                                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors"
+                                                onClick={() => {
+                                                    navigate('/CatProduct');
+                                                    setCatId(category.productCategoryId);
+                                                    setMobileMenuOpen(false);
+                                                    setCategoriesOpen(false);
+                                                }}
+                                            >
+                                                {category.categoryName}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div className="border-t border-gray-200"></div>
+
+                                {/* Other mobile menu links */}
+                                {[
+                                    { path: "/about", icon: <FaUser className="mr-3 text-indigo-500" />, label: "About" },
+                                    { path: "/manufacture", icon: <FaIndustry className="mr-3 text-indigo-500" />, label: "Manufacturers" },
+                                    { path: "/faq", icon: <FaQq className="mr-3 text-indigo-500" />, label: "FAQ" },
+                                    { path: "/contact", icon: <FaEnvelope className="mr-3 text-indigo-500" />, label: "Contact" },
+                                    { path: "/blog", icon: <FaBlog className="mr-3 text-indigo-500" />, label: "Blog" }
+                                ].map((item) => (
+                                    <Link
+                                        key={item.path}
+                                        to={item.path}
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center"
+                                    >
+                                        {item.icon}
+                                        {item.label}
+                                    </Link>
+                                ))}
+
+                                <div className="border-t border-gray-200"></div>
+
+                                <Link
+                                    to="/account"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center"
+                                >
+                                    <FaUser className="mr-3 text-indigo-500" />
+                                    <span>Login</span>
+                                </Link>
+                            </div>
+                        </div>
                     )}
                 </div>
             </header>
+            {openModal &&
+                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
+                    <Login onClose={setOpenModal} />
+                </div>
+            }
         </>
     );
 };

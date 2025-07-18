@@ -99,7 +99,7 @@ function ShippingCart() {
           <BsCartX className='text-5xl mx-auto text-gray-400' />
           <p className='text-lg font-medium'>Your shopping cart is empty!</p>
           <button
-            onClick={() => navigate('/ed')}
+            onClick={() => navigate('/CatProduct')}
             className='bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors cursor-pointer font-medium'
           >
             Continue Shopping

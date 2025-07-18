@@ -14,6 +14,39 @@ import sun from '../../assets/manufacture/sun.jpg';
 import reddy from '../../assets/manufacture/reddy.jpeg';
 import myLan from '../../assets/manufacture/Mylan.png';
 import natco from '../../assets/manufacture/natco.png';
+import m3 from '../../assets/manufacture/3m.webp';
+import bd from '../../assets/manufacture/bd.png';
+import cipla from '../../assets/manufacture/cipla.png';
+import emami from '../../assets/manufacture/emami.webp';
+import furist from '../../assets/manufacture/furist.png';
+import galderma from '../../assets/manufacture/galderma.png';
+import lucius from '../../assets/manufacture/lucius.jpeg';
+import mama from '../../assets/manufacture/mama.png';
+import omron from '../../assets/manufacture/omron.avif';
+import pg from '../../assets/manufacture/p&g.png';
+import roche from '../../assets/manufacture/roche.png';
+import romson from '../../assets/manufacture/romson.png';
+import sanofi from '../../assets/manufacture/sanofi.png';
+import trueCure from '../../assets/manufacture/trueCure.png';
+import ajanta from '../../assets/manufacture/ajanta.png';
+import alambic from '../../assets/manufacture/alambic.png';
+import alkem from '../../assets/manufacture/alkem.avif';
+import apex from '../../assets/manufacture/apex.png';
+import astra from '../../assets/manufacture/astrazeneca.png';
+import astro from '../../assets/manufacture/astro.png';
+import boehringer from '../../assets/manufacture/boehringer.png';
+import cadila from '../../assets/manufacture/cadila.webp';
+import eris from '../../assets/manufacture/eris.png';
+import framco from '../../assets/manufacture/framco.png';
+import indico from '../../assets/manufacture/indoco.png';
+import ipca from '../../assets/manufacture/ipca.png';
+import macleods from '../../assets/manufacture/macleods.png';
+import mayer from '../../assets/manufacture/mayer.png';
+import miraccure from '../../assets/manufacture/miraccure.png';
+import msd from '../../assets/manufacture/MSD.webp';
+import pfizer from '../../assets/manufacture/pfizer.png';
+import torrent from '../../assets/manufacture/torrent.png';
+import usv from '../../assets/manufacture/usv.png';
 
 function Manufacturer() {
 
@@ -39,6 +72,39 @@ function Manufacturer() {
     { id: 13, img: reddy, name: 'Dr.Reddy'},
     { id: 14, img: myLan, name: 'Mylan Pharma'},
     { id: 15, img: natco, name: 'Natco Pharma'},
+    { id: 16, img: m3, name: '3M'},
+    { id: 17, img: bd, name: 'BD'},
+    { id: 18, img: cipla, name: 'Cipla Health' },
+    { id: 19, img: emami, name: 'Emami' },
+    { id: 20, img: furist, name: 'Furist' },
+    { id: 21, img: galderma, name: 'Galderma' },
+    { id: 22, img: lucius, name: 'Lucius' },
+    { id: 23, img: mama, name: 'Mamaearth' },
+    { id: 24, img: omron, name: 'Omron' },
+    { id: 25, img: pg, name: 'p&g' },
+    { id: 26, img: roche, name: 'roche' },
+    { id: 27,img: romson, name: 'Romsons' },
+    { id: 28, img: sanofi, name: 'Sanofi' },
+    { id: 29, img: trueCure, name: 'TrueCure' },
+    { id: 30, img: ajanta, name: 'Ajanta' },
+    { id: 31, img: alambic, name: 'Alambic' },
+    { id: 32, img: alkem, name: 'Alkem'},
+    { id: 33, img: apex,  name: 'Apex' },
+    { id: 34, img: astra, name: 'Astrazeneca' },
+    { id: 35, img: astro, name: 'Astro'},
+    { id: 36, img: boehringer, name: 'Boehringer'},
+    { id: 37, img: cadila, name: 'Cadila'},
+    { id: 38, img: eris, name: 'Eris'},
+    { id: 39, img: framco, name: 'Framco'},
+    { id: 40, img: indico, name: 'Indoco'},
+    {id: 41, img: ipca, name: 'Ipca'},
+    { id: 42, img: macleods, name: 'macleos'},
+    { id: 43, img: mayer, name: 'Meyer'},
+    { id: 44,img: miraccure, name: 'Miraccure'},
+    { id: 45, img: msd, name: 'MSD'},
+    { id: 46, img: pfizer, name: 'Pfizer'},
+    { id: 47, img: torrent, name: 'Torrent'},
+    { id: 48, img: usv, name: 'USV'}, 
   ];
 
   return (
