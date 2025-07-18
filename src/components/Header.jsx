@@ -58,7 +58,6 @@ const Header = () => {
         setLoading(true);
         try {
             const response = await axiosInstance.get('/product/get/productCategory');
-            console.log('dfdf', response);
             setCategory(response.data.data);
         } catch (error) {
             console.log('rer', error);
@@ -76,7 +75,6 @@ const Header = () => {
         setLoading(true);
         try {
             const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${itemsPerpage}&currentPage=${1}`);
-            console.log('product', response);
             setCatProduct(response.data.productList);
         } catch (error) {
             console.log('error', error);
@@ -108,17 +106,6 @@ const Header = () => {
         }, 5000);
         return clearTimeout()
     }, [])
-    useEffect(() => {
-        if (openModal) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'auto';
-        }
-
-        return () => {
-            document.body.style.overflow = 'auto';
-        };
-    }, [openModal]);
 
     return (
         <>

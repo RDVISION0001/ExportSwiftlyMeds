@@ -3,7 +3,6 @@ import { FaShoppingCart, FaHeart, FaShareAlt, FaChevronRight, FaHome, FaChevronD
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { FaFlask, FaBoxOpen, FaPills, FaMedkit } from 'react-icons/fa';
 import { useAuth } from '../../../AuthContext/AuthContext';
-import Barcode from 'react-barcode';
 
 const ProductDetailPage = () => {
     const { selectCountry } = useAuth();
@@ -227,9 +226,6 @@ const ProductDetailPage = () => {
 
                                         </div>
                                     )}
-                                    <div className=''>
-                                        <Barcode value={product.productCode} height={26} />,
-                                    </div>
                                 </div>
                                 {/* Product Info */}
                                 <div className="rounded-xl  p-8 w-[75%] ">
