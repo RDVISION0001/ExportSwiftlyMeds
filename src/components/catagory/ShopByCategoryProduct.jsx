@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { IoSearchOutline, IoArrowForward, IoMenu, IoClose, IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { useAuth } from '../../AuthContext/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../../AuthContext/AxiosInstance';
 
 const currencyRates = {
     USD: 1,
@@ -18,7 +19,9 @@ const ShopByCategoryProduct = () => {
     const { category, catProduct, setCatId, catId, loading, selectCountry, itemsPerpage, setItemsPerpage } = useAuth();
     const [activePage, setActivePage] = useState(catId);
     const [selectedBrand, setSelectedBrand] = useState('');
+    const [selectedBrandId, setSelectedBrandId] = useState('');
     const [selectedManufacturer, setSelectedManufacturer] = useState('');
+    const [selectedManufacturerId, setSelectedManufacturerId] = useState('');
     const [expandedCategory, setExpandedCategory] = useState('');
     const [showMobileSidebar, setShowMobileSidebar] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -26,59 +29,139 @@ const ShopByCategoryProduct = () => {
     const [manufacturers, setManufacturers] = useState([]);
     const [searchBrand, setSearchBrand] = useState('');
     const [searchManufacturer, setSearchManufacturer] = useState('');
-    const [searchProduct, setSearchProduct] = useState(''); // New state for product search
-    const [searchCategory, setSearchCategory] = useState(''); // New state for category search
+    const [searchProduct, setSearchProduct] = useState('');
+    const [searchCategory, setSearchCategory] = useState('');
+    const [productList, setProductList] = useState([]);
+    const [isBrandLoading, setIsBrandLoading] = useState(false);
+    const [isManufacturerLoading, setIsManufacturerLoading] = useState(false);
     const itemsPerPage = itemsPerpage || 20;
     const navigate = useNavigate();
     const topRef = useRef(null);
 
-    // Extract unique brands and manufacturers
+    // Detect forced reload and call clearAllFilters
     useEffect(() => {
-        if (catProduct?.length > 0) {
-            const uniqueBrands = [...new Set(catProduct
-                .filter(product => product.brand)
-                .map(product => product.brand))];
+        // This runs on component mount, simulating a reload
+        clearAllFilters();
 
-            const uniqueManufacturers = [...new Set(catProduct
-                .filter(product => product.manufacturer)
-                .map(product => product.manufacturer))];
+        // Fetch brands and manufacturers
+        getAllBrands();
+        getAllManufacturers();
 
-            setBrands(uniqueBrands.map((brand, index) => ({
-                id: `${brand.toLowerCase().replace(/\s+/g, '-')}-${index}`,
-                name: brand
-            })));
+        // Optional: Add event listener for page reload
+        const handleLoad = () => {
+            clearAllFilters();
+        };
 
-            setManufacturers(uniqueManufacturers.map((manu, index) => ({
-                id: `${manu.toLowerCase().replace(/\s+/g, '-')}-${index}`,
-                name: manu
-            })));
+        window.addEventListener('load', handleLoad);
+
+        return () => {
+            window.removeEventListener('load', handleLoad);
+        };
+    }, []); // Empty dependency array ensures this runs only on mount
+
+    const getAllBrands = async () => {
+        try {
+            const response = await axiosInstance.get(`/product/brand/getBrandsBy/status?status=y`);
+            setBrands(response.data.data);
+        } catch (error) {
+            console.error('Error fetching brands:', error);
         }
-    }, [catProduct]);
+    };
 
-    // Filter products based on selected brand, manufacturer, and search term
-    const filteredProducts = React.useMemo(() => {
-        if (!catProduct) return [];
+    const getAllManufacturers = async () => {
+        try {
+            const response = await axiosInstance.get(`/product/manufacturer/get/productManufacturer?status=y`);
+            setManufacturers(response.data.data);
+        } catch (error) {
+            console.error('Error fetching manufacturers:', error);
+        }
+    };
 
-        return catProduct.filter(product => {
+    const getBrandByProduct = async (brandId) => {
+        try {
+            setIsBrandLoading(true);
+            const response = await axiosInstance.get(`/product/brand/products/by-brand?brandId=${brandId}&itemPerPage=20&pageNumber=1&isActive=y`);
+            setProductList(response.data.productList);
+            setIsBrandLoading(false);
+        } catch (error) {
+            console.error("Error fetching brand by product:", error);
+            setIsBrandLoading(false);
+        }
+    };
+
+    const getManufacturerByProduct = async (manufacturerId) => {
+        try {
+            setIsManufacturerLoading(true);
+            const response = await axiosInstance.get(`/product/manufacturer/products/by-manufacturer?manufacturerId=${manufacturerId}&itemPerPage=20&pageNumber=1&isActive=y`);
+            setProductList(response.data.productList);
+            setIsManufacturerLoading(false);
+        } catch (error) {
+            console.error("Error fetching manufacturer by product:", error);
+            setIsManufacturerLoading(false);
+        }
+    };
+
+    const callAnAPI = async (data) => {
+        try {
+            if (data.brandId) {
+                await getBrandByProduct(data.brandId);
+                setSelectedBrand(data.brandName);
+                setSelectedBrandId(data.brandId);
+                setSelectedManufacturer('');
+                setSelectedManufacturerId('');
+                setSearchProduct('');
+                setCurrentPage(1);
+            } else if (data.manufacturerId) {
+                await getManufacturerByProduct(data.manufacturerId);
+                setSelectedManufacturer(data.name);
+                setSelectedManufacturerId(data.manufacturerId);
+                setSelectedBrand('');
+                setSelectedBrandId('');
+                setSearchProduct('');
+                setCurrentPage(1);
+            }
+        } catch (error) {
+            console.error("API call failed:", error);
+        }
+    };
+
+    // Filter brands based on search term
+    const filteredBrands = useMemo(() => {
+        if (!searchBrand) return brands;
+        return brands.filter(brand =>
+            brand.brandName.toLowerCase().includes(searchBrand.toLowerCase())
+        );
+    }, [brands, searchBrand]);
+
+    // Filter manufacturers based on search term
+    const filteredManufacturers = useMemo(() => {
+        if (!searchManufacturer) return manufacturers;
+        return manufacturers.filter(manufacturer =>
+            manufacturer.name.toLowerCase().includes(searchManufacturer.toLowerCase())
+        );
+    }, [manufacturers, searchManufacturer]);
+
+    const filteredProducts = useMemo(() => {
+        // When browsing by brand or manufacturer, use the full productList with only search filter
+        if (productList.length > 0) {
+            return productList.filter(product => {
+                const nameMatch = !searchProduct ||
+                    product.name.toLowerCase().includes(searchProduct.toLowerCase()) ||
+                    (product.genericName && product.genericName.toLowerCase().includes(searchProduct.toLowerCase()));
+                return nameMatch;
+            });
+        }
+        // When browsing by category, use catProduct with all filters
+        return (catProduct || []).filter(product => {
             const brandMatch = !selectedBrand || product.brand === selectedBrand;
             const manufacturerMatch = !selectedManufacturer || product.manufacturer === selectedManufacturer;
-            const nameMatch = !searchProduct || 
+            const nameMatch = !searchProduct ||
                 product.name.toLowerCase().includes(searchProduct.toLowerCase()) ||
                 (product.genericName && product.genericName.toLowerCase().includes(searchProduct.toLowerCase()));
             return brandMatch && manufacturerMatch && nameMatch;
         });
-    }, [catProduct, selectedBrand, selectedManufacturer, searchProduct]);
+    }, [productList, catProduct, selectedBrand, selectedManufacturer, searchProduct]);
 
-    // Filter brands and manufacturers based on search
-    const filteredBrands = brands.filter(brand =>
-        brand.name.toLowerCase().includes(searchBrand.toLowerCase())
-    );
-
-    const filteredManufacturers = manufacturers.filter(manu =>
-        manu.name.toLowerCase().includes(searchManufacturer.toLowerCase())
-    );
-
-    // Filter categories based on search
     const filteredCategories = category.filter(cat =>
         cat.categoryName.toLowerCase().includes(searchCategory.toLowerCase())
     );
@@ -89,6 +172,9 @@ const ShopByCategoryProduct = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
     const currentItems = filteredProducts?.slice(startIndex, endIndex) || [];
+
+    // Products to display - use productList for brands/manufacturers, currentItems for categories
+    const productsToDisplay = productList.length > 0 ? filteredProducts : currentItems;
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -133,29 +219,32 @@ const ShopByCategoryProduct = () => {
         setExpandedCategory(expandedCategory === categoryId ? '' : categoryId);
         setActivePage(categoryId);
         setCatId(categoryId);
-        // Reset filters when category changes
+        setProductList([]);
         setSelectedBrand('');
+        setSelectedBrandId('');
         setSelectedManufacturer('');
-        setSearchProduct(''); // Reset product search
+        setSelectedManufacturerId('');
+        setSearchProduct('');
         setCurrentPage(1);
         if (window.innerWidth < 768) setShowMobileSidebar(false);
     };
 
-    const handleBrandSelect = (brandName) => {
-        setSelectedBrand(selectedBrand === brandName ? '' : brandName);
-        setCurrentPage(1);
+    const handleBrandSelect = (brand) => {
+        callAnAPI(brand);
     };
 
-    const handleManufacturerSelect = (manufacturerName) => {
-        setSelectedManufacturer(selectedManufacturer === manufacturerName ? '' : manufacturerName);
-        setCurrentPage(1);
+    const handleManufacturerSelect = (manufacturer) => {
+        callAnAPI(manufacturer);
     };
 
     const clearAllFilters = () => {
         setSelectedBrand('');
+        setSelectedBrandId('');
         setSelectedManufacturer('');
-        setSearchProduct(''); // Clear product search
-        setSearchCategory(''); // Clear category search
+        setSelectedManufacturerId('');
+        setSearchProduct('');
+        setSearchCategory('');
+        setProductList([]);
         setCurrentPage(1);
     };
 
@@ -209,18 +298,18 @@ const ShopByCategoryProduct = () => {
     );
 
     const renderProducts = () => {
-        if (loading) return (
+        if (loading || isBrandLoading || isManufacturerLoading) return (
             <div className="w-full flex flex-col items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-600"></div>
                 <p className="text-gray-500 text-sm mt-4">Loading products...</p>
             </div>
         );
 
-        if (!currentItems?.length) return (
+        if (!productsToDisplay?.length) return (
             <div className="w-full flex flex-col items-center justify-center py-12">
                 <h3 className="text-lg font-medium text-gray-700 mb-2">No products found</h3>
                 <p className="text-gray-500 text-sm">Try changing your filters or check back later</p>
-                {(selectedBrand || selectedManufacturer || searchProduct) && (
+                {(selectedBrand || selectedManufacturer || searchProduct || productList.length > 0) && (
                     <button
                         onClick={clearAllFilters}
                         className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
@@ -233,55 +322,8 @@ const ShopByCategoryProduct = () => {
 
         return (
             <>
-                {/* Filter indicators */}
-                {(selectedBrand || selectedManufacturer || searchProduct) && (
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mx-4 mb-4">
-                        <div className="flex items-center flex-wrap gap-2">
-                            {selectedBrand && (
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800">
-                                    Brand: {selectedBrand}
-                                    <button
-                                        onClick={() => setSelectedBrand('')}
-                                        className="ml-2 p-0.5 rounded-full hover:bg-teal-200"
-                                    >
-                                        <IoClose className="w-3 h-3" />
-                                    </button>
-                                </span>
-                            )}
-                            {selectedManufacturer && (
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                    Manufacturer: {selectedManufacturer}
-                                    <button
-                                        onClick={() => setSelectedManufacturer('')}
-                                        className="ml-2 p-0.5 rounded-full hover:bg-blue-200"
-                                    >
-                                        <IoClose className="w-3 h-3" />
-                                    </button>
-                                </span>
-                            )}
-                            {searchProduct && (
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-                                    Search: {searchProduct}
-                                    <button
-                                        onClick={() => setSearchProduct('')}
-                                        className="ml-2 p-0.5 rounded-full hover:bg-purple-200"
-                                    >
-                                        <IoClose className="w-3 h-3" />
-                                    </button>
-                                </span>
-                            )}
-                        </div>
-                        <button
-                            onClick={clearAllFilters}
-                            className="text-sm text-teal-600 hover:text-teal-800 font-medium"
-                        >
-                            Clear all
-                        </button>
-                    </div>
-                )}
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
-                    {currentItems.map((product) => {
+                    {productsToDisplay.map((product) => {
                         const originalPrice = product.prices?.[0]?.maxPrice / 100 || 0;
                         const perPillPrice = originalPrice ? originalPrice / 100 : 0;
 
@@ -293,7 +335,7 @@ const ShopByCategoryProduct = () => {
                                 onKeyDown={(e) => e.key === 'Enter' && navigate('/view')}
                                 tabIndex={0}
                                 aria-label={`View details for ${product.name}`}
-                             >
+                            >
                                 <div className="flex flex-col h-full">
                                     <header className="mb-3">
                                         <h3 className="text-lg font-semibold text-blue-600 group-hover:text-blue-800 transition-colors">
@@ -340,7 +382,8 @@ const ShopByCategoryProduct = () => {
                         );
                     })}
                 </div>
-                {renderPagination()}
+                {/* Only show pagination when browsing by category (productList is empty) */}
+                {productList.length === 0 && renderPagination()}
             </>
         );
     };
@@ -418,20 +461,29 @@ const ShopByCategoryProduct = () => {
                                     </div>
                                 </div>
                                 <div className="pt-2 h-[180px] overflow-y-auto">
-                                    {filteredBrands.map((brand) => (
-                                        <div key={`brand-${brand.id}`} className="flex items-center py-1.5 px-3 hover:bg-gray-50 rounded">
-                                            <input
-                                                type="checkbox"
-                                                id={`brand-${brand.id}`}
-                                                checked={selectedBrand === brand.name}
-                                                onChange={() => handleBrandSelect(brand.name)}
-                                                className="mr-3 h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
-                                            />
-                                            <label htmlFor={`brand-${brand.id}`} className="text-sm text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis">
-                                                {brand.name}
-                                            </label>
-                                        </div>
-                                    ))}
+                                    {filteredBrands.length > 0 ? (
+                                        filteredBrands.map((brand) => (
+                                            <div key={`brand-${brand.brandId}`}>
+                                                <button
+                                                    onClick={() => handleBrandSelect(brand)}
+                                                    className={`flex items-center w-full py-2 text-left transition-colors duration-200 rounded-md hover:bg-gray-100 hover:text-teal-600 ${selectedBrandId === brand.brandId
+                                                        ? "bg-gray-50 text-teal-600"
+                                                        : "text-gray-600"
+                                                        }`}
+                                                >
+                                                    <IoArrowForward
+                                                        className={`mr-2 transition-transform duration-200 ${selectedBrandId === brand.brandId ? "rotate-90" : ""
+                                                            }`}
+                                                    />
+                                                    <span className="text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                                                        {brand.brandName}
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-gray-500 py-2">No brands found</p>
+                                    )}
                                 </div>
                             </div>
 
@@ -448,20 +500,29 @@ const ShopByCategoryProduct = () => {
                                     <IoSearchOutline className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                 </div>
                                 <div className="h-[180px] overflow-y-auto">
-                                    {filteredManufacturers.map((manu) => (
-                                        <div key={`manu-${manu.id}`} className="flex items-center py-1.5 px-3 hover:bg-gray-50 rounded">
-                                            <input
-                                                type="checkbox"
-                                                id={`manu-${manu.id}`}
-                                                checked={selectedManufacturer === manu.name}
-                                                onChange={() => handleManufacturerSelect(manu.name)}
-                                                className="mr-2 h-4 w-4 text-teal-500 focus:ring-teal-500 border-gray-300 rounded"
-                                            />
-                                            <label htmlFor={`manu-${manu.id}`} className="text-sm text-gray-600 whitespace-nowrap overflow-hidden text-ellipsis">
-                                                {manu.name}
-                                            </label>
-                                        </div>
-                                    ))}
+                                    {filteredManufacturers.length > 0 ? (
+                                        filteredManufacturers.map((manu) => (
+                                            <div key={`manu-${manu.manufacturerId}`}>
+                                                <button
+                                                    onClick={() => handleManufacturerSelect(manu)}
+                                                    className={`flex items-center w-full py-2 text-left transition-colors duration-200 rounded-md hover:bg-gray-100 hover:text-teal-600 ${selectedManufacturerId === manu.manufacturerId
+                                                        ? "bg-gray-50 text-teal-600"
+                                                        : "text-gray-600"
+                                                        }`}
+                                                >
+                                                    <IoArrowForward
+                                                        className={`mr-2 transition-transform duration-200 ${selectedManufacturerId === manu.manufacturerId ? "rotate-90" : ""
+                                                            }`}
+                                                    />
+                                                    <span className="text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                                                        {manu.name || "Unnamed"}
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-gray-500 py-2">No manufacturers found</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -485,25 +546,47 @@ const ShopByCategoryProduct = () => {
                 )}
 
                 <div className="w-full md:w-[80%] overflow-y-auto hide-scrollbar" style={{ maxHeight: 'calc(100vh - 100px)' }}>
+                    {/* Flex container for All button and search input */}
                     <div className="p-4 bg-white">
-                        <div className="relative w-full max-w-md mb-4">
-                            <input
-                                type="text"
-                                placeholder="Search products..."
-                                className="w-full py-2 pl-4 pr-10 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                value={searchProduct}
-                                onChange={(e) => {
-                                    setSearchProduct(e.target.value);
-                                    setCurrentPage(1);
-                                }}
-                            />
-                            <IoSearchOutline className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <div className="flex items-center gap-4 mb-4">
+                            <button onClick={clearAllFilters} className='bg-[#04999b] px-4 py-2 rounded-md text-white'>
+                                All
+                            </button>
+                            <div className="w-1/2 relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search products..."
+                                    className="w-full py-2 pl-4 pr-10 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                    value={searchProduct}
+                                    onChange={(e) => {
+                                        setSearchProduct(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                />
+                                <IoSearchOutline className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            </div>
                         </div>
+
+                        {(selectedBrand || selectedManufacturer) && (
+                            <div className="mb-4 flex items-center justify-between">
+                                <h2 className="text-xl font-semibold">
+                                    Products for {selectedBrand ? `brand: ${selectedBrand}` : `manufacturer: ${selectedManufacturer}`}
+                                </h2>
+                                <button
+                                    onClick={clearAllFilters}
+                                    className="text-sm text-teal-600 hover:text-teal-800"
+                                >
+                                    Show all products
+                                </button>
+                            </div>
+                        )}
                     </div>
-                    <main className="">
+
+                    <main>
                         {renderProducts()}
                     </main>
                 </div>
+
             </div>
         </div>
     );

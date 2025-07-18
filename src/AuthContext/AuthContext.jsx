@@ -5,10 +5,7 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     // Initialize state from localStorage if available
-    const [cart, setCart] = useState(() => {
-        const savedCart = localStorage.getItem('cart');
-        return savedCart ? JSON.parse(savedCart) : [];
-    });
+    const [cart, setCart] = useState([])
     const [product, setProduct] = useState(() => {
         const savedProduct = localStorage.getItem('product');
         return savedProduct ? JSON.parse(savedProduct) : null;

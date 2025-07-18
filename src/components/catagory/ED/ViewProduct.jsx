@@ -3,9 +3,10 @@ import { FaShoppingCart, FaHeart, FaShareAlt, FaChevronRight, FaHome, FaChevronD
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { FaFlask, FaBoxOpen, FaPills, FaMedkit } from 'react-icons/fa';
 import { useAuth } from '../../../AuthContext/AuthContext';
+import ShippingCart from '../../shippingCart/ShippingCart';
 
 const ProductDetailPage = () => {
-    const { selectCountry } = useAuth();
+    const { selectCountry, cart, setCart } = useAuth();
 
     // Currency exchange rates (should be fetched from API in production)
     const currencyRates = {
@@ -97,71 +98,34 @@ const ProductDetailPage = () => {
         );
     };
 
-    const handleAddToCart = (price) => {
-        const existingItemIndex = cartItems.findIndex(
-            item => item.priceId === price.id && item.productId === product.id
-        );
+    const handleAddToCart = (product, price, name, brand) => {
+        setCart(prevCart => {
+            // Check if product is already in cart
+            const existingIndex = prevCart.findIndex(item => item.product.id === product.id);
 
-        const targetCurrency = selectCountry?.currency || price.currency;
-        const originalUnitPrice = price.maxPrice / price.quantity;
-        const convertedUnitPrice = convertPrice(originalUnitPrice, price.currency, targetCurrency);
-        const convertedTotalPrice = convertPrice(price.maxPrice, price.currency, targetCurrency);
-
-        if (existingItemIndex >= 0) {
-            const updatedCart = [...cartItems];
-            updatedCart[existingItemIndex].quantity += price.quantity;
-            updatedCart[existingItemIndex].totalPrice = convertPrice(
-                updatedCart[existingItemIndex].originalUnitPrice * updatedCart[existingItemIndex].quantity,
-                updatedCart[existingItemIndex].originalCurrency,
-                targetCurrency
-            );
-            setCartItems(updatedCart);
-        } else {
-            const newItem = {
-                productId: product.id,
-                productName: product.name,
-                priceId: price.id,
-                imageUrl: product.imageUrls?.[0] || '',
-                quantity: price.quantity,
-                unitPrice: convertedUnitPrice,
-                originalUnitPrice: originalUnitPrice,
-                totalPrice: convertedTotalPrice,
-                currency: targetCurrency,
-                originalCurrency: price.currency,
-                packaging: product.packagingType || 'Not specified',
-                strength: product.strength || 'Not specified'
-            };
-            setCartItems([...cartItems, newItem]);
-        }
-    };
-
-    const handleRemoveFromCart = (priceId) => {
-        setCartItems(cartItems.filter(item => item.priceId !== priceId));
-    };
-
-    const handleQuantityChange = (priceId, newQuantity) => {
-        if (newQuantity < 1) return;
-
-        setCartItems(cartItems.map(item => {
-            if (item.priceId === priceId) {
-                const originalUnitPriceInUSD = item.originalUnitPrice / currencyRates[item.originalCurrency];
-                const newTotalInUSD = originalUnitPriceInUSD * newQuantity;
-                const convertedTotalPrice = newTotalInUSD * currencyRates[selectCountry?.currency || item.currency];
-
-                return {
-                    ...item,
-                    quantity: newQuantity,
-                    totalPrice: parseFloat(convertedTotalPrice.toFixed(2)),
-                    unitPrice: convertPrice(item.originalUnitPrice, item.originalCurrency, selectCountry?.currency || item.currency)
-                };
+            if (existingIndex !== -1) {
+                // Product exists, update price array
+                const updatedCart = [...prevCart];
+                updatedCart[existingIndex].prices.push(price);
+                return updatedCart;
+            } else {
+                // New product, add to cart
+                return [
+                    ...prevCart,
+                    {
+                        product,
+                        name,
+                        brand,
+                        prices: [price],
+                    },
+                ];
             }
-            return item;
-        }));
+        });
     };
 
-    const calculateSubtotal = () => {
-        return parseFloat(cartItems.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2));
-    };
+
+
+
 
     return (
         <>
@@ -344,7 +308,7 @@ const ProductDetailPage = () => {
                                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                         <button
                                                             className="cursor-pointer inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-                                                            onClick={() => handleAddToCart(price)}
+                                                            onClick={() => handleAddToCart(product, price, product.name, product.brand)}
                                                         >
                                                             Add to Cart
                                                         </button>
@@ -466,102 +430,47 @@ const ProductDetailPage = () => {
                     </div>
 
                     {/* Cart Section */}
-                    <div className="w-full md:w-[25%] border border-gray-300 rounded-md my-2 p-4 h-screen overflow-y-auto hide-scrollbar bg-white">
-                        <h2 className="text-xl font-bold mb-4 flex items-center">
-                            <FaShoppingCart className="mr-2" /> Shopping Cart
-                            <span className="ml-auto bg-blue-500 text-white text-sm rounded-full px-2 py-1">
-                                {cartItems.length}
+                    <div className="w-full md:w-[25%] border border-gray-200 rounded-lg shadow-sm my-2 p-4 h-screen overflow-y-auto hide-scrollbar bg-white">
+                        <h2 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b">Your Cart</h2>
 
-                            </span>
-                        </h2>
+                        {cart?.length > 0 ? (
+                            <div className="space-y-3">
+                                {cart.map((item, index) => (
+                                    <div key={index} className="relative p-3 border rounded-lg hover:shadow transition-shadow bg-gray-50">
+                                        <button
+                                            onClick={() => handleRemoveItem(index)}
+                                            className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
+                                            aria-label="Remove item"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
 
-                        {cartItems.length === 0 ? (
-                            <div className="text-center py-8">
-                                <p className="text-gray-500 mb-4">🛒 Your cart is empty</p>
-                                <button
-                                    onClick={() => navigate('/')}
-                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-                                >
-                                    Continue Shopping
-                                </button>
+                                        <h3 className="font-medium text-gray-900">{item.name}</h3>
+
+                                        <div className="mt-2 space-y-1">
+                                            {item.prices?.map((priceObj, i) => (
+                                                <div key={i} className="flex justify-between text-sm text-gray-600">
+                                                    <span>${priceObj.price.toFixed(2)} x {priceObj.quantity}</span>
+                                                    <span className="font-medium">${(priceObj.price * priceObj.quantity).toFixed(2)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         ) : (
-                            <div>
-                                <div className="space-y-4">
-                                    {cartItems.map((item) => (
-                                        <div key={item.priceId} className="border-b pb-4">
-                                            <div className="flex items-start">
-                                                <img
-                                                    src={item.imageUrl}
-                                                    alt={item.productName}
-                                                    className="w-16 h-16 object-contain mr-3"
-                                                />
-                                                <div className="flex-1">
-                                                    <div className="flex justify-between">
-                                                        <h3 className="font-medium">{item.productName}</h3>
-                                                        <button
-                                                            onClick={() => handleRemoveFromCart(item.priceId)}
-                                                            className="text-gray-400 hover:text-red-500 cursor-pointer"
-                                                        >
-                                                            <FaTimes />
-                                                        </button>
-                                                    </div>
-                                                    <p className="text-sm text-gray-500">{item.strength}</p>
-                                                    <p className="text-sm text-gray-500">{item.packaging}</p>
-
-                                                    <div className="flex items-center mt-2">
-                                                        <span className="text-sm font-semibold">
-                                                            {formatPrice(item.unitPrice, item.currency)} each
-                                                        </span>
-                                                    </div>
-
-                                                    <div className="flex items-center justify-between mt-2">
-                                                        <div className="flex items-center border border-gray-300 rounded p-1">
-                                                            <button
-                                                                onClick={() => handleQuantityChange(item.priceId, item.quantity - 1)}
-                                                                className="px-2 py-1 bg-gray-100 hover:bg-gray-200 cursor-pointer"
-                                                            >
-                                                                -
-                                                            </button>
-                                                            <span className="px-2">{item.quantity}</span>
-                                                            <button
-                                                                onClick={() => handleQuantityChange(item.priceId, item.quantity + 1)}
-                                                                className="px-2 py-1 bg-gray-100 hover:bg-gray-200 cursor-pointer"
-                                                            >
-                                                                +
-                                                            </button>
-                                                        </div>
-                                                        <span className="font-semibold">
-                                                            {formatPrice(item.totalPrice, item.currency)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="mt-6 border-t pt-4">
-                                    <div className="flex justify-between font-semibold text-lg">
-                                        <span>Subtotal:</span>
-                                        <span>
-                                            {cartItems.length > 0 ? (
-                                                formatPrice(calculateSubtotal(), cartItems[0].currency)
-                                            ) : (
-                                                formatPrice(0, selectCountry?.currency || 'USD')
-                                            )}
-                                        </span>
-                                    </div>
-                                    <button
-                                        className="w-full bg-green-500 text-white py-2 rounded mt-4 hover:bg-green-600 transition cursor-pointer"
-                                        onClick={() => navigate('/checkout')}
-                                    >
-                                        Proceed to Checkout
-                                    </button>
-                                </div>
+                            <div className="flex flex-col items-center justify-center h-full text-center py-8">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                <p className="text-gray-500 mb-2">Your cart is empty</p>
+                                <p className="text-sm text-gray-400">Add items to get started</p>
                             </div>
                         )}
                     </div>
+
                 </div>
             </div>
         </>

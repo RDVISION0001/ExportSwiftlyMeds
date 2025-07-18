@@ -1,267 +1,195 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { useAuth } from '../../AuthContext/AuthContext';
-import { TiDeleteOutline } from "react-icons/ti";
 import { useNavigate } from 'react-router-dom';
-import { IoArrowBackOutline } from "react-icons/io5";
-import { BsCartX } from "react-icons/bs";
+import { FiTrash2, FiPlus, FiMinus, FiArrowLeft } from 'react-icons/fi';
 
-function ShippingCart() {
-  const { product, setProduct, setAmount, setCart } = useAuth();
-  console.log('productShippingCartData: ', product);
+const CartPage = () => {
   const navigate = useNavigate();
-  const topRef = useRef(null);
-  const [quantity, setQuantity] = useState(1);
-  const [selectedBonus, setSelectedBonus] = useState('Vlagra 100 mg × 2 pills');
-  const [selectedShipping, setSelectedShipping] = useState('AirMail');
-  const [totalAmount, setTotalAmount] = useState(0);
+  const { cart, setCart } = useAuth();
 
-  const handleIncrement = () => setQuantity(prev => prev + 1);
-  const handleDecrement = () => setQuantity(prev => Math.max(1, prev - 1));
+  const removeItem = (index) => {
+    const newCart = [...cart];
+    newCart.splice(index, 1);
+    setCart(newCart);
+    alert('Item removed from cart');
+  };
 
-  useEffect(() => {
-    topRef.current?.scrollIntoView({ behavior: 'smooth' });
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-    // Calculate initial total amount
-    if (product) {
-      const initialTotal = Array.isArray(product)
-        ? product.reduce((sum, item) => sum + (item.perPack * 0.9), 0)
-        : product.perPack * 0.9;
-      setTotalAmount(initialTotal);
+  const removePriceEntry = (productIndex, priceIndex) => {
+    const newCart = [...cart];
+    newCart[productIndex].product.prices.splice(priceIndex, 1);
+    setCart(newCart);
+  };
+
+  const updatePriceQuantity = (productIndex, priceIndex, newQuantity) => {
+    if (newQuantity < 1) {
+      alert('Quantity cannot be less than 1');
+      return;
     }
-  }, [product]);
+
+    const newCart = [...cart];
+    newCart[productIndex].product.prices[priceIndex].quantity = newQuantity;
+    setCart(newCart);
+  };
 
   const calculateTotal = () => {
-    if (!product) return 0;
-    if (Array.isArray(product)) {
-      return product.reduce((sum, item) => sum + (item.perPack * 0.9 * quantity), 0).toFixed(2);
-    }
-    return (product.perPack * 0.9 * quantity).toFixed(2);
+    return cart.reduce((total, item) => {
+      const priceDetails = item.product.prices || [];
+      const itemTotal = priceDetails.reduce((sum, priceObj) => {
+        return sum + ((priceObj.price || 0) * (priceObj.quantity || 1));
+      }, 0);
+      return total + itemTotal;
+    }, 0).toFixed(2);
   };
-
-  const shippingOptions = [
-    {
-      id: 'airmail',
-      name: 'AirMail (World Wide)',
-      price: 9.95,
-      description: 'The delivery may take up to 2-3 business weeks for AirMail. Unfortunately Online Tracking is not available for Airmail.',
-      freeThreshold: 200
-    },
-    {
-      id: 'ems',
-      name: 'EMS (World Wide)',
-      price: 29.95,
-      description: 'Is the fastest available shipping method. You will receive your shipping track id as soon as the package is shipped. The waiting period for EMS lasts 3-8 business days.',
-      freeThreshold: 300
-    }
-  ];
-
-  const bonusOptions = [
-    'No bonus',
-    'Vlagra 100 mg × 2 pills',
-    'Clails 20 mg × 2 pills',
-    'Levitra 20 mg × 2 pills'
-  ];
-
-  const handleRemove = (productId) => {
-    if (Array.isArray(product)) {
-      // Find the product to get its price
-      const removedProduct = product.find(item => item.id === productId);
-      if (removedProduct) {
-        // Update total amount
-        setTotalAmount(prev => prev - (removedProduct.perPack * 0.9));
-        // Update cart count
-        setCart(prev => prev - 1);
-        // Remove the product
-        setProduct(prevItems => prevItems.filter(item => item.id !== productId));
-        // Update the amount in context if needed
-        setAmount(prev => prev - (removedProduct.perPack * 0.9));
-      }
-    } else {
-      // Handle single product case
-      setTotalAmount(0);
-      setCart(0);
-      setProduct(null);
-      setAmount(0);
-    }
-  };
-
-
-  // Check if product is empty or null
-  const isEmpty = !product || (Array.isArray(product) && product.length === 0);
-
-  if (isEmpty) {
-    return (
-      <div className='w-full flex justify-center items-center py-20'>
-        <div className='text-center space-y-4'>
-          <BsCartX className='text-5xl mx-auto text-gray-400' />
-          <p className='text-lg font-medium'>Your shopping cart is empty!</p>
-          <button
-            onClick={() => navigate('/CatProduct')}
-            className='bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors cursor-pointer font-medium'
-          >
-            Continue Shopping
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Convert single product to array for consistent rendering
-  const productsToRender = Array.isArray(product) ? product : [product];
 
   return (
-    <div ref={topRef} className="max-w-6xl mx-auto px-4 py-8">
-      <div className='flex justify-between items-center mb-6'>
-        <h1 className="text-2xl font-bold">Shopping Cart</h1>
-        <button
-          onClick={() => navigate('/view')}
-          className='bg-[#BBFBFF] rounded-lg px-3 py-1 flex items-center gap-2 hover:bg-[#A0E0E0] transition-colors cursor-pointer'
-        >
-          <IoArrowBackOutline /> Back
-        </button>
-      </div>
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
+      >
+        <FiArrowLeft className="mr-2" /> Back to Shop
+      </button>
 
-      {/* Products Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse overflow-hidden rounded-2xl shadow-sm">
-          <thead className="">
-            <tr className='bg-gray-100'>
-              <th className="text-left p-4 font-medium text-gray-700">Product Name</th>
-              <th className="text-left p-4 font-medium text-gray-700">Package</th>
-              <th className="text-left p-4 font-medium text-gray-700">Qty</th>
-              <th className="text-left p-4 font-medium text-gray-700">Per Pack</th>
-              <th className="text-left p-4"></th>
-            </tr>
-          </thead>
-          <tbody className="">
-            {productsToRender.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                <td className="p-4 border-t border-gray-200 font-medium text-blue-300">Viagra</td>
-                <td className="p-4 border-t border-gray-200 text-gray-600">
-                  {item?.dosage}*{item?.pills}
-                </td>
-                <td className="p-4 border-t border-gray-200">
-                  <div className="flex items-center">
+      <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Your Shopping Cart</h2>
+
+      {cart && cart.length > 0 ? (
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="lg:w-2/3 space-y-6">
+            {cart.map((item, index) => (
+              <div
+                key={index}
+                className="flex flex-col sm:flex-row border border-gray-200 rounded-lg p-6 bg-white shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="w-full sm:w-40 h-40 flex items-center justify-center mb-4 sm:mb-0 bg-gray-50 rounded-lg">
+                  {item.product.imageUrls?.[0] ? (
+                    <img
+                      src={item.product.imageUrls[0]}
+                      alt={item.product.name}
+                      className="max-h-full max-w-full object-contain p-2"
+                    />
+                  ) : (
+                    <div className="text-gray-400">No image available</div>
+                  )}
+                </div>
+
+                <div className="flex-1 sm:ml-6">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-xl font-semibold text-gray-800">{item.product.name}</h3>
                     <button
-                      onClick={handleDecrement}
-                      className="px-3 py-1 border border-gray-300 rounded-l-md hover:bg-gray-100 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      aria-label="Decrease quantity"
+                      onClick={() => removeItem(index)}
+                      className="text-gray-400 hover:text-red-500 p-1 transition-colors"
+                      aria-label="Remove item"
                     >
-                      -
-                    </button>
-                    <span className="px-4 py-1 border-t border-b border-gray-300 bg-white text-center w-12">
-                      {quantity}
-                    </span>
-                    <button
-                      onClick={handleIncrement}
-                      className="px-3 py-1 border border-gray-300 rounded-r-md hover:bg-gray-100 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      aria-label="Increase quantity"
-                    >
-                      +
+                      <FiTrash2 size={20} />
                     </button>
                   </div>
-                </td>
-                <td className="p-4 border-t border-gray-200 font-medium">{item?.perPack}</td>
-                <td onClick={() => handleRemove(item.id)} className='p-4 border-t border-gray-200'>
-                  <TiDeleteOutline
-                    className='text-red-500 text-2xl hover:text-red-600 cursor-pointer'
-                    aria-label="Remove item"
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
 
-      {/* Free Bonus Section */}
-      <div className="py-10">
-        <h2 className="text-xl font-semibold mb-4">Select Free Bonus</h2>
-        <div className="space-x-4 flex flex-wrap items-center bg-[#ADEED9] p-3 rounded-md gap-2">
-          {bonusOptions.map((option) => (
-            <div key={option} className="flex items-center">
-              <input
-                type="radio"
-                id={`bonus-${option}`}
-                name="bonus"
-                checked={selectedBonus === option}
-                onChange={() => setSelectedBonus(option)}
-                className="mr-2"
-              />
-              <label htmlFor={`bonus-${option}`} className='text-sm font-medium'>
-                {option}
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 text-sm text-gray-600">
+                    <p><span className="font-medium text-gray-700">Brand:</span> {item.product.brand}</p>
+                    <p><span className="font-medium text-gray-700">Strength:</span> {item.product.strength}</p>
+                    <p><span className="font-medium text-gray-700">Packaging:</span> {item.product.packagingSize} {item.product.packagingType}</p>
+                    <p><span className="font-medium text-gray-700">Category:</span> {item.product.category}</p>
+                  </div>
 
-      {/* Shipping Options */}
-      <h2 className="text-xl font-semibold mb-4">Select Shipping</h2>
-      <div className="space-y-4 bg-[#F5F8ED] rounded-lg p-6 shadow-sm">
-        {shippingOptions.map((option) => (
-          <div
-            key={option.id}
-            className={`flex items-start p-3 hover:bg-[#ECFAE5] rounded-md transition-colors cursor-pointer ${selectedShipping === option.id ? 'bg-[#ECFAE5]' : ''}`}
-            onClick={() => setSelectedShipping(option.id)}
-          >
-            <input
-              type="radio"
-              id={option.id}
-              name="shipping"
-              checked={selectedShipping === option.id}
-              onChange={() => setSelectedShipping(option.id)}
-              className="mt-1 mr-3 h-4 w-4 text-[#A0C878] focus:ring-[#A0C878]"
-            />
-            <label htmlFor={option.id} className="flex-1 cursor-pointer">
-              <div className="flex justify-between items-start">
-                <span className="font-medium text-gray-800">{option.name}</span>
-                <span className="font-bold text-gray-900 ml-4">${option.price}</span>
+                  {item.product.prices?.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      {item.product.prices.map((price, priceIndex) => (
+                        <div key={priceIndex} className="border border-gray-100 p-3 rounded-md bg-gray-50">
+                          <div className="flex justify-between items-center text-sm text-gray-700">
+                            <div>
+                              <p>
+                                <span className="font-semibold text-gray-900">
+                                  ${(price.price * price.quantity).toFixed(2)}
+                                </span>{" "}
+                                ({price.quantity} × ${price.price} {price.currency})
+                              </p>
+                            </div>
+                            {/* <button
+                              onClick={() => removePriceEntry(index, priceIndex)}
+                              className="text-xs text-red-500 hover:underline"
+                            >
+                              Remove
+                            </button> */}
+                          </div>
+
+                          <div className="flex items-center mt-2">
+                            <button
+                              onClick={() =>
+                                updatePriceQuantity(index, priceIndex, price.quantity - 1)
+                              }
+                              className="w-7 h-7 border border-gray-300 rounded-l bg-white hover:bg-gray-100 flex items-center justify-center"
+                            >
+                              <FiMinus size={14} />
+                            </button>
+                            <span className="w-10 h-7 border-t border-b border-gray-300 flex items-center justify-center bg-white">
+                              {price.quantity}
+                            </span>
+                            <button
+                              onClick={() =>
+                                updatePriceQuantity(index, priceIndex, price.quantity + 1)
+                              }
+                              className="w-7 h-7 border border-gray-300 rounded-r bg-white hover:bg-gray-100 flex items-center justify-center"
+                            >
+                              <FiPlus size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <p className="text-sm text-gray-600 mt-1">
-                {option.description}
-                <span className="block text-[#A0C878] font-medium mt-1">
-                  We provide Free {option.id.toUpperCase()} shipping for orders over ${option.freeThreshold}.
-                </span>
-              </p>
-            </label>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Price Summary */}
-      <div className="pt-6">
-        <div className="flex justify-between mb-2">
-          <span>{product?.perPack}</span>
-          <span>with discount 10%</span>
-          <span>{(product?.perPack * 0.9).toFixed(2)}</span>
+          <div className="lg:w-1/3">
+            <div className="border border-gray-200 rounded-lg p-6 bg-white shadow-sm sticky top-6">
+              <h3 className="text-xl font-semibold mb-4 text-gray-800">Order Summary</h3>
+              <div className="space-y-4 mb-6">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Subtotal</span>
+                  <span className="font-medium">${calculateTotal()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="font-medium">Free</span>
+                </div>
+                <div className="border-t border-gray-200 my-2"></div>
+                <div className="flex justify-between text-lg">
+                  <span className="font-semibold">Total</span>
+                  <span className="font-bold text-gray-900">${calculateTotal()}</span>
+                </div>
+              </div>
+              <button
+                className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                onClick={() => navigate('/checkout')}
+              >
+                Proceed to Checkout
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex justify-between font-bold text-lg mt-4">
-          <span>Your order sum is:</span>
-          <span>${calculateTotal()}</span>
+      ) : (
+        <div className="text-center py-12">
+          <div className="max-w-md mx-auto">
+            <div className="text-gray-400 mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-medium text-gray-700 mb-2">Your cart is empty</h3>
+            <p className="text-gray-500 mb-6">Looks like you haven't added any items to your cart yet.</p>
+            <button
+              onClick={() => navigate('/CatProduct')}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center"
+            >
+              <FiArrowLeft className="mr-2" /> Continue Shopping
+            </button>
+          </div>
         </div>
-      </div>
-
-      {/* Buttons */}
-      <div className="flex justify-between mt-8">
-        <button
-          onClick={() => navigate('/ed')}
-          className="px-6 py-2 border rounded hover:bg-gray-100 cursor-pointer transition-colors text-xs md:text-lg"
-        >
-          CONTINUE SHOPPING
-        </button>
-        <button
-          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer transition-colors text-xs md:text-lg"
-          onClick={() => navigate('/checkout')}
-        >
-          CHECKOUT
-        </button>
-      </div>
+      )}
     </div>
   );
-}
+};
 
-export default ShippingCart;
+export default CartPage;
