@@ -25,6 +25,7 @@ import DeliveryShippingPolicy from './components/DeliveryShippingPolicy';
 import ShopByCategoryProduct from './components/catagory/ShopByCategoryProduct';
 import CrmPayment from './components/CRM/CrmPayment';
 import PCIDSS from './components/PCIDSS';
+import TaregetCountry from './components/TaregetCountry';
 
 
 function App() {
@@ -39,7 +40,6 @@ function App() {
         <Route path='/contact' element={<ContactUs />} />
         <Route path='/faq' element={<FAQ />} />
         <Route path='/blog' element={<Blog />} />
-        <Route path='/marketPlace' element={<SwiftlyMarket/>}/>
         <Route path='/proserve' element={<ProductServices/>}/>
         <Route path="/checkout/:orderNumber" element={<CrmPayment />} />
         <Route path='/manufacture' element={<Manufacturer />} />
@@ -57,6 +57,7 @@ function App() {
         <Route path='/deliveryShipping' element={<DeliveryShippingPolicy />} />
         <Route path='/CatProduct' element={<ShopByCategoryProduct />} />
         <Route path='/pci-dss' element={<PCIDSS />} />
+        <Route path='/marketArea' element={<TaregetCountry/>}/>
       </Routes>
       <Footer />
     </Router>
