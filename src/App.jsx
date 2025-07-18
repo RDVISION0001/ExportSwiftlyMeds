@@ -26,6 +26,7 @@ import TermsCondition from './components/TermsCondition';
 import RefundPolicy from './components/RefundPolicy';
 import DeliveryShippingPolicy from './components/DeliveryShippingPolicy';
 import ShopByCategoryProduct from './components/catagory/ShopByCategoryProduct';
+import CrmPayment from './components/CRM/CrmPayment';
 
 function App() {
   return (
@@ -56,6 +57,7 @@ function App() {
         <Route path='/refund' element={<RefundPolicy/>}/>
         <Route path='/deliveryShipping' element={<DeliveryShippingPolicy/>}/>
         <Route path='/CatProduct' element={<ShopByCategoryProduct/>}/>
+        <Route path="/checkout/:orderNumber" element={<CrmPayment />} />
       </Routes>
       <Footer />
     </Router>
