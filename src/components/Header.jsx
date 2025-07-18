@@ -100,12 +100,12 @@ const Header = () => {
   }
 };
 
-    useEffect(() =>{
-        setTimeout(() => {
-          setOpenModal(true)  
-        }, 5000);
-        return clearTimeout()
-    }, [])
+    // useEffect(() =>{
+    //     setTimeout(() => {
+    //       setOpenModal(true)  
+    //     }, 1000);
+    //     return clearTimeout()
+    // }, [])
 
     return (
         <>
@@ -174,7 +174,7 @@ const Header = () => {
                             </div>
                             {/* Login - visible on all screens */}
                             <div className="relative group hidden md:block">
-                                <button className="flex items-center space-x-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors cursor-pointer">
+                                <button onClick={() =>  setOpenModal(true) } className="flex items-center space-x-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors cursor-pointer">
                                     <FaUser className="text-xl" />
                                     <span className="hidden md:inline  font-medium">Login</span>
                                 </button>

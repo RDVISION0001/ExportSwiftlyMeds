@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { FcGoogle } from "react-icons/fc";
 import { FaWhatsappSquare } from "react-icons/fa";
 import { FiPhone, FiLock, FiChevronDown } from "react-icons/fi";
+import axios from 'axios';
 
 function Login({ onClose }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -10,6 +11,10 @@ function Login({ onClose }) {
   const [showOtpField, setShowOtpField] = useState(false);
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({});
   const phoneInputRef = useRef(null);
 
   const countryCodes = [
@@ -24,27 +29,90 @@ function Login({ onClose }) {
     setPhone(value);
   };
 
-  const handleSubmit = (e) => {
+  const validatePassword = (password) => {
+    const errors = [];
+    if (password.length < 8) errors.push("Password must be at least 8 characters long");
+    return errors;
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!name.trim()) newErrors.name = "Name is required";
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    
+    const passwordErrors = validatePassword(password);
+    if (passwordErrors.length > 0) {
+      newErrors.password = passwordErrors;
+    }
+    
+    if (!otp || otp.length !== 6) newErrors.otp = "Please enter a valid 6-digit OTP";
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const sendOtp = async () => {
+    try {
+      setIsLoading(true);
+      // Replace with your actual OTP sending API endpoint
+      const response = await axios.post(`http://192.168.1.18:8083/swiftlymeds/auth/verify-otp`, {
+        swiftUserPhone: countryCode + phone
+      });
+      setOtpSent(true);
+      setShowOtpField(true);
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      alert("Failed to send OTP. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = async () => {
+    if (!validateForm()) return;
+
+    try {
+      setIsLoading(true);
+      const signUpData = {
+        swiftUserName: name,
+        swiftUserEmail: email,
+        swiftUserPhone: countryCode + phone,
+        swiftUserPassword: password,
+        otp: otp,
+      };
+
+      const response = await axios.post(`http://192.168.1.18:8083/swiftlymeds/auth/signup`, signUpData);
+      
+      if (response.data.success) {
+        alert("Registration successful!");
+        onClose(false);
+      } else {
+        alert(response.data.message || "Registration failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      alert(error.response?.data?.message || "An error occurred during registration.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (!showOtpField) {
       if (phone.length < 8) {
         phoneInputRef.current.focus();
         return;
       }
-      setIsLoading(true);
-      // Simulate API call to send OTP
-      setTimeout(() => {
-        setIsLoading(false);
-        setOtpSent(true);
-        setShowOtpField(true);
-      }, 1500);
+      await sendOtp();
     } else {
-      // Verify OTP logic here
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        onClose(false);
-      }, 1000);
+      await handleSignUp();
     }
   };
 
@@ -53,7 +121,7 @@ function Login({ onClose }) {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-6 shadow-lg rounded-xl border border-gray-100 sm:px-10">
           <h2 className='text-2xl font-bold text-gray-800 mb-2'>
-            {showOtpField ? 'Verify OTP' : 'Sign In / Sign Up'}
+            {showOtpField ? 'Complete Registration' : 'Sign In / Sign Up'}
           </h2>
           <p className='text-sm text-gray-600 mb-6'>
             {showOtpField 
@@ -98,7 +166,7 @@ function Login({ onClose }) {
                       className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300"
                       required
                       minLength="8"
-                      maxLength="15"
+                      maxLength="12"
                     />
                   </div>
                 </div>
@@ -107,11 +175,68 @@ function Login({ onClose }) {
                 )}
               </div>
             ) : (
-              <div>
+              <div className='space-y-2'>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Enter Name
+                </label>
+                <div className="mt-1 relative rounded-md shadow-sm border border-gray-300">
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter Name"
+                    className="block w-full pl-3 py-2 border-0 bg-transparent focus:ring-0 sm:text-sm"
+                    required
+                  />
+                </div>
+                {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
+
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Enter Email
+                </label>
+                <div className="mt-1 relative rounded-md shadow-sm border border-gray-300">
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter Email"
+                    className="block w-full pl-3 py-2 border-0 bg-transparent focus:ring-0 sm:text-sm"
+                    required
+                  />
+                </div>
+                {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
+
+                <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">
+                  Enter Password
+                </label>
+                <div className="mt-1 relative rounded-md shadow-sm border border-gray-300">
+                  <input
+                    id="pass"
+                    name="pass"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter Strong Password"
+                    className="block w-full pl-3 py-2 border-0 bg-transparent focus:ring-0 sm:text-sm"
+                    required
+                  />
+                </div>
+                {errors.password && (
+                  <div className="text-xs text-red-500">
+                    {errors.password.map((error, index) => (
+                      <p key={index}>{error}</p>
+                    ))}
+                  </div>
+                )}
+
                 <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
                   Enter OTP
                 </label>
-                <div className="mt-1 relative rounded-md shadow-sm border border-gray-300 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all">
+                <div className="mt-1 relative rounded-md shadow-sm border border-gray-300">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <FiLock className="h-5 w-5 text-gray-400" />
                   </div>
@@ -129,6 +254,7 @@ function Login({ onClose }) {
                     required
                   />
                 </div>
+                {errors.otp && <p className="text-xs text-red-500">{errors.otp}</p>}
                 {otpSent && (
                   <p className="mt-2 text-xs text-gray-500">
                     Didn't receive OTP? <button type="button" className="text-indigo-600 hover:text-indigo-500 font-medium">Resend</button>
@@ -151,10 +277,10 @@ function Login({ onClose }) {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    {showOtpField ? 'Verifying...' : 'Sending OTP...'}
+                    {showOtpField ? 'Registering...' : 'Sending OTP...'}
                   </>
                 ) : (
-                  showOtpField ? 'Verify OTP' : 'Continue'
+                  showOtpField ? 'Register' : 'Continue'
                 )}
               </button>
             </div>
