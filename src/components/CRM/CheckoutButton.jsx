@@ -9,9 +9,9 @@ import {
 import { loadStripe } from "@stripe/stripe-js";
 import axiosInstance from "../../AuthContext/AxiosInstance";
 
-const stripePromise = loadStripe("pk_test_51RY5guKomOVAGS7djPG0yRUk9OHOglAA3haDBNIKDz70klhrJ515LpcDNOcBzO12aCQZNosK1SaZj0mHAoJ39zYy00O3gEYnhK");
-
-const CheckoutForm = ({orderNumber}) => {
+const stripePromiseVox = loadStripe("pk_test_51RY5guKomOVAGS7djPG0yRUk9OHOglAA3haDBNIKDz70klhrJ515LpcDNOcBzO12aCQZNosK1SaZj0mHAoJ39zYy00O3gEYnhK");
+const stripePromiseRdvision=loadStripe("pk_test_51KpHlnSAxOboMMom0iL0iGQCFoBJm1TpQxShbdJbj7vsqVh8QHWz3LFV66YSJDMRUXuA0UAfl5lddXOcgDlXYhmD00hHgDaIEU")
+const CheckoutForm = ({orderNumber,remark}) => {
     console.log(orderNumber,"hello")
   const stripe = useStripe();
   const elements = useElements();
@@ -37,6 +37,7 @@ const CheckoutForm = ({orderNumber}) => {
 
     setLoading(false);
   };
+
 
   return (
     <form onSubmit={handleSubmit} className="w-[35vw] p-6 rounded-lg shadow-lg space-y-6">
@@ -78,15 +79,20 @@ const CheckoutForm = ({orderNumber}) => {
   );
 };
 
-const CheckoutButton = ({orderNumber}) => {
+const CheckoutButton = ({orderNumber,remark}) => {
   const [clientSecret, setClientSecret] = useState("");
   console.log("Order number :- ",orderNumber)
 
   useEffect(() => {
     axiosInstance
-      .post("/api/payment/create-payment-intent")
-      .then((res) => setClientSecret(res.data.clientSecret))
-      .catch((err) => console.error("PaymentIntent error:", err));
+    .post("/api/payment/create-payment-intent", {
+      accountType: remark=="tried"?"vox":"rdvision", // or "vox"
+      amount: 5549,         // optional: if you want to control amount from frontend
+      currency: "usd",
+      orderNumber       // optional: "inr", "usd", etc.
+    })
+    .then((res) => setClientSecret(res.data.clientSecret))
+    .catch((err) => console.error("PaymentIntent error:", err));
   }, []);
 
   const appearance = {
@@ -97,12 +103,12 @@ const CheckoutButton = ({orderNumber}) => {
     clientSecret,
     appearance,
   };
-
+console.log("Remark is ",remark)
   return (
     <div className="flex items-center w-[35vw] justify-center p-4">
       {clientSecret && (
-        <Elements stripe={stripePromise} options={options}>
-          <CheckoutForm orderNumber={orderNumber}/>
+        <Elements stripe={remark=="tried"?stripePromiseVox:stripePromiseRdvision} options={options}>
+          <CheckoutForm orderNumber={orderNumber} remark={remark}/>
         </Elements>
       )}
     </div>
