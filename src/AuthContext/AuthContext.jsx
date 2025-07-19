@@ -24,7 +24,8 @@ export function AuthProvider({ children }) {
           return null;
         }
       });
-      
+      const [refresh,setRefresh] = useState(1);
+      const [cartCount,setCartCount] = useState('');
 
 
     const logout = async () => {
@@ -76,7 +77,9 @@ export function AuthProvider({ children }) {
             searchItem, setSearchItem,
             token, setToken,
             user, setUser,
-            logout // Add the logout function to the context
+            logout, // Add the logout function to the context,
+            refresh,setRefresh,
+            cartCount,setCartCount,
         }}>
             {children}
         </AuthContext.Provider>
