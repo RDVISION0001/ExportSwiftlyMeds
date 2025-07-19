@@ -2,23 +2,23 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../AuthContext/AuthContext';
 import axiosInstance from '../../AuthContext/AxiosInstance';
 import { FiTrash2, FiPlus, FiMinus } from 'react-icons/fi';
-import { 
-  FiShoppingBag, 
-  FiPackage, 
-  FiLayers, 
-  FiDollarSign, 
-  FiCreditCard, 
-  FiTruck, 
-  FiTag, 
-  FiFileText, 
-  FiGift, 
-  FiCheck, 
-  FiAlertCircle, 
-  FiShoppingCart 
+import {
+  FiShoppingBag,
+  FiPackage,
+  FiLayers,
+  FiDollarSign,
+  FiCreditCard,
+  FiTruck,
+  FiTag,
+  FiFileText,
+  FiGift,
+  FiCheck,
+  FiAlertCircle,
+  FiShoppingCart
 } from 'react-icons/fi';
 
 function ShippingCart() {
-  const { token } = useAuth();
+  const { token, refresh, setRefresh } = useAuth();
   const [cartData, setCartData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -112,6 +112,7 @@ function ShippingCart() {
       );
       setRemoving(false)
       setCurrentID(null)
+      setRefresh(refresh + 1)
       await getAllCartItems(); // Refresh cart data
     } catch (error) {
       console.error("Error removing item:", error);
