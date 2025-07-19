@@ -25,7 +25,10 @@ import ShopByCategoryProduct from './components/catagory/ShopByCategoryProduct';
 import CrmPayment from './components/CRM/CrmPayment';
 import PCIDSS from './components/PCIDSS';
 import TaregetCountry from './components/TaregetCountry';
+import PaymentSuccess from './components/CRM/PaymentSuccess';
+import PaymentFailed from './components/CRM/PaymentFailed';
 import { useAuth } from './AuthContext/AuthContext';
+
 
 // Create a ProtectedRoute component
 const ProtectedRoute = ({ children }) => {
@@ -68,6 +71,12 @@ function App() {
         <Route path='/deliveryShipping' element={<DeliveryShippingPolicy />} />
         <Route path='/pci-dss' element={<PCIDSS />} />
         <Route path='/marketArea' element={<TaregetCountry/>}/>
+
+        <Route path="/checkout/:orderNumber" element={<CrmPayment />} />
+        <Route path="/success/:orderNumber" element={<PaymentSuccess />} />
+        <Route path="/failed/:orderNumber" element={<PaymentFailed />} />
+        
+
         
         {/* Protected routes - require token */}
         <Route path='/view' element={

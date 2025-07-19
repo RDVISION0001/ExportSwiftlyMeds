@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../AuthContext/AxiosInstance';
-import { FaLock, FaCheckCircle, FaCertificate, FaShieldAlt, FaRegHeart, FaFileAlt, FaStar, FaQuestionCircle, FaPhoneAlt, FaEnvelope, FaClock, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { FaLock, FaCheckCircle, FaCertificate, FaShieldAlt, FaEnvelope, FaClock, FaRegHeart, FaFileAlt, FaArrowLeft, FaArrowRight, FaEdit, FaStar, FaQuestionCircle, FaPhoneAlt } from 'react-icons/fa';
 import CheckoutButton from './CheckoutButton';
-import { div } from 'framer-motion/client';
 import Swal from 'sweetalert2';
 
 function CrmPayment() {
     const { orderNumber } = useParams();
+    const navigate = useNavigate();
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -16,72 +16,114 @@ function CrmPayment() {
     const [showPaymentMessage, setShowPaymentMessage] = useState(false);
     const [activeTab, setActiveTab] = useState('Cart');
     const [showPaymentModal, setShowPaymentModal] = useState(false);
-    const [orderStatus, setOrderStatus] = useState("")
+    const [orderStatus, setOrderStatus] = useState('');
+    const [paymentStatus, setPaymentStatus] = useState('');
     const [deliveryAddress, setDeliveryAddress] = useState({
-        street: "",
-        city: "",
-        state: "",
-        postalCode: "",
-        country: "",
-        ticketId: "",
+        street: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: '',
+        ticketId: '',
         statusId: 1,
-        orderId: ""
-    })
-    const [isEdit, setIsEdit] = useState(false)
+        orderId: ''
+    });
+    const [isEdit, setIsEdit] = useState(false);
+
+    const tabs = ['Cart', 'Details', 'Confirmation'];
+
+    const fetchOrder = async (retryCount = 0) => {
+        try {
+            console.log('Fetching order with orderNumber:', orderNumber);
+            const response = await axiosInstance.get('/order/getOrderByOrderNumber', {
+                params: { orderNumber },
+            });
+            if (!response.data || !response.data.dto) {
+                throw new Error('Invalid response structure: Missing order data');
+            }
+            setOrder({
+                ...response.data,
+                dto: {
+                    ...response.data.dto,
+                    payment: response.data.dto.payment
+                }
+            });
+            setDeliveryAddress(prev => ({
+                ...prev,
+                ticketId: response.data.dto.ticket?.id || '',
+                orderId: response.data.dto.id || ''
+            }));
+                // Safely set order and payment status
+            setOrderStatus(response.data.dto.status || 'UNKNOWN');
+            setPaymentStatus(response.data.payment?.status || 'UNKNOWN');
+        } catch (err) {
+            if (err.response?.status === 404) {
+                setError('Order not found. Please check the order number and try again.');
+            } else if (retryCount < 2 && err.message.includes('Network Error')) {
+                console.warn(`Retrying fetchOrder (attempt ${retryCount + 1})...`);
+                return new Promise(resolve => setTimeout(resolve, 1000)).then(() => fetchOrder(retryCount + 1));
+            } else if (err.response?.status === 500) {
+                setError('Server error. Please try again later or contact support.');
+            } else {
+                setError('Failed to fetch order details. Please try again.');
+            }
+            console.error('Error response:', err.response);
+            throw err;
+        }
+    };
+
+    useEffect(() => {
+        if (!orderNumber || !/^[a-zA-Z0-9-]+$/.test(orderNumber)) {
+            setError('Invalid order number format. Please provide a valid order number.');
+            setLoading(false);
+            return;
+        }
+
+        const queryParams = new URLSearchParams(window.location.search);
+        const redirectStatus = queryParams.get('redirect_status');
+
+        if (redirectStatus === 'succeeded') {
+            navigate(`/success/${orderNumber}${window.location.search}`, { replace: true });
+            return;
+        } else if (redirectStatus === 'failed') {
+            navigate(`/failed/${orderNumber}${window.location.search}`, { replace: true });
+            return;
+        }
+
+        setLoading(true);
+        fetchOrder().finally(() => setLoading(false));
+    }, [orderNumber, navigate]);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setDeliveryAddress((prev) => ({
+        setDeliveryAddress(prev => ({
             ...prev,
             [name]: value,
         }));
     };
 
-
-
-    const tabs = ['Cart', 'Details', 'Confirmation'];
-    const fetchOrder = async () => {
-        try {
-            setLoading(true);
-            const response = await axiosInstance.get('/order/getOrderByOrderNumber', {
-                params: { orderNumber },
-            });
-            setOrder(response.data);
-            setDeliveryAddress((prev) => ({
-                ...prev,
-                ticketId: response.data.dto.ticket.id,
-                orderId: response.data.dto.id
-            }));
-            setOrderStatus(response.data.dto.status)
-            setLoading(false);
-        } catch (err) {
-            setError('Failed to fetch order details. Please try again.');
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-
-        if (orderNumber) {
-            fetchOrder();
-        } else {
-            setError('No order number provided in URL.');
-            setLoading(false);
-        }
-    }, [orderNumber, showPaymentModal]);
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (isEdit) {
-            const resp = await axiosInstance.put("/address/updateAddress", deliveryAddress)
-            fetchOrder()
-            setIsEdit(false)
-            return;
+        try {
+            if (isEdit) {
+                await axiosInstance.put("/address/updateAddress", deliveryAddress);
+            } else {
+                await axiosInstance.post("/order/addDeliveryAddressToOrder", deliveryAddress);
+            }
+            setIsEdit(false);
+            setLoading(true);
+            await fetchOrder();
+            setLoading(false);
+        } catch (err) {
+            console.error('Error saving address:', err);
+            Swal.fire({
+                title: 'Error',
+                text: 'Failed to save delivery address. Please try again.',
+                icon: 'error',
+            });
         }
-        const resp = await axiosInstance.post("/order/addDeliveryAddressToOrder", deliveryAddress)
-        fetchOrder()
-        console.log(resp)
     };
+
     const openImageModal = (images) => {
         setSelectedImages(images);
         setCurrentImageIndex(0);
@@ -105,7 +147,6 @@ function CrmPayment() {
     };
 
     const handleProceedToPayment = () => {
-        console.log("Proceeding to payment...");
         setShowPaymentMessage(true);
         setShowPaymentModal(true);
         setTimeout(() => setShowPaymentMessage(false), 3000);
@@ -115,15 +156,11 @@ function CrmPayment() {
         setShowPaymentModal(false);
     };
 
-    const handleTabChange = (tab) => {
-        setActiveTab(tab);
-    };
-
     const handleNext = () => {
-        if (!order.dto.deliveryAddress) {
+        if (!order?.dto?.deliveryAddress) {
             Swal.fire({
                 title: "Delivery Address?",
-                text: "Please add a delivery address first then you will able to checkout ",
+                text: "Please add a delivery address first then you will be able to checkout",
                 icon: "info"
             });
             return;
@@ -145,11 +182,25 @@ function CrmPayment() {
         }
     };
 
+    const getCheckoutButton = () => {
+        const successUrl = `${window.location.origin}/success/${orderNumber}`;
+        const failureUrl = `${window.location.origin}/failed/${orderNumber}`;
+
+        return (
+            <CheckoutButton
+                orderNumber={orderNumber}
+                remark={order.dto.remark}
+                successUrl={successUrl}
+                failureUrl={failureUrl}
+            />
+        );
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
                 <div className="flex flex-col items-center">
-                    <div className="loader"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
                     <p className="mt-4 text-lg text-gray-700">Loading order details...</p>
                 </div>
             </div>
@@ -159,7 +210,14 @@ function CrmPayment() {
     if (error) {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center text-red-600 text-lg font-semibold">
-                Error: {error}
+                <div className="text-center">
+                    <p>{error}</p>
+                    <p className="mt-4">
+                        <a href="/" className="text-blue-600 hover:underline">Return to Homepage</a>
+                        {' or '}
+                        <a href="mailto:support@swiftymeds.com" className="text-blue-600 hover:underline">Contact Support</a>
+                    </p>
+                </div>
             </div>
         );
     }
@@ -178,21 +236,18 @@ function CrmPayment() {
         price: item.price,
         quantity: item.quantity,
         strength: item.product.strength || 'Unknown',
-        image: item.product.imageUrls && item.product.imageUrls.length > 0
-            ? item.product.imageUrls[0]
-            : 'https://placehold.co/100x100/E0E0E0/333333?text=No+Image',
+        image: item.product.imageUrls?.[0] || 'https://placehold.co/100x100/E0E0E0/333333?text=No+Image',
         imageUrls: item.product.imageUrls || ['https://placehold.co/100x100/E0E0E0/333333?text=No+Image'],
     }));
 
-    const subtotal = order.dto.orderItems.reduce((sum, item) => sum + item.price, 0);
+    const subtotal = order.dto.orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const discount = order.dto.discount || 0;
     const logisticsCost = order.dto.logisticsCost || 0;
     const otherCharges = order.dto.otherCharges || 0;
     const total = order.dto.totalAmount - discount;
-console.log(orderStatus)
+
     return (
         <div className="container mx-auto p-8 bg-white rounded-lg shadow-xl max-w-7xl my-8">
-            {/* Rest of the component remains unchanged */}
             <div className="flex flex-wrap justify-around items-center pb-5 border-b border-gray-200 mb-8 gap-4 text-center">
                 <div className="flex items-center text-green-600 font-semibold text-sm sm:text-base border border-green-600 px-3 py-2 rounded-md">
                     <FaLock className="mr-2 text-lg" /> SSL Secured
@@ -243,30 +298,30 @@ console.log(orderStatus)
                                     No medication details available.
                                 </div>
                             )}
-                          {!orderStatus=="PLACED" &&  <div className="mb-8">
-                                <label htmlFor="coupon-code" className="block mb-2 font-semibold text-gray-700">Coupon Code</label>
-                                <div className="flex">
-                                    <input
-                                        type="text"
-                                        id="coupon-code"
-                                        placeholder="Enter coupon code"
-                                        className="flex-grow p-3 border border-gray-300 rounded-l-md text-base outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent"
-                                    />
-                                    <button className="bg-purple-700 text-white px-6 py-3 rounded-r-md cursor-pointer text-base font-medium transition-colors duration-300 hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:ring-offset-2">
-                                        Apply
-                                    </button>
+                            {orderStatus === "PENDING" && (
+                                <div className="mb-8">
+                                    <label htmlFor="coupon-code" className="block mb-2 font-semibold text-gray-700">Coupon Code</label>
+                                    <div className="flex">
+                                        <input
+                                            type="text"
+                                            id="coupon-code"
+                                            placeholder="Enter coupon code"
+                                            className="flex-grow p-3 border border-gray-300 rounded-l-md text-base outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent"
+                                        />
+                                        <button className="bg-purple-700 text-white px-6 py-3 rounded-r-md cursor-pointer text-base font-medium transition-colors duration-300 hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:ring-offset-2">
+                                            Apply
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>}
+                            )}
                         </>
                     )}
 
-                    <>
-                        {(!order.dto.deliveryAddress || isEdit) ? <form
-                            onSubmit={handleSubmit}
-                            className="mx-auto bg-white shadow-md rounded-lg p-6 space-y-4"
-                        >
-                            <h2 className="text-xl font-semibold text-gray-700">Add Delivery Address</h2>
-
+                    {(!order.dto.deliveryAddress || isEdit) ? (
+                        <form onSubmit={handleSubmit} className="mx-auto bg-white shadow-md rounded-lg p-6 space-y-4">
+                            <h2 className="text-xl font-semibold text-gray-700">
+                                {isEdit ? "Edit Delivery Address" : "Add Delivery Address"}
+                            </h2>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Street</label>
                                 <input
@@ -278,7 +333,6 @@ console.log(orderStatus)
                                     required
                                 />
                             </div>
-
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">City</label>
@@ -291,7 +345,6 @@ console.log(orderStatus)
                                         required
                                     />
                                 </div>
-
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">State</label>
                                     <input
@@ -304,7 +357,6 @@ console.log(orderStatus)
                                     />
                                 </div>
                             </div>
-
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Postal Code</label>
@@ -317,7 +369,6 @@ console.log(orderStatus)
                                         required
                                     />
                                 </div>
-
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Country</label>
                                     <input
@@ -330,44 +381,57 @@ console.log(orderStatus)
                                     />
                                 </div>
                             </div>
-
                             <button
                                 type="submit"
                                 className="w-full mt-4 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 cursor-pointer"
                             >
-                                Submit Address
+                                {isEdit ? "Update Address" : "Submit Address"}
                             </button>
-                        </form> :
+                        </form>
+                    ) : (
+                        <div className="flex flex-wrap gap-4 mt-6">
                             <div className="border-2 border-orange-400 p-4 max-w-sm bg-white rounded-md shadow-sm relative">
                                 <div className="flex justify-between items-start">
-                                    <h3 className="font-semibold text-gray-800">Delivery address</h3>
-                                  {!orderStatus=="PLACED" &&  <button
-                                        onClick={() => {
-                                            setDeliveryAddress(order.dto.deliveryAddress)
-                                            setIsEdit(true)
-                                        }}
-                                        className="text-sm text-blue-600 hover:underline focus:outline-none"
-                                    >
-                                        edit
-                                    </button>}
+                                    <h3 className="font-semibold text-gray-800">Delivery Address</h3>
+                                    {orderStatus === "PENDING" && (
+                                        <button
+                                            onClick={() => {
+                                                setDeliveryAddress(order.dto.deliveryAddress);
+                                                setIsEdit(true);
+                                            }}
+                                            className="text-blue-600 hover:text-blue-800 focus:outline-none"
+                                            aria-label="Edit delivery address"
+                                        >
+                                            <FaEdit className="text-lg" />
+                                        </button>
+                                    )}
                                 </div>
-
                                 <div className="mt-2 text-sm text-gray-700 whitespace-pre-line">
-                                    {order.dto.deliveryAddress.name}
-                                    <br />
                                     {order.dto.deliveryAddress.street}
                                     <br />
-                                    {order.dto.deliveryAddress.city}
-                                    <br />
-                                    {order.dto.deliveryAddress.state}
+                                    {order.dto.deliveryAddress.city}, {order.dto.deliveryAddress.state}
                                     <br />
                                     {order.dto.deliveryAddress.postalCode}
                                     <br />
                                     {order.dto.deliveryAddress.country}
                                 </div>
                             </div>
-                        }
-                    </>
+                            <div className="border-2 border-orange-400 p-4 max-w-sm bg-white rounded-md shadow-sm relative">
+                                <div className="flex justify-between items-start">
+                                    <h3 className="font-semibold text-gray-800">Customer Details</h3>
+                                </div>
+                                <div className="mt-2 text-sm text-gray-700 whitespace-pre-line">
+                                    <p><strong>Name:</strong> {order.dto.ticket.senderName}</p>
+                                    <p><strong>Email:</strong> {order.dto.ticket.senderEmail}</p>
+                                    <p><strong>Mobile:</strong> {order.dto.ticket.senderMobile}</p>
+                                    <p><strong>Company:</strong> {order.dto.ticket.senderCompany}</p>
+                                    <p><strong>Address:</strong> {order.dto.ticket.senderAddress}, {order.dto.ticket.senderCity}, {order.dto.ticket.senderState}, {order.dto.ticket.senderPincode}, {order.dto.ticket.senderCountryIso}</p>
+                                    <p><strong>Payment Status:</strong> <span className={paymentStatus === 'FAILED' ? 'text-red-600' : 'text-green-600'}>{paymentStatus}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {activeTab === 'Details' && (
                         <>
                             <h2 className="text-gray-800 mb-5 text-2xl font-semibold">Order Details</h2>
@@ -377,12 +441,10 @@ console.log(orderStatus)
                                 <p className="text-gray-700"><strong>Created By:</strong> {order.dto.createdBy.firstName} {order.dto.createdBy.lastName}</p>
                                 <p className="text-gray-700"><strong>Status:</strong> {order.dto.status}</p>
                                 <p className="text-gray-700"><strong>Total Amount:</strong> {order.dto.currency} {total.toFixed(2)}</p>
-                                {/* {order.dto.deliveryAddress && (
-                                    <p className="text-gray-700"><strong>Delivery Address:</strong> {order.dto.deliveryAddress}</p>
-                                )} */}
                             </div>
                         </>
                     )}
+
                     {activeTab === 'Confirmation' && (
                         <>
                             <h2 className="text-gray-800 mb-5 text-2xl font-semibold">Order Confirmation</h2>
@@ -394,6 +456,7 @@ console.log(orderStatus)
                             </div>
                         </>
                     )}
+
                     <div className="bg-purple-700 rounded-lg p-6 text-white mt-8 shadow-md">
                         <h3 className="text-center text-xl font-semibold mb-5">Order Summary</h3>
                         <div className="flex justify-between mb-3 text-base">
@@ -407,11 +470,11 @@ console.log(orderStatus)
                             </div>
                         )}
                         <div className="flex justify-between mb-3 text-base">
-                            <span>Logistics Cost </span>
+                            <span>Logistics Cost</span>
                             <span>{order.dto.currency} {logisticsCost.toFixed(2)} (Inc)</span>
                         </div>
                         <div className="flex justify-between mb-3 text-base">
-                            <span>Taxes </span>
+                            <span>Taxes</span>
                             <span>{order.dto.currency} {otherCharges.toFixed(2)} (Inc)</span>
                         </div>
                         <div className="flex justify-between mt-5 pt-4 border-t border-dashed border-purple-400 text-2xl font-bold">
@@ -437,11 +500,11 @@ console.log(orderStatus)
                             </div>
                         )}
                         <div className="flex justify-between mb-3 text-base">
-                            <span>Logistics Cost </span>
+                            <span>Logistics Cost</span>
                             <span>{order.dto.currency} {logisticsCost.toFixed(2)} (Inc)</span>
                         </div>
                         <div className="flex justify-between mb-3 text-base">
-                            <span>Taxes </span>
+                            <span>Taxes</span>
                             <span>{order.dto.currency} {otherCharges.toFixed(2)} (Inc)</span>
                         </div>
                         <div className="flex justify-between mt-5 pt-4 border-t border-dashed border-purple-400 text-2xl font-bold">
@@ -494,14 +557,16 @@ console.log(orderStatus)
                 >
                     <FaArrowLeft className="text-sm" /> Previous
                 </button>
-               {!orderStatus=="PLACED" && <button
-                    className={`px-6 py-3 rounded-md cursor-pointer text-base font-medium flex items-center gap-2 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${activeTab === 'Confirmation' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
-                        }`}
-                    onClick={handleNext}
-                    disabled={activeTab === 'Confirmation'}
-                >
-                    {activeTab === 'Details' ? 'Proceed to Payment' : 'Next'} <FaArrowRight className="text-sm" />
-                </button>}
+                {orderStatus === "PENDING" && (
+                    <button
+                        className={`px-6 py-3 rounded-md cursor-pointer text-base font-medium flex items-center gap-2 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${activeTab === 'Confirmation' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
+                            }`}
+                        onClick={handleNext}
+                        disabled={activeTab === 'Confirmation'}
+                    >
+                        {activeTab === 'Details' ? 'Proceed to Payment' : 'Next'} <FaArrowRight className="text-sm" />
+                    </button>
+                )}
             </div>
 
             {showPaymentMessage && (
@@ -534,13 +599,7 @@ console.log(orderStatus)
                             </svg>
                         </button>
                         <h2 className="text-gray-800 mb-5 text-2xl font-semibold">Payment Information</h2>
-                        <CheckoutButton orderNumber={orderNumber} remark={order.dto.remark} />
-                        {/* <button
-                            className="mt-6 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200 w-full focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                            onClick={closePaymentModal}
-                        >
-                            Close
-                        </button> */}
+                        {getCheckoutButton()}
                     </div>
                 </div>
             )}
@@ -555,14 +614,16 @@ console.log(orderStatus)
                         />
                         <div className="flex justify-between w-full mt-4">
                             <button
-                                className={`px-4 py-2 rounded-lg transition duration-200 ${currentImageIndex === 0 ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                                className={`px-4 py-2 rounded-lg transition duration-200 ${currentImageIndex === 0 ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'
+                                    }`}
                                 onClick={prevImage}
                                 disabled={currentImageIndex === 0}
                             >
                                 Previous
                             </button>
                             <button
-                                className={`px-4 py-2 rounded-lg transition duration-200 ${currentImageIndex === selectedImages.length - 1 ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                                className={`px-4 py-2 rounded-lg transition duration-200 ${currentImageIndex === selectedImages.length - 1 ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'
+                                    }`}
                                 onClick={nextImage}
                                 disabled={currentImageIndex === selectedImages.length - 1}
                             >
@@ -575,7 +636,8 @@ console.log(orderStatus)
                                     key={index}
                                     src={img}
                                     alt={`Thumbnail ${index + 1}`}
-                                    className={`w-16 h-16 object-cover rounded-md cursor-pointer shadow-sm ${index === currentImageIndex ? 'border-2 border-blue-600 ring-2 ring-blue-300' : 'border border-gray-300'}`}
+                                    className={`w-16 h-16 object-cover rounded-md cursor-pointer shadow-sm ${index === currentImageIndex ? 'border-2 border-blue-600 ring-2 ring-blue-300' : 'border border-gray-300'
+                                        }`}
                                     onClick={() => setCurrentImageIndex(index)}
                                 />
                             ))}
