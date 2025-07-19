@@ -17,21 +17,32 @@ const Footer = () => {
 
   const topRef = useRef(null);
 
-  const handleSubscribe = async () => {
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await axiosInstance.post(`/update/subscription/subscribeCareerUpdates`, {
         email: email,
-      })
+      });
       console.log(response.data);
       setLoading(false);
-      Swal.fire({
-        title: 'Subscribed Successfully',
-        text: 'You will receive updates on your email.',
-        icon: 'success',
-        confirmButtonText: 'OK'
-      });
-      setEmail('');
+
+      if (response.data.message === "You are already subscribed to career updates") {
+        Swal.fire({
+          title: 'Already Subscribed',
+          text: response.data.message,
+          icon: 'warning',
+          confirmButtonText: 'OK'
+        });
+      } else {
+        Swal.fire({
+          title: 'Subscribed Successfully',
+          text: response.data.message || 'Thank you for subscribing!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+        setEmail('');
+      }
 
     } catch (error) {
       console.error('Error subscribing:', error);
@@ -42,10 +53,9 @@ const Footer = () => {
         icon: 'error',
         confirmButtonText: 'OK'
       });
-
-
     }
-  }
+  };
+
 
   useEffect(() => {
     topRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -154,7 +164,7 @@ const Footer = () => {
         </div>
 
         <div className=" py-1 px-4">
-          <div className="max-w-7xl mx-auto bg-[#b0f4ff5b] bg-opacity-80 rounded-full flex flex-col md:flex-row items-center justify-between px-4 py-2">
+          <form onSubmit={handleSubscribe} className="max-w-7xl mx-auto bg-[#b0f4ff5b] bg-opacity-80 rounded-full flex flex-col md:flex-row items-center justify-between px-4 py-2">
             {/* Left - Icon and Text */}
             <div className="flex items-center space-x-3 mb-4 md:mb-0">
               <Mail className="w-6 h-6 text-black" />
@@ -173,14 +183,14 @@ const Footer = () => {
                 className="flex-grow min-w-[200px] md:min-w-[300px] bg-transparent outline-none text-sm md:text-base text-black border-none"
               />
               <button
-                onClick={handleSubscribe}
+                type="submit"
+                disabled={loading}
                 className="bg-[#11b9c5] hover:bg-[#11b6c5] text-white cursor-pointer font-semibold text-sm px-5 py-2 rounded-full transition-all"
               >
                 {loading ? <span className="loading loading-dots loading-sm"></span> : "SUBSCRIBE"}
               </button>
             </div>
-
-          </div>
+          </form>
         </div>
 
         {/* Footer Links */}
