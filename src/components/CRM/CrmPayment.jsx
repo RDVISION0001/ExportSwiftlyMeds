@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import axiosInstance from '../../AuthContext/AxiosInstance';
 import { FaLock, FaCheckCircle, FaCertificate, FaShieldAlt, FaRegHeart, FaFileAlt, FaStar, FaQuestionCircle, FaPhoneAlt, FaEnvelope, FaClock, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import CheckoutButton from './CheckoutButton';
+import { div } from 'framer-motion/client';
+import Swal from 'sweetalert2';
 
 function CrmPayment() {
     const { orderNumber } = useParams();
@@ -14,23 +16,50 @@ function CrmPayment() {
     const [showPaymentMessage, setShowPaymentMessage] = useState(false);
     const [activeTab, setActiveTab] = useState('Cart');
     const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [orderStatus, setOrderStatus] = useState("")
+    const [deliveryAddress, setDeliveryAddress] = useState({
+        street: "",
+        city: "",
+        state: "",
+        postalCode: "",
+        country: "",
+        ticketId: "",
+        statusId: 1,
+        orderId: ""
+    })
+    const [isEdit, setIsEdit] = useState(false)
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setDeliveryAddress((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+
 
     const tabs = ['Cart', 'Details', 'Confirmation'];
+    const fetchOrder = async () => {
+        try {
+            setLoading(true);
+            const response = await axiosInstance.get('/order/getOrderByOrderNumber', {
+                params: { orderNumber },
+            });
+            setOrder(response.data);
+            setDeliveryAddress((prev) => ({
+                ...prev,
+                ticketId: response.data.dto.ticket.id,
+                orderId: response.data.dto.id
+            }));
+            setOrderStatus(response.data.dto.status)
+            setLoading(false);
+        } catch (err) {
+            setError('Failed to fetch order details. Please try again.');
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchOrder = async () => {
-            try {
-                setLoading(true);
-                const response = await axiosInstance.get('/order/getOrderByOrderNumber', {
-                    params: { orderNumber },
-                });
-                setOrder(response.data);
-                setLoading(false);
-            } catch (err) {
-                setError('Failed to fetch order details. Please try again.');
-                setLoading(false);
-            }
-        };
 
         if (orderNumber) {
             fetchOrder();
@@ -38,8 +67,21 @@ function CrmPayment() {
             setError('No order number provided in URL.');
             setLoading(false);
         }
-    }, [orderNumber]);
+    }, [orderNumber, showPaymentModal]);
 
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (isEdit) {
+            const resp = await axiosInstance.put("/address/updateAddress", deliveryAddress)
+            fetchOrder()
+            setIsEdit(false)
+            return;
+        }
+        const resp = await axiosInstance.post("/order/addDeliveryAddressToOrder", deliveryAddress)
+        fetchOrder()
+        console.log(resp)
+    };
     const openImageModal = (images) => {
         setSelectedImages(images);
         setCurrentImageIndex(0);
@@ -78,6 +120,14 @@ function CrmPayment() {
     };
 
     const handleNext = () => {
+        if (!order.dto.deliveryAddress) {
+            Swal.fire({
+                title: "Delivery Address?",
+                text: "Please add a delivery address first then you will able to checkout ",
+                icon: "info"
+            });
+            return;
+        }
         const currentIndex = tabs.indexOf(activeTab);
         if (currentIndex < tabs.length - 1) {
             if (activeTab === 'Details') {
@@ -139,7 +189,7 @@ function CrmPayment() {
     const logisticsCost = order.dto.logisticsCost || 0;
     const otherCharges = order.dto.otherCharges || 0;
     const total = order.dto.totalAmount - discount;
-
+console.log(orderStatus)
     return (
         <div className="container mx-auto p-8 bg-white rounded-lg shadow-xl max-w-7xl my-8">
             {/* Rest of the component remains unchanged */}
@@ -193,7 +243,7 @@ function CrmPayment() {
                                     No medication details available.
                                 </div>
                             )}
-                            <div className="mb-8">
+                          {!orderStatus=="PLACED" &&  <div className="mb-8">
                                 <label htmlFor="coupon-code" className="block mb-2 font-semibold text-gray-700">Coupon Code</label>
                                 <div className="flex">
                                     <input
@@ -206,9 +256,118 @@ function CrmPayment() {
                                         Apply
                                     </button>
                                 </div>
-                            </div>
+                            </div>}
                         </>
                     )}
+
+                    <>
+                        {(!order.dto.deliveryAddress || isEdit) ? <form
+                            onSubmit={handleSubmit}
+                            className="mx-auto bg-white shadow-md rounded-lg p-6 space-y-4"
+                        >
+                            <h2 className="text-xl font-semibold text-gray-700">Add Delivery Address</h2>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Street</label>
+                                <input
+                                    type="text"
+                                    name="street"
+                                    value={deliveryAddress.street}
+                                    onChange={handleChange}
+                                    className="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    required
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">City</label>
+                                    <input
+                                        type="text"
+                                        name="city"
+                                        value={deliveryAddress.city}
+                                        onChange={handleChange}
+                                        className="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">State</label>
+                                    <input
+                                        type="text"
+                                        name="state"
+                                        value={deliveryAddress.state}
+                                        onChange={handleChange}
+                                        className="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Postal Code</label>
+                                    <input
+                                        type="text"
+                                        name="postalCode"
+                                        value={deliveryAddress.postalCode}
+                                        onChange={handleChange}
+                                        className="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Country</label>
+                                    <input
+                                        type="text"
+                                        name="country"
+                                        value={deliveryAddress.country}
+                                        onChange={handleChange}
+                                        className="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="w-full mt-4 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 cursor-pointer"
+                            >
+                                Submit Address
+                            </button>
+                        </form> :
+                            <div className="border-2 border-orange-400 p-4 max-w-sm bg-white rounded-md shadow-sm relative">
+                                <div className="flex justify-between items-start">
+                                    <h3 className="font-semibold text-gray-800">Delivery address</h3>
+                                  {!orderStatus=="PLACED" &&  <button
+                                        onClick={() => {
+                                            setDeliveryAddress(order.dto.deliveryAddress)
+                                            setIsEdit(true)
+                                        }}
+                                        className="text-sm text-blue-600 hover:underline focus:outline-none"
+                                    >
+                                        edit
+                                    </button>}
+                                </div>
+
+                                <div className="mt-2 text-sm text-gray-700 whitespace-pre-line">
+                                    {order.dto.deliveryAddress.name}
+                                    <br />
+                                    {order.dto.deliveryAddress.street}
+                                    <br />
+                                    {order.dto.deliveryAddress.city}
+                                    <br />
+                                    {order.dto.deliveryAddress.state}
+                                    <br />
+                                    {order.dto.deliveryAddress.postalCode}
+                                    <br />
+                                    {order.dto.deliveryAddress.country}
+                                </div>
+                            </div>
+                        }
+                    </>
                     {activeTab === 'Details' && (
                         <>
                             <h2 className="text-gray-800 mb-5 text-2xl font-semibold">Order Details</h2>
@@ -218,9 +377,9 @@ function CrmPayment() {
                                 <p className="text-gray-700"><strong>Created By:</strong> {order.dto.createdBy.firstName} {order.dto.createdBy.lastName}</p>
                                 <p className="text-gray-700"><strong>Status:</strong> {order.dto.status}</p>
                                 <p className="text-gray-700"><strong>Total Amount:</strong> {order.dto.currency} {total.toFixed(2)}</p>
-                                {order.dto.deliveryAddress && (
+                                {/* {order.dto.deliveryAddress && (
                                     <p className="text-gray-700"><strong>Delivery Address:</strong> {order.dto.deliveryAddress}</p>
-                                )}
+                                )} */}
                             </div>
                         </>
                     )}
@@ -248,12 +407,12 @@ function CrmPayment() {
                             </div>
                         )}
                         <div className="flex justify-between mb-3 text-base">
-                            <span>Logistics Cost (Inc)</span>
-                            <span>{order.dto.currency} {logisticsCost.toFixed(2)}</span>
+                            <span>Logistics Cost </span>
+                            <span>{order.dto.currency} {logisticsCost.toFixed(2)} (Inc)</span>
                         </div>
                         <div className="flex justify-between mb-3 text-base">
-                            <span>Other Charges (Inc)</span>
-                            <span>{order.dto.currency} {otherCharges.toFixed(2)}</span>
+                            <span>Taxes </span>
+                            <span>{order.dto.currency} {otherCharges.toFixed(2)} (Inc)</span>
                         </div>
                         <div className="flex justify-between mt-5 pt-4 border-t border-dashed border-purple-400 text-2xl font-bold">
                             <span>Total</span>
@@ -278,12 +437,12 @@ function CrmPayment() {
                             </div>
                         )}
                         <div className="flex justify-between mb-3 text-base">
-                            <span>Logistics Cost (Inc)</span>
-                            <span>{order.dto.currency} {logisticsCost.toFixed(2)}</span>
+                            <span>Logistics Cost </span>
+                            <span>{order.dto.currency} {logisticsCost.toFixed(2)} (Inc)</span>
                         </div>
                         <div className="flex justify-between mb-3 text-base">
-                            <span>Other Charges (Inc)</span>
-                            <span>{order.dto.currency} {otherCharges.toFixed(2)}</span>
+                            <span>Taxes </span>
+                            <span>{order.dto.currency} {otherCharges.toFixed(2)} (Inc)</span>
                         </div>
                         <div className="flex justify-between mt-5 pt-4 border-t border-dashed border-purple-400 text-2xl font-bold">
                             <span>Total</span>
@@ -335,14 +494,14 @@ function CrmPayment() {
                 >
                     <FaArrowLeft className="text-sm" /> Previous
                 </button>
-                <button
+               {!orderStatus=="PLACED" && <button
                     className={`px-6 py-3 rounded-md cursor-pointer text-base font-medium flex items-center gap-2 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${activeTab === 'Confirmation' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
                         }`}
                     onClick={handleNext}
                     disabled={activeTab === 'Confirmation'}
                 >
                     {activeTab === 'Details' ? 'Proceed to Payment' : 'Next'} <FaArrowRight className="text-sm" />
-                </button>
+                </button>}
             </div>
 
             {showPaymentMessage && (
@@ -360,7 +519,7 @@ function CrmPayment() {
                             aria-label="Close payment modal"
                         >
                             <svg
-                                className="w-12 h-8"
+                                className="w-6 h-6"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -375,7 +534,7 @@ function CrmPayment() {
                             </svg>
                         </button>
                         <h2 className="text-gray-800 mb-5 text-2xl font-semibold">Payment Information</h2>
-                        <CheckoutButton  orderNumber={orderNumber}/>
+                        <CheckoutButton orderNumber={orderNumber} remark={order.dto.remark} />
                         {/* <button
                             className="mt-6 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200 w-full focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                             onClick={closePaymentModal}
