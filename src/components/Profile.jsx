@@ -6,6 +6,11 @@ import { MdVerified, MdOutlinePending } from 'react-icons/md';
 function Profile() {
     const { user, logout } = useAuth();
 
+    // Return null or a loading spinner if user is not available
+    if (!user) {
+        return null; // or return <LoadingSpinner />;
+    }
+
     const getStatusIcon = () => {
         switch (user.status) {
             case 'active':
@@ -29,7 +34,7 @@ function Profile() {
         {
             icon: <FiMail className="text-green-600" />,
             title: "Email",
-            value: user.swiftUserEmail,
+            value: user.swiftUserEmail || 'Not provided',
             extra: user.isVerified && (
                 <div className="flex items-center mt-1 text-sm text-green-600">
                     <MdVerified size={16} className="mr-1" />
@@ -47,7 +52,7 @@ function Profile() {
         {
             icon: <FiKey className="text-yellow-600" />,
             title: "User ID",
-            value: user.swiftUserId,
+            value: user.swiftUserId || 'Not provided',
             bgColor: "bg-yellow-100"
         },
         ...(user.otp ? [{
