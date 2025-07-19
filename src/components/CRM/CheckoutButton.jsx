@@ -26,7 +26,7 @@ const CheckoutForm = ({orderNumber,remark}) => {
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `https://swiftlymeds.com/success/${orderNumber}`,
+        return_url: `http://localhost:3000/success/${orderNumber}`,
         // billing_details will be taken from AddressElement automatically
       },
     });

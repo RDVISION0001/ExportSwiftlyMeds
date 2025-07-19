@@ -26,6 +26,8 @@ import ShopByCategoryProduct from './components/catagory/ShopByCategoryProduct';
 import CrmPayment from './components/CRM/CrmPayment';
 import PCIDSS from './components/PCIDSS';
 import TaregetCountry from './components/TaregetCountry';
+import PaymentSuccess from './components/CRM/PaymentSuccess';
+import PaymentFailed from './components/CRM/PaymentFailed';
 
 
 function App() {
@@ -41,7 +43,6 @@ function App() {
         <Route path='/faq' element={<FAQ />} />
         <Route path='/blog' element={<Blog />} />
         <Route path='/proserve' element={<ProductServices/>}/>
-        <Route path="/checkout/:orderNumber" element={<CrmPayment />} />
         <Route path='/manufacture' element={<Manufacturer />} />
         <Route path='/privacy' element={<PrivacyPolicy />} />
         <Route path='/newArive' element={<NewArrive />} />
@@ -58,6 +59,11 @@ function App() {
         <Route path='/CatProduct' element={<ShopByCategoryProduct />} />
         <Route path='/pci-dss' element={<PCIDSS />} />
         <Route path='/marketArea' element={<TaregetCountry/>}/>
+
+        <Route path="/checkout/:orderNumber" element={<CrmPayment />} />
+        <Route path="/success/:orderNumber" element={<PaymentSuccess />} />
+        <Route path="/failed/:orderNumber" element={<PaymentFailed />} />
+        
       </Routes>
       <Footer />
     </Router>
