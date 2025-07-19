@@ -26,13 +26,7 @@ import Profile from "./Profile";
 
 const Header = () => {
     const navigate = useNavigate();
-    const { cart, amount, category, setCategory, catId, setCatId, setCatProduct, setLoading, setSelectCountry, itemsPerpage, token, user } = useAuth();
-    // Calculate total item count
-    const cartItemCount = cart
-        ? Array.isArray(cart)
-            ? cart.reduce((sum, item) => sum + (item.quantity || 1), 0)
-            : 1 // If cart is a single product object
-        : 0; // If cart is null/undefined
+    const { cartCount,setCartCount, amount, category, setCategory, catId, setCatId, setCatProduct, setLoading, setSelectCountry, itemsPerpage, token, user,refresh } = useAuth();
 
     const countryOptions = [
         { code: 'US', name: 'United States', currency: 'USD', language: 'English' },
@@ -54,7 +48,8 @@ const Header = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [categoriesOpen, setCategoriesOpen] = useState(false);
     const [openModal, setOpenModal] = useState(false);
-    const [profileModal, setProfileModal] = useState(false)
+    const [profileModal, setProfileModal] = useState(false);
+    
 
 
     const fetchCategory = async () => {
@@ -90,6 +85,24 @@ const Header = () => {
     useEffect(() => {
         fetchCatProduct();
     }, [catId, itemsPerpage])
+
+    const getAllCartItems = async () => {
+        try {
+          const response = await axiosInstance.get(`/swift/cart`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setCartCount(response.data);
+          console.log("Cart items:", response.data.length);
+        } catch (error) {
+          console.error("Error fetching cart items:", error);
+        }
+      };
+
+    useEffect(() =>{
+        getAllCartItems();
+    }, [refresh])
 
 
 
@@ -205,7 +218,7 @@ const Header = () => {
                             <Link to="/shipping" className="p-2 text-white hover:text-gray-200 relative transition-colors">
                                 <FaShoppingCart className="text-xl text-black" />
                                 <span className="absolute -top-1 -right-1 bg-blue-500  text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                    {cartItemCount}
+                                    {cartCount.length || 0}
                                 </span>
                             </Link>
                             <span className=" text-xs md:text-xl">
