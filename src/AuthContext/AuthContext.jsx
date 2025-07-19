@@ -15,9 +15,16 @@ export function AuthProvider({ children }) {
     const [searchItem, setSearchItem] = useState('');
     const [token, setToken] = useState(localStorage.getItem("jwtToken"));
     const [user, setUser] = useState(() => {
-        const storedUser = localStorage.getItem("user");
-        return storedUser ? JSON.parse(storedUser) : null;
-    });
+        try {
+          const storedUser = localStorage.getItem("user");
+          if (!storedUser || storedUser === "undefined") return null;
+          return JSON.parse(storedUser);
+        } catch (e) {
+          console.error("Failed to parse stored user:", e);
+          return null;
+        }
+      });
+      
 
 
     const logout = async () => {

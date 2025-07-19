@@ -4,20 +4,23 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { FaFlask, FaBoxOpen, FaPills, FaMedkit } from 'react-icons/fa';
 import { useAuth } from '../../../AuthContext/AuthContext';
 import ShippingCart from '../../shippingCart/ShippingCart';
+import axios from 'axios';
+import axiosInstance from '../../../AuthContext/AxiosInstance';
+import Swal from 'sweetalert2';
+import { title } from 'framer-motion/client';
 
 const ProductDetailPage = () => {
-    const { selectCountry, cart, setCart } = useAuth();
+    const { selectCountry, cart, setCart, token } = useAuth();
 
-    // Currency exchange rates (should be fetched from API in production)
     const currencyRates = {
-        USD: 1,       // US Dollar (base)
-        EUR: 0.93,    // Euro
-        GBP: 0.80,    // British Pound
-        INR: 83.33,   // Indian Rupee
-        CAD: 1.36,    // Canadian Dollar
-        AUD: 1.51,    // Australian Dollar
-        JPY: 151.61,  // Japanese Yen
-        RUB: 92.58    // Russian Ruble
+        USD: 1,      
+        EUR: 0.93,    
+        GBP: 0.80,    
+        INR: 83.33,   
+        CAD: 1.36,    
+        AUD: 1.51,   
+        JPY: 151.61,  
+        RUB: 92.58  
     };
 
     const location = useLocation();
@@ -79,7 +82,7 @@ const ProductDetailPage = () => {
 
     const formatPrice = (price, currencyCode) => {
         const symbol = getCurrencySymbol(currencyCode);
-        return `${symbol}${price.toFixed(2)}`;
+        return `${symbol}${price.toFixed(3)}`;
     };
 
     const displayConvertedPrice = (price, originalCurrency) => {
@@ -98,11 +101,45 @@ const ProductDetailPage = () => {
         );
     };
 
-    const handleAddToCart = (product, price, name, brand) => {
+    const handleAddToCart = async (product, price, id, name, brand, quantity,pid) => {
+        console.log('aassa', id, quantity);
+        try {
+            const res = await axiosInstance.post(`/swift/cart/add`,
+                {
+                    productId: String(id),
+                    quantity: String(quantity),
+                    priceId: String(pid)
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            console.log('mess',res)
+            Swal.fire({
+                icon: 'success',
+                title: res.data.message,
+                text: ``,
+                confirmButtonText: 'OK',
+              });
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to Add',
+                text: 'There was a problem adding the item to your cart',
+                showConfirmButton: false,
+                timer: 1500,
+                position: 'top-end',
+                toast: true
+            });
+        }
+    
         setCart(prevCart => {
             // Check if product is already in cart
             const existingIndex = prevCart.findIndex(item => item.product.id === product.id);
-
+    
             if (existingIndex !== -1) {
                 // Product exists, update price array
                 const updatedCart = [...prevCart];
@@ -196,8 +233,8 @@ const ProductDetailPage = () => {
                                     <div className="mb-8">
                                         <div className="flex justify-between items-center mb-6">
                                             <div>
-                                                <span className="text-sm font-medium text-gray-500">Brand:</span>
-                                                <span className="ml-2 font-semibold text-gray-900">{product.brand || 'Generic'}</span>
+                                                <span className="text-sm font-medium text-gray-500">Name:</span>
+                                                <span className="ml-2 font-semibold text-gray-900">{product.name || 'Generic'}</span>
                                             </div>
 
                                         </div>
@@ -272,52 +309,88 @@ const ProductDetailPage = () => {
                                     )}
                                 </div>
                                 <div className="overflow-x-auto shadow-md rounded-lg">
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                        <thead className="bg-gray-100">
-                                            <tr>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    S.No
-                                                </th>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    QTY
-                                                </th>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Price/Pill
-                                                </th>
-                                                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Action
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="bg-white divide-y divide-gray-200">
-                                            {product.prices.map((price, index) => (
-                                                <tr key={price.id} className="hover:bg-gray-50 transition-colors duration-150">
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                        {index + 1}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {price.quantity}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {price.maxPrice && price.quantity ? (
-                                                            <div className="flex items-center">
-                                                                {displayConvertedPrice(price.maxPrice / price.quantity, price.currency)}
-                                                            </div>
-                                                        ) : '-'}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                        <button
-                                                            className="cursor-pointer inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-                                                            onClick={() => handleAddToCart(product, price, product.name, product.brand)}
-                                                        >
-                                                            Add to Cart
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+    <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-100">
+            <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    S.No
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    QTY
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Price/Pill
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Savings (only today)
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    PerPack
+                </th>
+                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Action
+                </th>
+            </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+            {product.prices.map((price, index) => {
+                // Calculate per pill price
+                const perPillPrice = price.maxPrice && price.quantity 
+                    ? price.maxPrice / price.quantity 
+                    : 0;
+                
+                // Calculate savings
+                let savings = null;
+                if (index > 0 && product.prices[0] && product.prices[0].maxPrice && product.prices[0].quantity) {
+                    const basePerPillPrice = product.prices[0].maxPrice / product.prices[0].quantity;
+                    savings = (basePerPillPrice * price.quantity) - price.maxPrice;
+                }
+
+                return (
+                    <tr key={price.id} className="hover:bg-gray-50 transition-colors duration-150">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {index + 1}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {price.quantity}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {price.maxPrice && price.quantity ? (
+                                <div className="flex items-center">
+                                    {displayConvertedPrice(perPillPrice, price.currency)}
                                 </div>
+                            ) : '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {savings !== null && savings > 0 ? (
+                                <div className="text-green-600">
+                                    Save {displayConvertedPrice(savings, price.currency)}
+                                </div>
+                            ) : index === 0 ? (
+                                '-'
+                            ) : (
+                                <div className="text-red-600">
+                                    No savings
+                                </div>
+                            )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {price.maxPrice ? displayConvertedPrice(price.maxPrice, price.currency) : '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button
+                                className="cursor-pointer inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                                onClick={() => handleAddToCart(product, price, product.id, product.name, product.brand, price.quantity,price.id)}
+                            >
+                                Add to Cart
+                            </button>
+                        </td>
+                    </tr>
+                );
+            })}
+        </tbody>
+    </table>
+</div>
                             </div>
 
                             {/* Product Details Accordion */}
