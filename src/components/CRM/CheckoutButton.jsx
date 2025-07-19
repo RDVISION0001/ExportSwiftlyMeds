@@ -9,8 +9,8 @@ import {
 import { loadStripe } from "@stripe/stripe-js";
 import axiosInstance from "../../AuthContext/AxiosInstance";
 
-const stripePromiseVox = loadStripe("pk_test_51RY5guKomOVAGS7djPG0yRUk9OHOglAA3haDBNIKDz70klhrJ515LpcDNOcBzO12aCQZNosK1SaZj0mHAoJ39zYy00O3gEYnhK");
-const stripePromiseRdvision=loadStripe("pk_test_51KpHlnSAxOboMMom0iL0iGQCFoBJm1TpQxShbdJbj7vsqVh8QHWz3LFV66YSJDMRUXuA0UAfl5lddXOcgDlXYhmD00hHgDaIEU")
+const stripePromiseVox = loadStripe("pk_live_51RY5guKomOVAGS7dAHY7zT0opFxmbzNxNvsR9qwVHg9mnaVAxkGDT0sLztGHAFqXju9FFWXFHjEpIn6rUCNrmZJs001hB3HSlY");
+const stripePromiseRdvision=loadStripe("pk_live_51KpHlnSAxOboMMomzgtOknKDOwEg9AysCqs6g0O2e9ETloartosrHcf8qOAwOsChi8s5EYN8UHzNn2VgyKirIE6K00TujZ91YB")
 const CheckoutForm = ({orderNumber,remark}) => {
     console.log(orderNumber,"hello")
   const stripe = useStripe();
@@ -26,7 +26,7 @@ const CheckoutForm = ({orderNumber,remark}) => {
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `http://localhost:3000/success/${orderNumber}`,
+        return_url: `https://swiftlymneds.com/success/${orderNumber}`,
         // billing_details will be taken from AddressElement automatically
       },
     });
@@ -40,8 +40,11 @@ const CheckoutForm = ({orderNumber,remark}) => {
 
 
   return (
-    <form onSubmit={handleSubmit} className="w-[35vw] p-6 rounded-lg shadow-lg space-y-6">
+    <form onSubmit={handleSubmit} className="w-[35vw] p-6 rounded-lg space-y-6">
       {/* Address input */}
+      {message && (
+        <div className="text-sm text-center text-red-600 mt-4">{message}</div>
+      )}
       <div>
         <label className="block text-sm font-medium mb-2">Billing Address</label>
         <AddressElement
@@ -72,9 +75,7 @@ const CheckoutForm = ({orderNumber,remark}) => {
         {loading ? "Processing..." : "Pay"}
       </button>
 
-      {message && (
-        <div className="text-sm text-center text-red-600 mt-4">{message}</div>
-      )}
+     
     </form>
   );
 };
@@ -105,7 +106,7 @@ const CheckoutButton = ({orderNumber,remark}) => {
   };
 console.log("Remark is ",remark)
   return (
-    <div className="flex items-center w-[35vw] justify-center p-4">
+    <div className="flex items-center w-[35vw] justify-center">
       {clientSecret && (
         <Elements stripe={remark=="tried"?stripePromiseVox:stripePromiseRdvision} options={options}>
           <CheckoutForm orderNumber={orderNumber} remark={remark}/>
