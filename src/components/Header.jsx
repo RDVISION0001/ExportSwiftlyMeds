@@ -21,17 +21,12 @@ import { useAuth } from "../AuthContext/AuthContext";
 import axiosInstance from "../AuthContext/AxiosInstance";
 import axios from "axios";
 import Login from "../AuthContext/Login";
+import Profile from "./Profile";
 
 
 const Header = () => {
     const navigate = useNavigate();
-    const { cart, amount, category, setCategory, catId, setCatId, setCatProduct, setLoading, setSelectCountry, itemsPerpage, } = useAuth();
-    // Calculate total item count
-    const cartItemCount = cart
-        ? Array.isArray(cart)
-            ? cart.reduce((sum, item) => sum + (item.quantity || 1), 0)
-            : 1 // If cart is a single product object
-        : 0; // If cart is null/undefined
+    const { cartCount,setCartCount, amount, category, setCategory, catId, setCatId, setCatProduct, setLoading, setSelectCountry, itemsPerpage, token, user,refresh } = useAuth();
 
     const countryOptions = [
         { code: 'US', name: 'United States', currency: 'USD', language: 'English' },
@@ -53,6 +48,9 @@ const Header = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [categoriesOpen, setCategoriesOpen] = useState(false);
     const [openModal, setOpenModal] = useState(false);
+    const [profileModal, setProfileModal] = useState(false);
+    
+
 
     const fetchCategory = async () => {
         setLoading(true);
@@ -88,24 +86,50 @@ const Header = () => {
         fetchCatProduct();
     }, [catId, itemsPerpage])
 
-   
+    const getAllCartItems = async () => {
+        try {
+          const response = await axiosInstance.get(`/swift/cart`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setCartCount(response.data);
+          console.log("Cart items:", response.data.length);
+        } catch (error) {
+          console.error("Error fetching cart items:", error);
+        }
+      };
+
+    useEffect(() =>{
+        getAllCartItems();
+    }, [refresh])
+
+
 
     const handleCountryChange = (value) => {
-  const selected = countryOptions.find(
-    (c) => c.code === value || c.currency === value
-  );
-  if (selected) {
-    setSelectedCountry(selected);
-     setSelectCountry(selected);
-  }
-};
+        const selected = countryOptions.find(
+            (c) => c.code === value || c.currency === value
+        );
+        if (selected) {
+            setSelectedCountry(selected);
+            setSelectCountry(selected);
+        }
+    };
 
-    // useEffect(() =>{
-    //     setTimeout(() => {
-    //       setOpenModal(true)  
-    //     }, 1000);
-    //     return clearTimeout()
-    // }, [])
+    useEffect(() => {
+        if (token) {
+            setOpenModal(false);
+            return;
+        }
+
+        const timeoutId = setTimeout(() => {
+            setOpenModal(true);
+        }, 5000);
+
+        return () => clearTimeout(timeoutId);
+    }, [token]);
+
+
 
     return (
         <>
@@ -174,15 +198,27 @@ const Header = () => {
                             </div>
                             {/* Login - visible on all screens */}
                             <div className="relative group hidden md:block">
-                                <button onClick={() =>  setOpenModal(true) } className="flex items-center space-x-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors cursor-pointer">
+                                <button
+                                    onClick={() => {
+                                        if (token) {
+                                            setProfileModal(true);
+                                        } else {
+                                            setOpenModal(true);
+                                        }
+                                    }}
+                                    className="flex items-center space-x-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors cursor-pointer"
+                                >
                                     <FaUser className="text-xl" />
-                                    <span className="hidden md:inline  font-medium">Login</span>
+                                    <span className="hidden md:inline font-medium">{user?.swiftUserName || "Login"}</span>
                                 </button>
                             </div>
+
+
+
                             <Link to="/shipping" className="p-2 text-white hover:text-gray-200 relative transition-colors">
                                 <FaShoppingCart className="text-xl text-black" />
                                 <span className="absolute -top-1 -right-1 bg-blue-500  text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                    {cartItemCount}
+                                    {cartCount.length || 0}
                                 </span>
                             </Link>
                             <span className=" text-xs md:text-xl">
@@ -192,7 +228,7 @@ const Header = () => {
                     </div>
                 </div>
             </header>
-            
+
             {/* Second Header */}
             <header className="bg-white shadow-sm sticky top-18.5 z-50 border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -366,6 +402,24 @@ const Header = () => {
                     <Login onClose={setOpenModal} />
                 </div>
             }
+            {profileModal && (
+                <div className="fixed inset-0  flex items-center justify-center backdrop-brightness-50 z-100 ">
+                    <div className="border border-gray-300 max-w-7xl w-full mx-4 bg-white rounded-lg shadow-xl overflow-hidden ">
+                        <div className="relative p-1">
+                            <button
+                                onClick={() => setProfileModal(false)}
+                                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 bg-white hover:bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition-colors duration-200"
+                                aria-label="Close modal"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                            </button>
+                            <Profile />
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

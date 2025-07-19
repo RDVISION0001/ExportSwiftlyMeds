@@ -1,42 +1,73 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
-// First create the context
+import Swal from 'sweetalert2';
+
+// Create the context
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    // Initialize state from localStorage if available
-    const [cart, setCart] = useState([])
-    const [product, setProduct] = useState(() => {
-        const savedProduct = localStorage.getItem('product');
-        return savedProduct ? JSON.parse(savedProduct) : null;
-    });
-    const [amount, setAmount] = useState(() => {
-        const savedAmount = localStorage.getItem('amount');
-        return savedAmount ? parseFloat(savedAmount) : 0;
-    });
-
-
     const [category, setCategory] = useState([]);
     const [catId, setCatId] = useState('');
     const [catProduct, setCatProduct] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [selectCountry, setSelectCountry] = useState('INR')
+    const [selectCountry, setSelectCountry] = useState('INR');
     const [itemsPerpage, setItemsPerpage] = useState(20);
     const [searchItem, setSearchItem] = useState('');
+    const [token, setToken] = useState(localStorage.getItem("jwtToken"));
+    const [user, setUser] = useState(() => {
+        try {
+          const storedUser = localStorage.getItem("user");
+          if (!storedUser || storedUser === "undefined") return null;
+          return JSON.parse(storedUser);
+        } catch (e) {
+          console.error("Failed to parse stored user:", e);
+          return null;
+        }
+      });
+      const [refresh,setRefresh] = useState(1);
+      const [cartCount,setCartCount] = useState('');
 
-    // Save to localStorage whenever cart, product, or amount changes
-    useEffect(() => {
-        localStorage.setItem('cart', JSON.stringify(cart));
-        localStorage.setItem('product', JSON.stringify(product));
-        localStorage.setItem('amount', amount.toString());
-    }, [cart, product, amount]);
 
+    const logout = async () => {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will be logged out of the system.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, logout!',
+            cancelButtonText: 'Cancel'
+        });
+        if (result.isConfirmed) {
+            try {
+                setToken(null);
+                localStorage.removeItem("jwtToken");
+                setUser(null);
+                localStorage.removeItem("user");
+                await Swal.fire({
+                    title: 'Logged out!',
+                    text: 'You have been successfully logged out.',
+                    icon: 'success',
+                    timer: 2000,  // Auto close after 2 seconds
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+                window.location.reload()
+            } catch (error) {
+                await Swal.fire({
+                    title: 'Error!',
+                    text: 'There was a problem logging out.',
+                    icon: 'error'
+                });
+            }
+        }
+    };
+
+    // ... rest of your AuthProvider code ...
 
     return (
         <AuthContext.Provider value={{
-            cart, setCart,
-            product, setProduct,
-            amount, setAmount,
             category, setCategory,
             catId, setCatId,
             catProduct, setCatProduct,
@@ -44,6 +75,11 @@ export function AuthProvider({ children }) {
             selectCountry, setSelectCountry,
             itemsPerpage, setItemsPerpage,
             searchItem, setSearchItem,
+            token, setToken,
+            user, setUser,
+            logout, // Add the logout function to the context,
+            refresh,setRefresh,
+            cartCount,setCartCount,
         }}>
             {children}
         </AuthContext.Provider>

@@ -1,23 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FaShoppingCart, FaHeart, FaShareAlt, FaChevronRight, FaHome, FaChevronDown, FaTimes } from 'react-icons/fa';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { FaChevronRight, FaHome, FaChevronDown } from 'react-icons/fa';
+import { useLocation, Link } from 'react-router-dom';
 import { FaFlask, FaBoxOpen, FaPills, FaMedkit } from 'react-icons/fa';
 import { useAuth } from '../../../AuthContext/AuthContext';
 import ShippingCart from '../../shippingCart/ShippingCart';
+import axiosInstance from '../../../AuthContext/AxiosInstance';
+import Swal from 'sweetalert2';
 
 const ProductDetailPage = () => {
-    const { selectCountry, cart, setCart } = useAuth();
-
-    // Currency exchange rates (should be fetched from API in production)
+    const { selectCountry, cart, setCart, token, cartCount, setRefresh } = useAuth();
+console.log('asdf',cartCount);
     const currencyRates = {
-        USD: 1,       // US Dollar (base)
-        EUR: 0.93,    // Euro
-        GBP: 0.80,    // British Pound
-        INR: 83.33,   // Indian Rupee
-        CAD: 1.36,    // Canadian Dollar
-        AUD: 1.51,    // Australian Dollar
-        JPY: 151.61,  // Japanese Yen
-        RUB: 92.58    // Russian Ruble
+        USD: 1,
+        EUR: 0.93,  
+        GBP: 0.80,
+        INR: 83.33,
+        CAD: 1.36,
+        AUD: 1.51,
+        JPY: 151.61,
+        RUB: 92.58
     };
 
     const location = useLocation();
@@ -26,9 +27,7 @@ const ProductDetailPage = () => {
     const [activeImage, setActiveImage] = useState(0);
     const [openAccordion, setOpenAccordion] = useState(null);
     const [cartItems, setCartItems] = useState([]);
-    const navigate = useNavigate();
-
-
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         topRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -79,7 +78,7 @@ const ProductDetailPage = () => {
 
     const formatPrice = (price, currencyCode) => {
         const symbol = getCurrencySymbol(currencyCode);
-        return `${symbol}${price.toFixed(2)}`;
+        return `${symbol}${price.toFixed(3)}`;
     };
 
     const displayConvertedPrice = (price, originalCurrency) => {
@@ -98,18 +97,54 @@ const ProductDetailPage = () => {
         );
     };
 
-    const handleAddToCart = (product, price, name, brand) => {
-        setCart(prevCart => {
-            // Check if product is already in cart
-            const existingIndex = prevCart.findIndex(item => item.product.id === product.id);
+    const handleAddToCart = async (product, price, id, name, brand, quantity, pid) => {
+        // Create a unique key for this product/price combination
+        const loadingKey = `${id}-${pid}`;
 
+        try {
+            // Set loading state for this specific button
+            setLoading(prev => ({ ...prev, [loadingKey]: true }));
+
+            const res = await axiosInstance.post(`/swift/cart/add`,
+                {
+                    productId: String(id),
+                    quantity: String(1),
+                    priceId: String(pid)
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            Swal.fire({
+                icon: 'success',
+                title: res.data.message,
+                text: ``,
+                confirmButtonText: 'OK',
+            });
+            setRefresh(prev => prev + 1);
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to Add',
+                text: 'There was a problem adding the item to your cart',
+                confirmButtonText: 'OK',
+            });
+        } finally {
+            // Clear loading state for this specific button
+            setLoading(prev => ({ ...prev, [loadingKey]: false }));
+        }
+
+        setCart(prevCart => {
+            const existingIndex = prevCart.findIndex(item => item.product.id === product.id);
             if (existingIndex !== -1) {
-                // Product exists, update price array
                 const updatedCart = [...prevCart];
                 updatedCart[existingIndex].prices.push(price);
                 return updatedCart;
             } else {
-                // New product, add to cart
                 return [
                     ...prevCart,
                     {
@@ -122,10 +157,6 @@ const ProductDetailPage = () => {
             }
         });
     };
-
-
-
-
 
     return (
         <>
@@ -162,7 +193,7 @@ const ProductDetailPage = () => {
                             {/* Product Gallery */}
                             <div className="bg-white rounded-xl shadow-lg p-6 flex w-full mb-1">
                                 <div className="flex flex-col items-center w-[45%] ">
-                                    <div className="w-full h-96 rounded-lg mb-6 flex items-center justify-center overflow-hidden">
+                                    <div className="w-full h-80 rounded-lg flex items-center justify-center overflow-hidden">
                                         {product.imageUrls && product.imageUrls.length > 0 ? (
                                             <img
                                                 src={product.imageUrls[activeImage]}
@@ -196,8 +227,8 @@ const ProductDetailPage = () => {
                                     <div className="mb-8">
                                         <div className="flex justify-between items-center mb-6">
                                             <div>
-                                                <span className="text-sm font-medium text-gray-500">Brand:</span>
-                                                <span className="ml-2 font-semibold text-gray-900">{product.brand || 'Generic'}</span>
+                                                <span className="text-sm font-medium text-gray-500">Name:</span>
+                                                <span className="ml-2 font-semibold text-gray-900">{product.name || 'Generic'}</span>
                                             </div>
 
                                         </div>
@@ -217,7 +248,8 @@ const ProductDetailPage = () => {
                                             </div>
                                         </div>
 
-                                        <div className="space-y-6">
+                                        <div className="flex justify-start gap-20">
+                                            <div>
                                             <div className="flex items-start">
                                                 <div className="flex-shrink-0 mt-1 mr-3 text-indigo-600">
                                                     <FaFlask className="h-5 w-5" />
@@ -237,8 +269,10 @@ const ProductDetailPage = () => {
                                                     <p className="mt-1 text-gray-900 text-base">{product.packagingType || 'Not specified'}</p>
                                                 </div>
                                             </div>
+                                            </div>
 
-                                            <div className="flex items-start">
+                                           <div>
+                                           <div className="flex items-start">
                                                 <div className="flex-shrink-0 mt-1 mr-3 text-indigo-600">
                                                     <FaPills className="h-5 w-5" />
                                                 </div>
@@ -257,6 +291,7 @@ const ProductDetailPage = () => {
                                                     <p className="mt-1 text-gray-900 text-base">{product.usedFor || 'Not specified'}</p>
                                                 </div>
                                             </div>
+                                           </div>
                                         </div>
                                     </div>
                                 </div>
@@ -284,37 +319,84 @@ const ProductDetailPage = () => {
                                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Price/Pill
                                                 </th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Savings (only today)
+                                                </th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    PerPack
+                                                </th>
                                                 <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Action
                                                 </th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
-                                            {product.prices.map((price, index) => (
-                                                <tr key={price.id} className="hover:bg-gray-50 transition-colors duration-150">
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                        {index + 1}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {price.quantity}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {price.maxPrice && price.quantity ? (
-                                                            <div className="flex items-center">
-                                                                {displayConvertedPrice(price.maxPrice / price.quantity, price.currency)}
-                                                            </div>
-                                                        ) : '-'}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                        <button
-                                                            className="cursor-pointer inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-                                                            onClick={() => handleAddToCart(product, price, product.name, product.brand)}
-                                                        >
-                                                            Add to Cart
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {product.prices.map((price, index) => {
+                                                // Calculate per pill price
+                                                const perPillPrice = price.maxPrice && price.quantity
+                                                    ? price.maxPrice / price.quantity
+                                                    : 0;
+
+                                                // Calculate savings
+                                                let savings = null;
+                                                if (index > 0 && product.prices[0] && product.prices[0].maxPrice && product.prices[0].quantity) {
+                                                    const basePerPillPrice = product.prices[0].maxPrice / product.prices[0].quantity;
+                                                    savings = (basePerPillPrice * price.quantity) - price.maxPrice;
+                                                }
+
+                                                return (
+                                                    <tr key={price.id} className="hover:bg-gray-50 transition-colors duration-150">
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            {index + 1}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            {price.quantity}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            {price.maxPrice && price.quantity ? (
+                                                                <div className="flex items-center">
+                                                                    {displayConvertedPrice(perPillPrice, price.currency)}
+                                                                </div>
+                                                            ) : '-'}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            {savings !== null && savings > 0 ? (
+                                                                <div className="text-green-600">
+                                                                    Save {displayConvertedPrice(savings, price.currency)}
+                                                                </div>
+                                                            ) : index === 0 ? (
+                                                                '-'
+                                                            ) : (
+                                                                <div className="text-red-600">
+                                                                    No savings
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            {price.maxPrice ? displayConvertedPrice(price.maxPrice, price.currency) : '-'}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                            <button
+                                                                className={`cursor-pointer inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200 ${loading[`${product.id}-${price.id}`] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                                onClick={() => handleAddToCart(product, price, product.id, product.name, product.brand, price.quantity, price.id)}
+                                                                disabled={loading[`${product.id}-${price.id}`]}
+                                                            >
+                                                                {loading[`${product.id}-${price.id}`] ? (
+                                                                    <span className="flex items-center">
+                                                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                        </svg>
+                                                                        Adding...
+                                                                    </span>
+                                                                ) : (
+                                                                    'Add to Cart'
+                                                                )}
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>
@@ -433,13 +515,13 @@ const ProductDetailPage = () => {
                     <div className="w-full md:w-[25%] border border-gray-200 rounded-lg shadow-sm my-2 p-4 h-screen overflow-y-auto hide-scrollbar bg-white">
                         <h2 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b">Your Cart</h2>
 
-                        {cart?.length > 0 ? (
+                        {cartCount?.length > 0 ? (
                             <div className="space-y-3">
-                                {cart.map((item, index) => (
+                                {cartCount.map((item, index) => (
                                     <div key={index} className="relative p-3 border rounded-lg hover:shadow transition-shadow bg-gray-50">
                                         <button
                                             onClick={() => handleRemoveItem(index)}
-                                            className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
+                                            className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
                                             aria-label="Remove item"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

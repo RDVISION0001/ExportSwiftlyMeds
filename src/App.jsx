@@ -1,5 +1,4 @@
-// App.css
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './components/Pages/Home';
 import Header from './components/Header';
 import ViewProduct from './components/catagory/ED/ViewProduct';
@@ -28,16 +27,30 @@ import PCIDSS from './components/PCIDSS';
 import TaregetCountry from './components/TaregetCountry';
 import PaymentSuccess from './components/CRM/PaymentSuccess';
 import PaymentFailed from './components/CRM/PaymentFailed';
+import { useAuth } from './AuthContext/AuthContext';
 
+
+// Create a ProtectedRoute component
+const ProtectedRoute = ({ children }) => {
+  const { token } = useAuth();
+  
+  if (!token) {
+    // Redirect to home page if not authenticated
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
 
 function App() {
+  const { token } = useAuth();
+  
   return (
     <Router>
       <Header />
       <Routes>
-        <Route path="/" element={<Home />} />       
-        <Route path='/view' element={<ViewProduct />} />
-        <Route path='/shipping' element={<ShippingCart />} />
+        {/* Public routes */}
+        <Route path="/" element={<Home />} />
         <Route path='/about' element={<AboutUs />} />
         <Route path='/contact' element={<ContactUs />} />
         <Route path='/faq' element={<FAQ />} />
@@ -56,7 +69,6 @@ function App() {
         <Route path='/terms' element={<TermsCondition />} />
         <Route path='/refund' element={<RefundPolicy />} />
         <Route path='/deliveryShipping' element={<DeliveryShippingPolicy />} />
-        <Route path='/CatProduct' element={<ShopByCategoryProduct />} />
         <Route path='/pci-dss' element={<PCIDSS />} />
         <Route path='/marketArea' element={<TaregetCountry/>}/>
 
@@ -64,6 +76,29 @@ function App() {
         <Route path="/success/:orderNumber" element={<PaymentSuccess />} />
         <Route path="/failed/:orderNumber" element={<PaymentFailed />} />
         
+
+        
+        {/* Protected routes - require token */}
+        <Route path='/view' element={
+          <ProtectedRoute>
+            <ViewProduct />
+          </ProtectedRoute>
+        } />
+        <Route path='/shipping' element={
+          <ProtectedRoute>
+            <ShippingCart />
+          </ProtectedRoute>
+        } />
+        <Route path="/checkout/:orderNumber" element={
+          <ProtectedRoute>
+            <CrmPayment />
+          </ProtectedRoute>
+        } />
+        <Route path='/CatProduct' element={
+          <ProtectedRoute>
+            <ShopByCategoryProduct />
+          </ProtectedRoute>
+        } />
       </Routes>
       <Footer />
     </Router>
