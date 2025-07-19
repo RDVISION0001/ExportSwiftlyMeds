@@ -26,7 +26,7 @@ import Profile from "./Profile";
 
 const Header = () => {
     const navigate = useNavigate();
-    const { cartCount,setCartCount, amount, category, setCategory, catId, setCatId, setCatProduct, setLoading, setSelectCountry, itemsPerpage, token, user,refresh } = useAuth();
+    const { cartCount, setCartCount, amount, category, setCategory, catId, setCatId, setCatProduct, setLoading, setSelectCountry, itemsPerpage, token, user, refresh } = useAuth();
 
     const countryOptions = [
         { code: 'US', name: 'United States', currency: 'USD', language: 'English' },
@@ -49,7 +49,7 @@ const Header = () => {
     const [categoriesOpen, setCategoriesOpen] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [profileModal, setProfileModal] = useState(false);
-    
+
 
 
     const fetchCategory = async () => {
@@ -88,19 +88,19 @@ const Header = () => {
 
     const getAllCartItems = async () => {
         try {
-          const response = await axiosInstance.get(`/swift/cart`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          setCartCount(response.data);
-          console.log("Cart items:", response.data.length);
+            const response = await axiosInstance.get(`/swift/cart`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setCartCount(response.data);
+            console.log("Cart items:", response.data.length);
         } catch (error) {
-          console.error("Error fetching cart items:", error);
+            console.error("Error fetching cart items:", error);
         }
-      };
+    };
 
-    useEffect(() =>{
+    useEffect(() => {
         getAllCartItems();
     }, [refresh])
 
@@ -221,9 +221,6 @@ const Header = () => {
                                     {cartCount.length || 0}
                                 </span>
                             </Link>
-                            <span className=" text-xs md:text-xl">
-                                ${parseFloat(amount).toFixed(2)}
-                            </span>
                         </div>
                     </div>
                 </div>

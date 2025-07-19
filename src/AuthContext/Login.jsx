@@ -5,6 +5,7 @@ import { FiPhone, FiLock, FiChevronDown } from "react-icons/fi";
 import axiosInstance from './AxiosInstance';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import Logo from '../assets/Nlogo.png';
 import { useAuth } from './AuthContext';
 
 function Login({ onClose }) {
@@ -160,9 +161,70 @@ function Login({ onClose }) {
       setUser(response.data.user);
       Swal.fire({
         icon: 'success',
-        title: response.data.message,
-        timer: 1500,
+        title: `${response.data.message} and Login Successfully`,
+        html: `
+          <div style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    ">
+      <img src="${Logo}" 
+          alt="SwiftlyMeds Logo" 
+          style="
+            width: 200px;
+            height: 80px;
+            margin-bottom: 15px;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.5s ease-out;
+          "
+          class="swal-welcome-image"
+          onerror="this.style.display='none'; console.error('Image failed to load')">
+    </div>
+        `,
+        timer: 4000,
         showConfirmButton: false,
+        didOpen: () => {
+          // Trigger animations after the modal is opened
+          setTimeout(() => {
+            const image = document.querySelector('.swal2-popup .swal-welcome-image');
+            const message = document.querySelector('.swal2-popup .swal-welcome-message');
+
+            if (image) {
+              image.style.opacity = '1';
+              image.style.transform = 'scale(1)';
+            }
+
+            if (message) {
+              message.style.opacity = '1';
+              message.style.transform = 'translateY(0)';
+            }
+          }, 100);
+        },
+        willClose: () => {
+          // Optional closing animations
+          const image = document.querySelector('.swal2-popup .swal-welcome-image');
+          const message = document.querySelector('.swal2-popup .swal-welcome-message');
+
+          if (image) {
+            image.style.opacity = '0';
+            image.style.transform = 'scale(0.8)';
+          }
+
+          if (message) {
+            message.style.opacity = '0';
+            message.style.transform = 'translateY(-20px)';
+          }
+        },
+        background: '#ffffff',
+        backdrop: `
+    rgba(0,0,0,0.4)
+    url("/images/nyan-cat.gif")
+    left top
+    no-repeat
+  `
       });
       setIsLoading(false)
     } catch (error) {
