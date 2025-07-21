@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaChevronRight, FaHome, FaChevronDown } from 'react-icons/fa';
+import { FiTrash2, FiPlus, FiMinus } from 'react-icons/fi';
 import { useLocation, Link } from 'react-router-dom';
 import { FaFlask, FaBoxOpen, FaPills, FaMedkit } from 'react-icons/fa';
 import { useAuth } from '../../../AuthContext/AuthContext';
-import ShippingCart from '../../shippingCart/ShippingCart';
 import axiosInstance from '../../../AuthContext/AxiosInstance';
 import Swal from 'sweetalert2';
 
 const ProductDetailPage = () => {
     const { selectCountry, cart, setCart, token, cartCount, setRefresh } = useAuth();
-console.log('asdf',cartCount);
+    console.log('cartCount', cartCount);
+    
     const currencyRates = {
         USD: 1,
         EUR: 0.93,  
@@ -28,6 +29,7 @@ console.log('asdf',cartCount);
     const [openAccordion, setOpenAccordion] = useState(null);
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [updatingItems, setUpdatingItems] = useState({}); // Track loading state for quantity updates
 
     useEffect(() => {
         topRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,7 +58,6 @@ console.log('asdf',cartCount);
         if (fromCurrency === toCurrency) return price;
         if (!currencyRates[fromCurrency] || !currencyRates[toCurrency]) return price;
 
-        // Convert to USD first, then to target currency
         const usdValue = price / currencyRates[fromCurrency];
         const convertedValue = usdValue * currencyRates[toCurrency];
         return parseFloat(convertedValue.toFixed(2));
@@ -78,7 +79,7 @@ console.log('asdf',cartCount);
 
     const formatPrice = (price, currencyCode) => {
         const symbol = getCurrencySymbol(currencyCode);
-        return `${symbol}${price.toFixed(3)}`;
+        return `${symbol}${price.toFixed(2)}`;
     };
 
     const displayConvertedPrice = (price, originalCurrency) => {
@@ -98,11 +99,9 @@ console.log('asdf',cartCount);
     };
 
     const handleAddToCart = async (product, price, id, name, brand, quantity, pid) => {
-        // Create a unique key for this product/price combination
         const loadingKey = `${id}-${pid}`;
 
         try {
-            // Set loading state for this specific button
             setLoading(prev => ({ ...prev, [loadingKey]: true }));
 
             const res = await axiosInstance.post(`/swift/cart/add`,
@@ -134,7 +133,6 @@ console.log('asdf',cartCount);
                 confirmButtonText: 'OK',
             });
         } finally {
-            // Clear loading state for this specific button
             setLoading(prev => ({ ...prev, [loadingKey]: false }));
         }
 
@@ -158,6 +156,81 @@ console.log('asdf',cartCount);
         });
     };
 
+    const updateQuantity = async (productId, newQuantity, priceId) => {
+        try {
+            setUpdatingItems(prev => ({ ...prev, [priceId]: true }));
+            
+            await axiosInstance.post(`/swift/cart/update`,
+                {
+                    productId: String(productId),
+                    quantity: String(newQuantity),
+                    priceId: String(priceId)
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            
+            setRefresh(prev => prev + 1);
+        } catch (error) {
+            console.error("Error updating quantity:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: 'There was a problem updating the quantity',
+                confirmButtonText: 'OK',
+            });
+        } finally {
+            setUpdatingItems(prev => ({ ...prev, [priceId]: false }));
+        }
+    };
+
+    const handleRemoveItem = async (productId, priceId) => {
+        try {
+            await axiosInstance.post(`/swift/cart/remove`,
+                {
+                    productId: String(productId),
+                    priceId: String(priceId)
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            
+            setRefresh(prev => prev + 1);
+            Swal.fire({
+                icon: 'success',
+                title: 'Item Removed',
+                text: 'Item has been removed from your cart',
+                confirmButtonText: 'OK',
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Removal Failed',
+                text: 'There was a problem removing the item',
+                confirmButtonText: 'OK',
+            });
+        }
+    };
+
+    const calculateTotal = () => {
+        if (!cartCount || cartCount.length === 0) return 0;
+        
+        return cartCount.reduce((total, item) => {
+            const itemTotal = item.prices?.reduce((sum, price) => {
+                const convertedPrice = convertPrice(price.price, price.currency, selectCountry?.currency || 'USD');
+                return sum + (convertedPrice * price.quantity);
+            }, 0);
+            return total + (itemTotal || 0);
+        }, 0);
+    };
     return (
         <>
             <nav className="flex  mx-auto pt-3 w-full bg-white fixed top-[138px] z-80  border border-gray-100 " aria-label="Breadcrumb">
@@ -531,7 +604,46 @@ console.log('asdf',cartCount);
 
                                         <h3 className="font-medium text-gray-900">{item.name}</h3>
 
-                                        <div className="mt-2 space-y-1">
+                                        <div className="grid grid-cols-2 gap-2 mt-2">
+                    <p className="text-gray-600">Price:</p>
+                    <p>${item.price}</p>
+
+                    <p className="text-gray-600">Quantity:</p>
+                    <div className="flex justify-center items-center gap-1 border border-gray-300 rounded-md w-fit px-2 py-1">
+                      <button
+                        onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.priceId, "plus")}
+                        className={`p-1 rounded-md cursor-pointer ${item.quantity <= 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'} transition-colors`}
+                        disabled={item.quantity <= 1 || updatingItems[item.priceId]}
+                        aria-label="Decrease quantity"
+                      >
+                        {updatingItems[item.priceId] ? (
+                          <span className="loading loading-dots loading-xs"></span>
+                        ) : (
+                          <FiMinus size={14} />
+                        )}
+                      </button>
+
+                      <span className="w-6 text-center text-sm font-medium text-gray-800">
+                        {item.quantity}
+                      </span>
+
+                      <button
+                        onClick={() => updateQuantity(item.productId, item.quantity + 1, item.priceId)}
+                        className="p-1 cursor-pointer rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
+                        disabled={updatingItems[item.priceId]}
+                        aria-label="Increase quantity"
+                      >
+                        {updatingItems[item.priceId] ? (
+                          <span className="loading loading-dots loading-xs"></span>
+                        ) : (
+                          <FiPlus size={14} />
+                        )}
+                      </button>
+                    </div>
+
+                    <p className="text-gray-600">Total:</p>
+                    <p className="font-medium">${item.total}</p>
+                  </div>  <div className="mt-2 space-y-1">
                                             {item.prices?.map((priceObj, i) => (
                                                 <div key={i} className="flex justify-between text-sm text-gray-600">
                                                     <span>${priceObj.price.toFixed(2)} x {priceObj.quantity}</span>
@@ -539,6 +651,7 @@ console.log('asdf',cartCount);
                                                 </div>
                                             ))}
                                         </div>
+                                        
                                     </div>
                                 ))}
                             </div>

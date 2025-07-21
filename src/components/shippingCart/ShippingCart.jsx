@@ -319,7 +319,7 @@ function ShippingCart() {
 
             {/* Coupon Code Input */}
             <div className="mt-4 mb-2">
-              <label htmlFor="coupon" className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+              <label htmlFor="coupon" className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
                 <FiGift size={16} className='text-[#B12C00] mr-4' />
                 Coupon Code
               </label>
