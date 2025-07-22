@@ -364,19 +364,19 @@ function AddNewAddress({ onClose }) {
     return (
         <div>
             <div className="p-6">
-                <div className="flex flex-wrap gap-2 mb-6">
+                <div className="flex flex-row gap-2 mb-6">
                     <button
                         onClick={() => handleOptionChange('existing')}
-                        className={`px-4 py-2 cursor-pointer rounded-md flex items-center gap-2 ${selectedOption === 'existing' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+                        className={`px-4 py-2 cursor-pointer whitespace-nowrap rounded-md flex items-center gap-2 ${selectedOption === 'existing' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
                             }`}
                         aria-label="Select saved addresses"
                     >
                         <FiCheck className={selectedOption === 'existing' ? 'block' : 'hidden'} />
-                        Saved Addresses
+                        All Address
                     </button>
                     <button
                         onClick={() => handleOptionChange('new')}
-                        className={`px-4 py-2 cursor-pointer rounded-md flex items-center gap-2 ${selectedOption === 'new' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+                        className={`px-4 py-2 cursor-pointer whitespace-nowrap rounded-md flex items-center gap-2 ${selectedOption === 'new' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
                             }`}
                         aria-label="Add new address"
                     >

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../AuthContext/AuthContext';
 import axiosInstance from '../../AuthContext/AxiosInstance';
-import { FiTrash2, FiPlus, FiMinus, FiX, FiMapPin } from 'react-icons/fi';
+import { FiTrash2, FiPlus, FiMinus, FiMapPin, FiX } from 'react-icons/fi';
 import {
   FiShoppingBag,
   FiPackage,
@@ -17,6 +17,9 @@ import {
   FiShoppingCart
 } from 'react-icons/fi';
 import AddNewAddress from './AddNewAddress';
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
+import RecomndedProduct from './RecomndedProduct';
 
 function ShippingCart() {
   const { token, refresh, setRefresh } = useAuth();
@@ -32,14 +35,16 @@ function ShippingCart() {
   const [couponCode, setCouponCode] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponError, setCouponError] = useState('');
-  const [openAddressModal, setAddresModal] = useState(false)
+  const [aaNewAddressModal, setAddnewAddressModal] = useState(false)
+  const navigate = useNavigate()
+   const topRef = useRef(null);
 
   const calculateSubtotal = () => {
     return cartData.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   };
 
   const applyCoupon = () => {
-    if (couponCode === 'DISCOUNT10') {
+    if (couponCode === 'R10') {
       setCouponDiscount(10);
       setCouponError('');
     } else {
@@ -58,6 +63,7 @@ function ShippingCart() {
         },
       });
       setCartData(response.data);
+      console.log("cart data", response.data)
     } catch (error) {
       console.error("Error fetching cart items:", error);
       setError("Failed to load cart items. Please try again.");
@@ -68,7 +74,6 @@ function ShippingCart() {
 
   const updateQuantity = async (productId, newQuantity, priceId, action) => {
     try {
-      // Optimistically update the UI first
       setCartData(prevCart =>
         prevCart.map(item =>
           item.priceId === priceId
@@ -92,12 +97,9 @@ function ShippingCart() {
           }
         }
       );
-
-      // Refresh cart data to ensure sync with server
       await getAllCartItems();
     } catch (error) {
       console.error("Error updating quantity:", error);
-      // Revert optimistic update if there's an error
       setCartData(prevCart =>
         prevCart.map(item =>
           item.priceId === priceId
@@ -111,46 +113,65 @@ function ShippingCart() {
   };
 
   const removeItem = async (productId, priceId, quantity) => {
-    try {
-      setCurrentID(priceId);
-      setRemoving(true);
-      await axiosInstance.post(
-        `/swift/cart/remove`,
-        {
-          productId: productId,
-          quantity: quantity,
-          priceId: priceId,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will remove the item from your cart',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, remove it!',
+      cancelButtonText: 'Cancel'
+    });
+    if (result.isConfirmed) {
+      try {
+        setCurrentID(priceId);
+        await axiosInstance.post(
+          `/swift/cart/remove`,
+          {
+            productId: productId,
+            quantity: quantity,
+            priceId: priceId,
           },
-        }
-      );
-      setRemoving(false);
-      setCurrentID(null);
-      setRefresh(refresh + 1);
-      await getAllCartItems();
-    } catch (error) {
-      console.error("Error removing item:", error);
-      setRemoving(false);
-      setCurrentID(null);
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        Swal.close();
+        await Swal.fire(
+          'Removed!',
+          'Item has been removed from your cart.',
+          'success'
+        );
+
+        setRemoving(false);
+        setCurrentID(null);
+        setRefresh(refresh + 1);
+        await getAllCartItems();
+      } catch (error) {
+        console.error("Error removing item:", error);
+        Swal.fire(
+          'Error!',
+          'Failed to remove item. Please try again.',
+          'error'
+        );
+        setRemoving(false);
+        setCurrentID(null);
+      }
     }
   };
-
   useEffect(() => {
     if (token) {
       getAllCartItems();
     }
   }, [token]);
-
-  const handleAddress = () => {
-    setAddresModal(true)
-  }
-  const closeModalAddress = () => {
-    setAddresModal(false)
-  }
+  useEffect(() => {
+    topRef.current?.scrollIntoView({ behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [])
 
   if (loading && cartData.length === 0) {
     return (
@@ -174,14 +195,19 @@ function ShippingCart() {
       <div className="flex flex-col justify-center items-center h-64 gap-4">
         <FiShoppingCart size={48} className="text-gray-400" />
         <p className="text-lg text-gray-600">Your cart is empty</p>
+        <button onClick={() => navigate('/CatProduct')} className='bg-teal-800 text-white px-4 py-1 rounded-md cursor-pointer'>Continue Shopping</button >
       </div>
     );
   }
-
+  const openaddresModal = () => {
+    setAddnewAddressModal(true)
+  }
+  const closeAddressModal = () => {
+    setAddnewAddressModal(false)
+  }
   return (
-    <div className="w-full mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
+    <div ref={topRef}  className="w-full mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
       <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 px-2">Your Cart</h2>
-
       <div className="flex flex-col lg:flex-row gap-4 sm:gap-8">
         {/* Left side - Scrollable cart items */}
         <div className="lg:w-2/3">
@@ -191,14 +217,14 @@ function ShippingCart() {
                 {/* Delete button */}
                 <button
                   onClick={() => removeItem(item.productId, item.priceId, item.quantity)}
-                  className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                  className="absolute top-[68px] right-8 text-gray-400 hover:text-red-500 hover:bg-red-100 transition-colors cursor-pointer border rounded-full p-2"
                   aria-label="Remove item"
                   disabled={removing && item.priceId === currentId}
                 >
                   {removing && item.priceId === currentId ? (
                     <span className="loading loading-spinner loading-sm"></span>
                   ) : (
-                    <FiTrash2 size={16} className="sm:w-4 sm:h-4" />
+                    <FiTrash2 size={18} className="sm:w-4 sm:h-4" />
                   )}
                 </button>
 
@@ -219,7 +245,47 @@ function ShippingCart() {
                 {/* Product details */}
                 <div className="flex-grow">
                   <h3 className="text-base sm:text-lg font-semibold pr-6 line-clamp-2">{item.name}</h3>
-                  Your cart is empty
+                  <div className="grid grid-cols-2 gap-2 mt-1 sm:mt-2 text-sm sm:text-base">
+                    <p className="text-gray-600">Price:</p>
+                    <p>${item.price.toFixed(2)}</p>
+
+                    <p className="text-gray-600">Quantity:</p>
+                    <div className="flex justify-start sm:justify-center items-center gap-1 border border-gray-300 rounded-md w-fit px-2 py-1">
+                      <button
+                        onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.priceId, "minus")}
+                        className={`p-1 rounded-md cursor-pointer h-6 w-6 flex items-center justify-center ${item.quantity <= 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'
+                          } transition-colors`}
+                        disabled={item.quantity <= 1 || updatingItems[`${item.priceId}-minus`]}
+                        aria-label="Decrease quantity"
+                      >
+                        {updatingItems[`${item.priceId}-minus`] ? (
+                          <span className="loading loading-dots loading-xs h-full flex items-center"></span>
+                        ) : (
+                          <FiMinus size={12} className="sm:w-3 sm:h-3" />
+                        )}
+                      </button>
+
+                      <span className="w-6 text-center text-sm font-medium text-gray-800">
+                        {item.quantity}
+                      </span>
+
+                      <button
+                        onClick={() => updateQuantity(item.productId, item.quantity + 1, item.priceId, "plus")}
+                        className="p-1 cursor-pointer rounded-md text-gray-700 hover:bg-gray-100 transition-colors h-6 w-6 flex items-center justify-center"
+                        disabled={updatingItems[`${item.priceId}-plus`]}
+                        aria-label="Increase quantity"
+                      >
+                        {updatingItems[`${item.priceId}-plus`] ? (
+                          <span className="loading loading-dots loading-xs h-full flex items-center"></span>
+                        ) : (
+                          <FiPlus size={12} className="sm:w-3 sm:h-3" />
+                        )}
+                      </button>
+                    </div>
+
+                    <p className="text-gray-600">Total:</p>
+                    <p className="font-medium">${item.total.toFixed(2)}</p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -336,7 +402,7 @@ function ShippingCart() {
             </div>
 
             <button
-              onClick={handleAddress}
+              onClick={openaddresModal}
               className="w-full mt-4 sm:mt-6 cursor-pointer bg-green-600 hover:bg-green-700 text-white py-2 sm:py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
               disabled={Object.values(updatingItems).some(Boolean) || removing}
             >
@@ -347,8 +413,7 @@ function ShippingCart() {
         </div>
       </div>
 
-
-      {openAddressModal && (
+      {aaNewAddressModal && (
         <div className="fixed inset-0 backdrop-brightness-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b p-4 sticky top-0 bg-white z-10">
@@ -357,17 +422,18 @@ function ShippingCart() {
                 Shipping Address
               </h2>
               <button
-                onClick={closeModalAddress}
+                onClick={closeAddressModal}
                 className="text-gray-500 hover:text-gray-700 cursor-pointer"
                 aria-label="Close address modal"
               >
                 <FiX size={24} />
               </button>
             </div>
-            <AddNewAddress onClose={closeModalAddress} />
+            <AddNewAddress onClose={closeAddressModal} />
           </div>
         </div>
       )}
+      <RecomndedProduct categoeryId={"category"} />
     </div>
   );
 }

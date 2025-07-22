@@ -30,6 +30,7 @@ const ProductDetailPage = () => {
     const [updatingItems, setUpdatingItems] = useState({}); // Track loading state for quantity updates
     const [removing, setRemoving] = useState(false)
     const [currentId, setCurrentID] = useState("")
+    const [activeLoadingButton, setActiveLoadingButton] = useState(null);
 
     useEffect(() => {
         topRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -156,8 +157,11 @@ const ProductDetailPage = () => {
         });
     };
 
-    const updateQuantity = async (productId, newQuantity, priceId) => {
+    const updateQuantity = async (productId, newQuantity, priceId, action) => {
+        const loadingKey = `${priceId}-${action}`; // Create unique key for each button
+
         try {
+            setActiveLoadingButton(loadingKey); // Set active loading button
             setUpdatingItems(prev => ({ ...prev, [priceId]: true }));
 
             await axiosInstance.post(`/swift/cart/update`,
@@ -184,10 +188,10 @@ const ProductDetailPage = () => {
                 confirmButtonText: 'OK',
             });
         } finally {
+            setActiveLoadingButton(null); // Reset loading state
             setUpdatingItems(prev => ({ ...prev, [priceId]: false }));
         }
     };
-
     const removeItem = async (productId, priceId) => {
         // Show confirmation dialog first
         const result = await Swal.fire({
@@ -607,12 +611,12 @@ const ProductDetailPage = () => {
 
                     {/* Cart Section */}
                     <div className="w-full md:w-[25%] border border-gray-200 rounded-lg shadow-sm my-2 p-4 h-screen overflow-y-auto hide-scrollbar bg-white">
-                        <h2 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b">Your Cart</h2>
+                        <h2 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-400">Your Cart</h2>
 
                         {cartCount?.length > 0 ? (
                             <div className="space-y-3">
                                 {cartCount.map((item, index) => (
-                                    <div key={index} className="relative p-3 border rounded-lg hover:shadow transition-shadow bg-gray-50">
+                                    <div key={index} className="relative p-3 border border-gray-300 rounded-lg hover:shadow transition-shadow bg-gray-50">
                                         <button
                                             onClick={() => removeItem(item.productId, item.priceId, item.quantity)}
                                             className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
@@ -630,36 +634,44 @@ const ProductDetailPage = () => {
 
                                             <p className="text-gray-600">Quantity:</p>
                                             <div className="flex justify-center items-center gap-1 border border-gray-300 rounded-md w-fit px-2 py-1">
+                                                {/* Minus Button */}
                                                 <button
-                                                    onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.priceId, "plus")}
-                                                    className={`p-1 rounded-md cursor-pointer ${item.quantity <= 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'} transition-colors`}
-                                                    disabled={item.quantity <= 1 || updatingItems[item.priceId]}
+                                                    onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.priceId, "minus")}
+                                                    className={`p-1 rounded-md ${item.quantity <= 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'} transition-colors`}
+                                                    disabled={item.quantity <= 1 || activeLoadingButton === `${item.priceId}-minus`}
                                                     aria-label="Decrease quantity"
                                                 >
-                                                    {updatingItems[item.priceId] ? (
-                                                        <span className="loading loading-dots loading-xs"></span>
-                                                    ) : (
-                                                        <FiMinus size={14} />
-                                                    )}
+                                                    <div className="w-4 h-4 flex items-center justify-center">
+                                                        {activeLoadingButton === `${item.priceId}-minus` ? (
+                                                            <span className="loading loading-dots loading-xs"></span>
+                                                        ) : (
+                                                            <FiMinus size={14} />
+                                                        )}
+                                                    </div>
                                                 </button>
 
+                                                {/* Quantity Display */}
                                                 <span className="w-6 text-center text-sm font-medium text-gray-800">
                                                     {item.quantity}
                                                 </span>
 
+                                                {/* Plus Button */}
                                                 <button
-                                                    onClick={() => updateQuantity(item.productId, item.quantity + 1, item.priceId)}
-                                                    className="p-1 cursor-pointer rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
-                                                    disabled={updatingItems[item.priceId]}
+                                                    onClick={() => updateQuantity(item.productId, item.quantity + 1, item.priceId, "plus")}
+                                                    className={`p-1 rounded-md text-gray-700 hover:bg-gray-100 transition-colors ${activeLoadingButton === `${item.priceId}-plus` ? 'pointer-events-none' : ''}`}
+                                                    disabled={activeLoadingButton === `${item.priceId}-plus`}
                                                     aria-label="Increase quantity"
                                                 >
-                                                    {updatingItems[item.priceId] ? (
-                                                        <span className="loading loading-dots loading-xs"></span>
-                                                    ) : (
-                                                        <FiPlus size={14} />
-                                                    )}
+                                                    <div className="w-4 h-4 flex items-center justify-center">
+                                                        {activeLoadingButton === `${item.priceId}-plus` ? (
+                                                            <span className="loading loading-dots loading-xs"></span>
+                                                        ) : (
+                                                            <FiPlus size={14} />
+                                                        )}
+                                                    </div>
                                                 </button>
                                             </div>
+
 
                                             <p className="text-gray-600">Total:</p>
                                             <p className="font-medium">${item.total}</p>
