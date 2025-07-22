@@ -163,29 +163,32 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className=" py-1 px-4">
-          <form onSubmit={handleSubscribe} className="max-w-7xl mx-auto bg-[#b0f4ff5b] bg-opacity-80 rounded-full flex flex-col md:flex-row items-center justify-between px-4 py-2">
+        <div className="py-2 md:px-4 w-full">
+          <form
+            onSubmit={handleSubscribe}
+            className="max-w-7xl mx-auto bg-[#b0f4ff5b] bg-opacity-80 rounded-full flex flex-col md:flex-row items-center justify-between px-4 py-2 gap-3 md:gap-0"
+          >
             {/* Left - Icon and Text */}
-            <div className="flex items-center space-x-3 mb-4 md:mb-0">
-              <Mail className="w-6 h-6 text-black" />
-              <h2 className="text-xl md:text-2xl font-semibold text-[#7bbbc0fb]">
+            <div className="md:flex items-center space-x-2 md:space-x-3 w-full md:w-auto justify-center md:justify-start hidden">
+              <Mail className="w-5 h-5 md:w-6 md:h-6 text-black" />
+              <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-[#7bbbc0fb] whitespace-nowrap">
                 Subscribe Our Newsletter
               </h2>
             </div>
 
             {/* Right - Input and Button */}
-            <div className="flex items-center bg-white rounded-full px-4 py-2 w-full md:w-auto gap-2">
+            <div className="flex flex-col sm:flex-row items-center bg-white rounded-full px-3 py-1 sm:px-4 sm:py-2 w-full md:w-auto gap-2">
               <input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
                 placeholder="Enter your email"
-                className="flex-grow min-w-[200px] md:min-w-[300px] bg-transparent outline-none text-sm md:text-base text-black border-none"
+                className="w-full sm:flex-grow min-w-0 bg-transparent outline-none text-sm md:text-base text-black border-none px-2 py-1 sm:px-3 sm:py-0"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-[#11b9c5] hover:bg-[#11b6c5] text-white cursor-pointer font-semibold text-sm px-5 py-2 rounded-full transition-all"
+                className="w-full sm:w-auto bg-[#11b9c5] hover:bg-[#11b6c5] text-white cursor-pointer font-semibold text-sm px-4 py-1 sm:px-5 sm:py-2 rounded-full transition-all whitespace-nowrap"
               >
                 {loading ? <span className="loading loading-dots loading-sm"></span> : "SUBSCRIBE"}
               </button>

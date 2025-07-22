@@ -98,10 +98,11 @@ const Header = () => {
             console.error("Error fetching cart items:", error);
         }
     };
+   
 
     useEffect(() => {
         getAllCartItems();
-    }, [refresh])
+    }, [refresh,token])
 
 
 
@@ -226,9 +227,9 @@ const Header = () => {
             </header>
 
             {/* Second Header */}
-            <header className="bg-white shadow-sm sticky top-18.5 z-50 border-b border-gray-100">
+            <header className="bg-white shadow-sm sticky top-18.5 z-50  border-gray-100 ">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-center items-center h-16"> {/* Changed to justify-center */}
+                    <div className=" justify-center items-center h-16 hidden md:flex"> {/* Changed to justify-center */}
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex items-center space-x-1">
                             {/* Home Link */}
