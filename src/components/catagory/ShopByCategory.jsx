@@ -19,9 +19,9 @@ function ShopByCategory() {
 
   const slideLeft = () => {
     if (sliderRef.current) {
-      const cardWidth = sliderRef.current.querySelector('.category-card').offsetWidth + 16; // Including margin
+      const cardWidth = sliderRef.current.querySelector('.category-card')?.offsetWidth + 16 || 176; // Fallback width
       sliderRef.current.scrollBy({
-        left: -cardWidth, // Scroll one card
+        left: -cardWidth,
         behavior: 'smooth',
       });
     }
@@ -29,9 +29,9 @@ function ShopByCategory() {
 
   const slideRight = () => {
     if (sliderRef.current) {
-      const cardWidth = sliderRef.current.querySelector('.category-card').offsetWidth + 16; // Including margin
+      const cardWidth = sliderRef.current.querySelector('.category-card')?.offsetWidth + 16 || 176; // Fallback width
       sliderRef.current.scrollBy({
-        left: cardWidth, // Scroll one card
+        left: cardWidth,
         behavior: 'smooth',
       });
     }
@@ -45,7 +45,14 @@ function ShopByCategory() {
     }
   };
 
-  const filtereCategory = category.filter(cat => cat.categoryName.toLowerCase().includes(searchItem.toLowerCase()));
+  const filtereCategory = category.filter(cat =>
+    cat.categoryName?.toLowerCase().includes(searchItem.toLowerCase())
+  );
+
+  // Function to generate a unique key for each item
+  const getItemKey = (item, index) => {
+    return item.id || `${item.categoryName}-${index}`;
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -71,13 +78,13 @@ function ShopByCategory() {
         </div>
       ) : !filtereCategory || filtereCategory.length === 0 ? (
         <div className="w-full flex flex-col items-center justify-center py-12">
-          <p className="text-gray-500 text-sm mt-4">Data not found</p>
+          <p className="text-gray-500 text-sm mt-4">No categories found</p>
         </div>
       ) : showAll ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {filtereCategory.map((item) => (
+          {filtereCategory.map((item, index) => (
             <div
-              key={item.id}
+              key={getItemKey(item, index)}
               onClick={() => {
                 setCatId(item.productCategoryId);
                 navigate('/CatProduct');
@@ -86,11 +93,14 @@ function ShopByCategory() {
             >
               <img
                 src={item.imageUrl}
-                alt={item.categoryName}
+                alt={item.categoryName || 'Category'}
                 className="w-20 h-20 object-contain mb-3"
+                onError={(e) => {
+                  e.target.src = 'https://via.placeholder.com/80';
+                }}
               />
               <span className="text-xs md:text-sm text-center font-medium text-gray-700 line-clamp-2">
-                {item.categoryName}
+                {item.categoryName || 'Unnamed Category'}
               </span>
             </div>
           ))}
@@ -103,9 +113,9 @@ function ShopByCategory() {
             className="overflow-x-hidden scroll-smooth flex gap-4 px-2"
             style={{ scrollSnapType: 'x mandatory', maxWidth: '100%' }}
           >
-            {filtereCategory.map((item) => (
+            {filtereCategory.map((item, index) => (
               <div
-                key={item.id}
+                key={getItemKey(item, index)}
                 onClick={() => {
                   setCatId(item.productCategoryId);
                   navigate('/CatProduct');
@@ -115,11 +125,14 @@ function ShopByCategory() {
               >
                 <img
                   src={item.imageUrl}
-                  alt={item.categoryName}
+                  alt={item.categoryName || 'Category'}
                   className="w-20 h-20 object-contain mb-3"
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/80';
+                  }}
                 />
                 <span className="text-xs text-center font-medium text-gray-700 line-clamp-2">
-                  {item.categoryName}
+                  {item.categoryName || 'Unnamed Category'}
                 </span>
               </div>
             ))}

@@ -94,7 +94,6 @@ const Header = () => {
                 },
             });
             setCartCount(response.data);
-            console.log("Cart items:", response.data.length);
         } catch (error) {
             console.error("Error fetching cart items:", error);
         }
