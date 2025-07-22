@@ -4,9 +4,9 @@ import axios from "axios";
 const axiosInstance = axios.create({
 
     // UAT Env
-    baseURL: 'http://192.168.1.7:8083/',
+   //     baseURL: 'http://192.168.1.7:8083/',
     // For Backend Env
-    //    baseURL:'https://crmbackend.swiftlymeds.com'
+    baseURL:'https://crmbackend.swiftlymeds.com'
 });
 
 
