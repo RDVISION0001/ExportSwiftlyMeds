@@ -21,7 +21,7 @@ import { useAuth } from "../AuthContext/AuthContext";
 import axiosInstance from "../AuthContext/AxiosInstance";
 import axios from "axios";
 import Login from "../AuthContext/Login";
-import Profile from "./Profile";
+import Profile from '../components/Profile'
 
 
 const Header = () => {
@@ -401,7 +401,7 @@ const Header = () => {
             }
             {profileModal && (
                 <div className="fixed inset-0  flex items-center justify-center backdrop-brightness-50 z-100 ">
-                    <div className="border border-gray-300 max-w-7xl w-full mx-4 bg-white rounded-lg shadow-xl overflow-hidden ">
+                    <div className="border border-gray-300 max-w-7xl w-full mx-4 bg-white rounded-lg shadow-xl overflow-auto-y h-[55vh] ">
                         <div className="relative p-1">
                             <button
                                 onClick={() => setProfileModal(false)}
@@ -412,8 +412,8 @@ const Header = () => {
                                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                                 </svg>
                             </button>
-                            <Profile />
                         </div>
+                        <Profile/>
                     </div>
                 </div>
             )}
