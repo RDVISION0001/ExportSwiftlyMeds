@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import { FaComment, FaTimes, FaPaperPlane, FaUser, FaPhone, FaPrescriptionBottleAlt, FaBoxOpen, FaQuestionCircle, FaExpand, FaCompress, FaSearchPlus, FaSearchMinus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../AuthContext/AxiosInstance";
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 
 const ChatCircle = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,6 +31,11 @@ const ChatCircle = () => {
   const nameInputRef = useRef(null);
   const dragStart = useRef({ x: 0, y: 0 });
   const chatContainerRef = useRef(null);
+  const [conversation, setConversation] = useState()
+
+  //websocket conection constantns
+  const stompClientRef = useRef(null);
+
 
   const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
 
@@ -36,7 +43,7 @@ const ChatCircle = () => {
     if (chatBodyRef.current) {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages,conversation]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -83,15 +90,6 @@ const ChatCircle = () => {
     document.addEventListener("touchend", onEnd);
   };
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    setMessages((prev) => [...prev, { text: input, sender: "user" }]);
-    setInput("");
-    setTimeout(() => {
-      setMessages((prev) => [...prev, { text: "Thank you for your message. Our agent will respond shortly.", sender: "bot" }]);
-    }, 800);
-  };
-
   const validateForm = () => {
     const errors = {};
     if (!formData.name.trim()) errors.name = "Name is required";
@@ -126,7 +124,6 @@ const ChatCircle = () => {
           phone: formData.mobile,
           name: formData.name
         });
-        console.log(response);
         setShowForm(false);
         setShowOtpInput(true);
         setLoading(false);
@@ -149,7 +146,6 @@ const ChatCircle = () => {
         phone: formData.mobile,
         name: formData.name
       });
-      console.log(response);
       setMessages((prev) => [
         ...prev,
         { text: `We've resent the verification code to ${formData.email}.`, sender: "bot" },
@@ -189,7 +185,9 @@ const ChatCircle = () => {
       });
       setOtp("");
       setShowOtpInput(false);
+      setConversation(response.data.conversation)
       setIsVerified(true);
+      connectWebSocket()
     } catch (error) {
       console.error("Verification error:", error);
       const errorMessage = error.response?.data || "Verification failed. Please try again.";
@@ -260,6 +258,65 @@ const ChatCircle = () => {
     };
   };
 
+  const connectWebSocket = () => {
+    console.log("Connecting to WebSocket...");
+
+    const socket = new SockJS("https://crmbackend.swiftlymeds.com/ws");
+
+    const client = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000, // auto-reconnect
+      onConnect: () => {
+        console.log("WebSocket connected");
+        setupSubscriptions(client);
+      },
+      onStompError: (frame) => {
+        console.error("STOMP error:", frame.body);
+      },
+      onWebSocketError: (error) => {
+        console.error("WebSocket error:", error);
+      },
+    });
+
+    client.activate();
+    stompClientRef.current = client;
+  };
+
+  const setupSubscriptions = (client) => {
+    client.subscribe(`/topic/inquiry-chat-` + formData.email, (message) => {
+    
+      const newNotification = JSON.parse(message.body);
+      console.log(newNotification)
+      setConversation((prev) => ({
+        ...prev,
+        messages: [...prev.messages, newNotification]
+      }));
+    });
+  };
+
+  // useEffect(() => {
+  //   connectWebSocket();
+  //   return () => {
+  //     if (stompClientRef.current) {
+  //       stompClientRef.current.deactivate();
+  //     }
+  //   };
+  // }, []);
+
+  const handelSendMessage = async () => {
+    const response = await axiosInstance.post("/api/chat/send", {
+      conversationId: conversation.id,
+      senderType: "user",
+      content: input
+    })
+    if (!input.trim()) return;
+    setInput("");
+    setConversation((prev) => ({
+      ...prev,
+      messages: [...prev.messages, response.data]
+    }));
+  }
+  
   return (
     <>
       {isOpen && (
@@ -308,16 +365,17 @@ const ChatCircle = () => {
             <div
               className="flex-1 p-4 overflow-y-auto bg-green-50 scroll-smooth"
               ref={chatBodyRef}
+              id="messagebox"
             >
-              {messages.map((msg, i) => (
+              {conversation && conversation.messages.map((msg, i) => (
                 <div
                   key={i}
-                  className={`mb-3 max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-snug relative animate-message-in ${msg.sender === 'user'
+                  className={`mb-3 max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-snug relative animate-message-in ${msg.senderType === 'user'
                     ? 'ml-auto bg-gradient-to-r from-[#3d8287] to-[#09939d] text-white cursor-move select-none" onMouseDown={startDrag}] to-[#12b9c5] text-white rounded-br-sm'
                     : 'mr-auto bg-white text-gray-800 rounded-bl-sm shadow-sm'
                     }`}
                 >
-                  <div>{msg.text}</div>
+                  <div>{msg.content}</div>
                   <div className="text-xs opacity-70 text-right mt-1">
                     {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
@@ -342,8 +400,7 @@ const ChatCircle = () => {
                       </label>
                       <input
                         type={type}
-                        className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#12b9c5] focus:border-[#12b9c5] ${formErrors[field] ? 'border-red-500' : 'border-gray-300'
-                          }`}
+                        className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#12b9c5] focus:border-[#12b9c5] ${formErrors[field] ? 'border-red-500' : 'border-gray-300'} text-gray-900 bg-white`}
                         placeholder={placeholder}
                         id={field}
                         name={field}
@@ -379,7 +436,7 @@ const ChatCircle = () => {
                   <div className="mb-3">
                     <input
                       type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#12b9c5] focus:border-[#42d5e0]"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#12b9c5] focus:border-[#42d5e0] text-gray-900 bg-white"
                       placeholder="Enter 6-digit code"
                       id="otp"
                       value={otp}
@@ -437,19 +494,18 @@ const ChatCircle = () => {
                 className="flex gap-2"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  handleSend();
                 }}
               >
                 <input
                   type="text"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#12b9c5] focus:border-[#12b9c5]"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#12b9c5] focus:border-[#12b9c5] text-gray-900 bg-white"
                   placeholder="Type your message..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   aria-label="Type your message"
                 />
                 <button
-                  type="submit"
+                  onClick={handelSendMessage}
                   className="w-10 h-10 rounded-full bg-[#12b9c5] cursor-pointer text-white flex items-center justify-center hover:bg-[#458387] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                   disabled={!input.trim()}
                 >
