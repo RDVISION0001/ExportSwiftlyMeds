@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { FiUpload, FiX, FiCheck, FiImage } from 'react-icons/fi';
+import { RxCross2 } from "react-icons/rx";
+
 
 export default function PrescriptionUpload({onClose}) {
   const [files, setFiles] = useState([]);
@@ -57,7 +59,8 @@ export default function PrescriptionUpload({onClose}) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md">
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md  relative">
+      <RxCross2 onClick={() =>onClose(false)} className='absolute top-3 right-3 text-2xl cursor-pointer hover:text-red-400'/>
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Upload Your Prescription</h2>
       
       <div 

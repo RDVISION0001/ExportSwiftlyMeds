@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import marketPlace from '../assets/marketPlace.webp';
 
 const TargetCountry = () => {
@@ -45,8 +45,15 @@ const TargetCountry = () => {
     ]
   };
 
+  const topRef = useRef(null);
+
+  useEffect(() => {
+    topRef.current?.scrollIntoView({ behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth'});
+  }, [])
+
   return (
-    <div className="bg-white">
+    <div ref={topRef} className="bg-white">
       {/* Hero Image */}
       <div className="w-full">
         <img src={marketPlace} alt="Global Market Coverage" className="w-full object-cover" />
