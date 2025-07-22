@@ -8,12 +8,10 @@ import axiosInstance from '../../../AuthContext/AxiosInstance';
 import Swal from 'sweetalert2';
 
 const ProductDetailPage = () => {
-    const { selectCountry, cart, setCart, token, cartCount, setRefresh } = useAuth();
-    console.log('cartCount', cartCount);
-    
+    const { selectCountry, setCart, token, cartCount, setRefresh } = useAuth();
     const currencyRates = {
         USD: 1,
-        EUR: 0.93,  
+        EUR: 0.93,
         GBP: 0.80,
         INR: 83.33,
         CAD: 1.36,
@@ -30,6 +28,8 @@ const ProductDetailPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(false);
     const [updatingItems, setUpdatingItems] = useState({}); // Track loading state for quantity updates
+    const [removing, setRemoving] = useState(false)
+    const [currentId, setCurrentID] = useState("")
 
     useEffect(() => {
         topRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -159,7 +159,7 @@ const ProductDetailPage = () => {
     const updateQuantity = async (productId, newQuantity, priceId) => {
         try {
             setUpdatingItems(prev => ({ ...prev, [priceId]: true }));
-            
+
             await axiosInstance.post(`/swift/cart/update`,
                 {
                     productId: String(productId),
@@ -173,7 +173,7 @@ const ProductDetailPage = () => {
                     }
                 }
             );
-            
+
             setRefresh(prev => prev + 1);
         } catch (error) {
             console.error("Error updating quantity:", error);
@@ -188,41 +188,62 @@ const ProductDetailPage = () => {
         }
     };
 
-    const handleRemoveItem = async (productId, priceId) => {
-        try {
-            await axiosInstance.post(`/swift/cart/remove`,
-                {
-                    productId: String(productId),
-                    priceId: String(priceId)
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+    const removeItem = async (productId, priceId) => {
+        // Show confirmation dialog first
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!',
+            cancelButtonText: 'Cancel'
+        });
+
+        // If user confirmed, proceed with deletion
+        if (result.isConfirmed) {
+            try {
+                setCurrentID(priceId)
+                setRemoving(true)
+                await axiosInstance.post(`/swift/cart/remove`,
+                    {
+                        productId: String(productId),
+                        priceId: String(priceId)
+                    },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
                     }
-                }
-            );
-            
-            setRefresh(prev => prev + 1);
-            Swal.fire({
-                icon: 'success',
-                title: 'Item Removed',
-                text: 'Item has been removed from your cart',
-                confirmButtonText: 'OK',
-            });
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Removal Failed',
-                text: 'There was a problem removing the item',
-                confirmButtonText: 'OK',
-            });
+                );
+
+                setRefresh(prev => prev + 1);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Item Removed',
+                    text: 'Item has been removed from your cart',
+                    confirmButtonText: 'OK',
+                });
+                setCurrentID(null)
+                setRemoving(false)
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Removal Failed',
+                    text: 'There was a problem removing the item',
+                    confirmButtonText: 'OK',
+                });
+                setCurrentID(null)
+                setRemoving(false)
+            }
         }
     };
 
     const calculateTotal = () => {
         if (!cartCount || cartCount.length === 0) return 0;
-        
+
         return cartCount.reduce((total, item) => {
             const itemTotal = item.prices?.reduce((sum, price) => {
                 const convertedPrice = convertPrice(price.price, price.currency, selectCountry?.currency || 'USD');
@@ -323,48 +344,48 @@ const ProductDetailPage = () => {
 
                                         <div className="flex justify-start gap-20">
                                             <div>
-                                            <div className="flex items-start">
-                                                <div className="flex-shrink-0 mt-1 mr-3 text-indigo-600">
-                                                    <FaFlask className="h-5 w-5" />
+                                                <div className="flex items-start">
+                                                    <div className="flex-shrink-0 mt-1 mr-3 text-indigo-600">
+                                                        <FaFlask className="h-5 w-5" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-sm font-semibold text-gray-600">Strength</h3>
+                                                        <p className="mt-1 text-gray-900 text-base">{product.strength || 'Not specified'}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h3 className="text-sm font-semibold text-gray-600">Strength</h3>
-                                                    <p className="mt-1 text-gray-900 text-base">{product.strength || 'Not specified'}</p>
+
+                                                <div className="flex items-start">
+                                                    <div className="flex-shrink-0 mt-1 mr-3 text-indigo-600">
+                                                        <FaBoxOpen className="h-5 w-5" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-sm font-semibold text-gray-600">Packaging</h3>
+                                                        <p className="mt-1 text-gray-900 text-base">{product.packagingType || 'Not specified'}</p>
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-start">
-                                                <div className="flex-shrink-0 mt-1 mr-3 text-indigo-600">
-                                                    <FaBoxOpen className="h-5 w-5" />
+                                            <div>
+                                                <div className="flex items-start">
+                                                    <div className="flex-shrink-0 mt-1 mr-3 text-indigo-600">
+                                                        <FaPills className="h-5 w-5" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-sm font-semibold text-gray-600">Composition</h3>
+                                                        <p className="mt-1 text-gray-900 text-base">{product.composition || 'Not specified'}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h3 className="text-sm font-semibold text-gray-600">Packaging</h3>
-                                                    <p className="mt-1 text-gray-900 text-base">{product.packagingType || 'Not specified'}</p>
-                                                </div>
-                                            </div>
-                                            </div>
 
-                                           <div>
-                                           <div className="flex items-start">
-                                                <div className="flex-shrink-0 mt-1 mr-3 text-indigo-600">
-                                                    <FaPills className="h-5 w-5" />
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-sm font-semibold text-gray-600">Composition</h3>
-                                                    <p className="mt-1 text-gray-900 text-base">{product.composition || 'Not specified'}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-start">
-                                                <div className="flex-shrink-0 mt-1 mr-3 text-indigo-600">
-                                                    <FaMedkit className="h-5 w-5" />
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-sm font-semibold text-gray-600">Used For</h3>
-                                                    <p className="mt-1 text-gray-900 text-base">{product.usedFor || 'Not specified'}</p>
+                                                <div className="flex items-start">
+                                                    <div className="flex-shrink-0 mt-1 mr-3 text-indigo-600">
+                                                        <FaMedkit className="h-5 w-5" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-sm font-semibold text-gray-600">Used For</h3>
+                                                        <p className="mt-1 text-gray-900 text-base">{product.usedFor || 'Not specified'}</p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                           </div>
                                         </div>
                                     </div>
                                 </div>
@@ -593,57 +614,56 @@ const ProductDetailPage = () => {
                                 {cartCount.map((item, index) => (
                                     <div key={index} className="relative p-3 border rounded-lg hover:shadow transition-shadow bg-gray-50">
                                         <button
-                                            onClick={() => handleRemoveItem(index)}
+                                            onClick={() => removeItem(item.productId, item.priceId, item.quantity)}
                                             className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
                                             aria-label="Remove item"
+                                            disabled={updatingItems[item.priceId]}
                                         >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
+                                            {removing && item.priceId == currentId ? <span className="loading loading-spinner loading-sm"></span> : <FiTrash2 size={18} />}
                                         </button>
 
                                         <h3 className="font-medium text-gray-900">{item.name}</h3>
 
                                         <div className="grid grid-cols-2 gap-2 mt-2">
-                    <p className="text-gray-600">Price:</p>
-                    <p>${item.price}</p>
+                                            <p className="text-gray-600">Price:</p>
+                                            <p>${item.price}</p>
 
-                    <p className="text-gray-600">Quantity:</p>
-                    <div className="flex justify-center items-center gap-1 border border-gray-300 rounded-md w-fit px-2 py-1">
-                      <button
-                        onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.priceId, "plus")}
-                        className={`p-1 rounded-md cursor-pointer ${item.quantity <= 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'} transition-colors`}
-                        disabled={item.quantity <= 1 || updatingItems[item.priceId]}
-                        aria-label="Decrease quantity"
-                      >
-                        {updatingItems[item.priceId] ? (
-                          <span className="loading loading-dots loading-xs"></span>
-                        ) : (
-                          <FiMinus size={14} />
-                        )}
-                      </button>
+                                            <p className="text-gray-600">Quantity:</p>
+                                            <div className="flex justify-center items-center gap-1 border border-gray-300 rounded-md w-fit px-2 py-1">
+                                                <button
+                                                    onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.priceId, "plus")}
+                                                    className={`p-1 rounded-md cursor-pointer ${item.quantity <= 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'} transition-colors`}
+                                                    disabled={item.quantity <= 1 || updatingItems[item.priceId]}
+                                                    aria-label="Decrease quantity"
+                                                >
+                                                    {updatingItems[item.priceId] ? (
+                                                        <span className="loading loading-dots loading-xs"></span>
+                                                    ) : (
+                                                        <FiMinus size={14} />
+                                                    )}
+                                                </button>
 
-                      <span className="w-6 text-center text-sm font-medium text-gray-800">
-                        {item.quantity}
-                      </span>
+                                                <span className="w-6 text-center text-sm font-medium text-gray-800">
+                                                    {item.quantity}
+                                                </span>
 
-                      <button
-                        onClick={() => updateQuantity(item.productId, item.quantity + 1, item.priceId)}
-                        className="p-1 cursor-pointer rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
-                        disabled={updatingItems[item.priceId]}
-                        aria-label="Increase quantity"
-                      >
-                        {updatingItems[item.priceId] ? (
-                          <span className="loading loading-dots loading-xs"></span>
-                        ) : (
-                          <FiPlus size={14} />
-                        )}
-                      </button>
-                    </div>
+                                                <button
+                                                    onClick={() => updateQuantity(item.productId, item.quantity + 1, item.priceId)}
+                                                    className="p-1 cursor-pointer rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
+                                                    disabled={updatingItems[item.priceId]}
+                                                    aria-label="Increase quantity"
+                                                >
+                                                    {updatingItems[item.priceId] ? (
+                                                        <span className="loading loading-dots loading-xs"></span>
+                                                    ) : (
+                                                        <FiPlus size={14} />
+                                                    )}
+                                                </button>
+                                            </div>
 
-                    <p className="text-gray-600">Total:</p>
-                    <p className="font-medium">${item.total}</p>
-                  </div>  <div className="mt-2 space-y-1">
+                                            <p className="text-gray-600">Total:</p>
+                                            <p className="font-medium">${item.total}</p>
+                                        </div>  <div className="mt-2 space-y-1">
                                             {item.prices?.map((priceObj, i) => (
                                                 <div key={i} className="flex justify-between text-sm text-gray-600">
                                                     <span>${priceObj.price.toFixed(2)} x {priceObj.quantity}</span>
@@ -651,7 +671,7 @@ const ProductDetailPage = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                        
+
                                     </div>
                                 ))}
                             </div>
