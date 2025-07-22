@@ -204,6 +204,7 @@ const Footer = () => {
               <li><Link to="/newArive" className="hover:text-blue-600 hover:underline">New Arrivals</Link></li>
               <li><Link to="/manufacture" className="hover:text-blue-600 hover:underline">Best Sellers</Link></li>
               <li><Link to="/" className="hover:text-blue-600 hover:underline">Swiftly Marketplace</Link></li>
+              <li><Link to="/marketArea" className="hover:text-blue-600 hover:underline">Target Country</Link></li>
             </ul>
           </div>
 
