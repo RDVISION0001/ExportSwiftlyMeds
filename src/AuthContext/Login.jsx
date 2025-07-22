@@ -227,6 +227,7 @@ function Login({ onClose }) {
   `
       });
       setIsLoading(false)
+    
     } catch (error) {
       Swal.fire({
         icon: 'error',
