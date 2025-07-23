@@ -28,6 +28,7 @@ import TaregetCountry from './components/TaregetCountry';
 import PaymentSuccess from './components/CRM/PaymentSuccess';
 import PaymentFailed from './components/CRM/PaymentFailed';
 import { useAuth } from './AuthContext/AuthContext';
+import Order from './components/Order';
 
 
 // Create a ProtectedRoute component
@@ -71,6 +72,7 @@ function App() {
         <Route path='/deliveryShipping' element={<DeliveryShippingPolicy />} />
         <Route path='/pci-dss' element={<PCIDSS />} />
         <Route path='/marketArea' element={<TaregetCountry/>}/>
+        <Route path='/orders' element={<Order/>}/>
 
         <Route path="/checkout/:orderNumber" element={<CrmPayment />} />
         <Route path="/success/:orderNumber" element={<PaymentSuccess />} />
