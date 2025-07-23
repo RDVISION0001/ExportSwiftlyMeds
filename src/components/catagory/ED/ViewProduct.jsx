@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaChevronRight, FaHome, FaChevronDown } from 'react-icons/fa';
 import { FiTrash2, FiPlus, FiMinus } from 'react-icons/fi';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { FaFlask, FaBoxOpen, FaPills, FaMedkit } from 'react-icons/fa';
 import { useAuth } from '../../../AuthContext/AuthContext';
 import axiosInstance from '../../../AuthContext/AxiosInstance';
@@ -22,6 +22,7 @@ const ProductDetailPage = () => {
 
     const location = useLocation();
     const { product } = location.state || {};
+    console.log('product',product)
     const topRef = useRef(null);
     const [activeImage, setActiveImage] = useState(0);
     const [openAccordion, setOpenAccordion] = useState(null);
@@ -31,6 +32,7 @@ const ProductDetailPage = () => {
     const [removing, setRemoving] = useState(false)
     const [currentId, setCurrentID] = useState("")
     const [activeLoadingButton, setActiveLoadingButton] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         topRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -675,17 +677,21 @@ const ProductDetailPage = () => {
 
                                             <p className="text-gray-600">Total:</p>
                                             <p className="font-medium">${item.total}</p>
-                                        </div>  <div className="mt-2 space-y-1">
+                                        </div> 
+                                         {/* <div className="mt-2 space-y-1">
                                             {item.prices?.map((priceObj, i) => (
                                                 <div key={i} className="flex justify-between text-sm text-gray-600">
                                                     <span>${priceObj.price.toFixed(2)} x {priceObj.quantity}</span>
                                                     <span className="font-medium">${(priceObj.price * priceObj.quantity).toFixed(2)}</span>
                                                 </div>
                                             ))}
-                                        </div>
+                                        </div> */}
 
                                     </div>
                                 ))}
+                                <div className='text-center mt-4'>
+                                <button onClick={() => navigate('/shipping')} className='bg-green-400 rounded-md px-3 py-2 text-white cursor-pointer'>Go to Cart</button>
+                                </div>
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center h-full text-center py-8">

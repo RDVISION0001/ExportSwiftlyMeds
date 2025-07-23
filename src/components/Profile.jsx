@@ -51,24 +51,24 @@ function ProfileWithOrders() {
             value: user.swiftUserPhone || 'Not provided',
             bgColor: "bg-purple-100"
         },
-        {
-            icon: <FiKey className="text-yellow-600" />,
-            title: "User ID",
-            value: user.swiftUserId || 'Not provided',
-            bgColor: "bg-yellow-100"
-        },
-        ...(user.otp ? [{
-            icon: <FiKey className="text-red-600" />,
-            title: "OTP",
-            value: user.otp,
-            bgColor: "bg-red-100"
-        }] : []),
-        ...(user.otpExpiry ? [{
-            icon: <FiClock className="text-indigo-600" />,
-            title: "OTP Expiry",
-            value: new Date(user.otpExpiry).toLocaleString(),
-            bgColor: "bg-indigo-100"
-        }] : [])
+        // {
+        //     icon: <FiKey className="text-yellow-600" />,
+        //     title: "User ID",
+        //     value: user.swiftUserId || 'Not provided',
+        //     bgColor: "bg-yellow-100"
+        // },
+        // ...(user.otp ? [{
+        //     icon: <FiKey className="text-red-600" />,
+        //     title: "OTP",
+        //     value: user.otp,
+        //     bgColor: "bg-red-100"
+        // }] : []),
+        // ...(user.otpExpiry ? [{
+        //     icon: <FiClock className="text-indigo-600" />,
+        //     title: "OTP Expiry",
+        //     value: new Date(user.otpExpiry).toLocaleString(),
+        //     bgColor: "bg-indigo-100"
+        // }] : [])
     ];
 
 
@@ -83,8 +83,7 @@ function ProfileWithOrders() {
     }
 
     return (
-        <div className="w-full p-6 bg-white rounded-xl shadow-lg">
-            {/* Tabs */}
+        <div className="w-full p-6 bg-white ">
             <div className="flex border-b border-gray-200 mb-6">
                 <button
                     className={`py-2 px-4  cursor-pointer font-medium text-sm flex items-center ${activeTab === 'profile' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
@@ -137,13 +136,15 @@ function ProfileWithOrders() {
                         ))}
                     </div>
 
-                    <button
-                        onClick={logout}
-                        className="mt-8 w-full cursor-pointer flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200"
-                    >
-                        <FiLogOut className="mr-2" />
-                        Logout
-                    </button>
+                    <div className='flex justify-center'>
+                        <button
+                            onClick={logout}
+                            className="mt-8 cursor-pointer flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200"
+                        >
+                            <FiLogOut className="mr-2" />
+                            Logout
+                        </button>
+                    </div>
                 </>
             )}
 
