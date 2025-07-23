@@ -10,7 +10,7 @@ import { useAuth } from '../../AuthContext/AuthContext';
 import axiosInstance from '../../AuthContext/AxiosInstance';
 import Swal from 'sweetalert2';
 
-function AddNewAddress({ onClose }) {
+function AddNewAddress({ onClose,selecteAddress }) {
     const { token, refresh, setRefresh, user } = useAuth();
     const [selectedOption, setSelectedOption] = useState('existing');
     const [openModal, setOpenModal] = useState(false);
@@ -323,6 +323,7 @@ function AddNewAddress({ onClose }) {
 
     const handleSelectAddress = (address) => {
         onClose();
+        selecteAddress(address)
         handleAddressSelect(address);
     };
     const handleCloseAddNewAddress = () => {
