@@ -35,7 +35,7 @@ function Order({ onClose }) {
           Authorization: `Bearer ${token}`,
         },
       });
-      setOrders(res.data);
+      setOrders(res.data.slice().reverse());
       console.log("order", res.data)
     } catch (error) {
       console.error('Error fetching order history:', error);

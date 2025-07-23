@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
     FaUser,
@@ -19,14 +19,31 @@ import {
 import Logo from '../assets/Nlogo.png';
 import { useAuth } from "../AuthContext/AuthContext";
 import axiosInstance from "../AuthContext/AxiosInstance";
-import axios from "axios";
 import Login from "../AuthContext/Login";
-import Profile from '../components/Profile'
+import Profile from '../components/Profile';
+import { RiShutDownLine } from "react-icons/ri";
+import { FiPackage } from "react-icons/fi";
+
 
 
 const Header = () => {
     const navigate = useNavigate();
-    const { cartCount, setCartCount, amount, category, setCategory, catId, setCatId, setCatProduct, setLoading, setSelectCountry, itemsPerpage, token, user, refresh } = useAuth();
+    const {
+        cartCount,
+        setCartCount,
+        category,
+        setCategory,
+        catId,
+        setCatId,
+        setCatProduct,
+        setLoading,
+        setSelectCountry,
+        itemsPerpage,
+        token,
+        user,
+        refresh,
+        logout
+    } = useAuth();
 
     const countryOptions = [
         { code: 'US', name: 'United States', currency: 'USD', language: 'English' },
@@ -49,8 +66,11 @@ const Header = () => {
     const [categoriesOpen, setCategoriesOpen] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [profileModal, setProfileModal] = useState(false);
+    const [isDropdownOpen, setDropdownOpen] = useState(false);
 
-
+    // Refs for dropdown closing functionality
+    const dropdownRef = useRef(null);
+    const profileButtonRef = useRef(null);
 
     const fetchCategory = async () => {
         setLoading(true);
@@ -58,24 +78,34 @@ const Header = () => {
             const response = await axiosInstance.get('/product/get/productCategory');
             setCategory(response.data.data);
         } catch (error) {
-            console.log('rer', error);
+            console.error('Error fetching categories:', error);
             setLoading(false);
         } finally {
             setLoading(false);
         }
     }
 
+    const handleButtonClick = () => {
+        if (token) {
+            setDropdownOpen(!isDropdownOpen);
+        } else {
+            setOpenModal(true);
+        }
+    };
+
     useEffect(() => {
         fetchCategory();
-    }, [])
+    }, []);
 
     const fetchCatProduct = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`/product/getProductByPage?categoryId=${catId}&itemPerPage=${itemsPerpage}&currentPage=${1}`);
+            const response = await axiosInstance.get(
+                `/product/getProductByPage?categoryId=${catId}&itemPerPage=${itemsPerpage}&currentPage=${1}`
+            );
             setCatProduct(response.data.productList);
         } catch (error) {
-            console.log('error', error);
+            console.error('Error fetching category products:', error);
             setLoading(false);
         } finally {
             setLoading(false);
@@ -83,8 +113,10 @@ const Header = () => {
     }
 
     useEffect(() => {
-        fetchCatProduct();
-    }, [catId, itemsPerpage])
+        if (catId) {
+            fetchCatProduct();
+        }
+    }, [catId, itemsPerpage]);
 
     const getAllCartItems = async () => {
         try {
@@ -99,12 +131,11 @@ const Header = () => {
         }
     };
 
-
     useEffect(() => {
-        getAllCartItems();
-    }, [refresh, token])
-
-
+        if (token) {
+            getAllCartItems();
+        }
+    }, [refresh, token]);
 
     const handleCountryChange = (value) => {
         const selected = countryOptions.find(
@@ -130,9 +161,33 @@ const Header = () => {
     }, [token]);
 
     const handleProfileModal = () => {
-        setProfileModal(false)
+        setProfileModal(false);
     }
 
+    const handleProfileNavigate = () => {
+        navigate('/orders');
+        setDropdownOpen(false);
+    }
+
+    // Handle click outside dropdown
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current &&
+                !dropdownRef.current.contains(event.target) &&
+                profileButtonRef.current &&
+                !profileButtonRef.current.contains(event.target)) {
+                setDropdownOpen(false);
+            }
+        };
+
+        if (isDropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isDropdownOpen]);
 
     return (
         <>
@@ -148,19 +203,17 @@ const Header = () => {
                         >
                             {mobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
                         </button>
-                        {/* Logo - Always visible */}
+
+                        {/* Logo */}
                         <div className="flex-shrink-0">
                             <Link to="/" className="flex items-center">
-                                <img src={Logo} alt="" className="md:w-48 w-40" />
+                                <img src={Logo} alt="Company Logo" className="md:w-48 w-40" />
                             </Link>
                         </div>
 
-
-
-                        {/* Right Side - Icons and Login - Always visible */}
+                        {/* Right Side - Icons and Login */}
                         <div className="flex items-center space-x-1 md:space-x-2">
-
-                            {/* Language & Currency Selectors - Hidden on mobile */}
+                            {/* Language & Currency Selectors */}
                             <div className="flex-1 max-w-2xl mx-4 hidden md:block">
                                 <div className="flex items-center space-x-4">
                                     <div className="relative flex items-center">
@@ -199,30 +252,72 @@ const Header = () => {
                                     </div>
                                 </div>
                             </div>
-                            {/* Login - visible on all screens */}
-                            <div className="relative group hidden md:block">
+
+                            {/* Profile Dropdown */}
+                            <div className="relative hidden md:block">
                                 <button
-                                    onClick={() => {
-                                        if (token) {
-                                            setProfileModal(true);
-                                        } else {
-                                            setOpenModal(true);
-                                        }
-                                    }}
+                                    ref={profileButtonRef}
+                                    onClick={handleButtonClick}
                                     className="flex items-center space-x-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors cursor-pointer"
                                 >
                                     <FaUser className="text-xl" />
-                                    <span className="hidden md:inline font-medium">{user?.swiftUserName || "Login"}</span>
+                                    <span className="hidden md:inline font-medium">
+                                        {user?.swiftUserName || "Login"}
+                                    </span>
                                 </button>
+
+                                {/* Dropdown Menu */}
+                                {isDropdownOpen && (
+                                    <div
+                                        ref={dropdownRef}
+                                        className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg z-50"
+                                    >
+                                        <ul className=" text-gray-700">
+                                            <li>
+                                                <button
+                                                    onClick={() => {
+                                                        setProfileModal(true);
+                                                        setDropdownOpen(false);
+                                                    }}
+                                                    className="block w-full text-center text-black cursor-pointer px-4 py-2 hover:bg-gray-100"
+                                                >
+                                                    <span className="flex justify-center items-center gap-2">
+                                                        <FaUser /> Profile
+                                                    </span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    onClick={handleProfileNavigate}
+                                                    className="block w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                >
+                                                    <span className="flex justify-center items-center gap-2"><FiPackage className="text-yellow-700" /> Orders</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    onClick={logout}
+                                                    className="block w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer bg-red-300"
+                                                >
+                                                    <span className=" flex justify-center items-center gap-2 "><RiShutDownLine className="text-red-700" /> Logout</span>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
 
-
-
-                            <Link to="/shipping" className="p-2 text-white hover:text-gray-200 relative transition-colors">
+                            {/* Cart Icon */}
+                            <Link
+                                to="/shipping"
+                                className="p-2 text-white hover:text-gray-200 relative transition-colors"
+                            >
                                 <FaShoppingCart className="text-xl text-black" />
-                                <span className="absolute -top-1 -right-1 bg-blue-500  text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                    {cartCount.length || 0}
-                                </span>
+                                {cartCount.length > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                        {cartCount.length}
+                                    </span>
+                                )}
                             </Link>
                         </div>
                     </div>
@@ -230,12 +325,10 @@ const Header = () => {
             </header>
 
             {/* Second Header */}
-            <header className="bg-white shadow-sm sticky top-18.5 z-50  border-gray-100 ">
+            <header className="bg-white shadow-sm sticky top-18.5 z-40 border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className=" justify-center items-center h-16 hidden md:flex"> {/* Changed to justify-center */}
-                        {/* Desktop Navigation */}
+                    <div className="justify-center items-center h-16 hidden md:flex">
                         <nav className="hidden md:flex items-center space-x-1">
-                            {/* Home Link */}
                             <Link
                                 to="/"
                                 className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center"
@@ -244,34 +337,30 @@ const Header = () => {
                                 Home
                             </Link>
 
-                            {/* Categories Dropdown */}
-                            <div className="relative group">
+                            <div className="relative">
                                 <button
                                     className="px-3 py-2 rounded-md cursor-pointer text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setCategoriesOpen(!categoriesOpen);
-                                    }}
+                                    onClick={() => setCategoriesOpen(!categoriesOpen)}
+                                    onMouseEnter={() => setCategoriesOpen(true)}
                                 >
                                     <FaBoxes className="mr-2 text-indigo-500" />
                                     Categories
                                     <FaChevronDown className={`ml-1 text-xs text-gray-500 transition-transform duration-200 ${categoriesOpen ? 'transform rotate-180' : ''}`} />
                                 </button>
 
-                                {/* Dropdown Menu */}
                                 {categoriesOpen && (
                                     <div
                                         className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 py-2 z-50 max-h-96 overflow-y-auto"
                                         onMouseLeave={() => setCategoriesOpen(false)}
                                     >
-                                        {category.map((category, index) => (
+                                        {category.map((category) => (
                                             <button
-                                                key={index}
+                                                key={category.productCategoryId}
                                                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-200 flex items-center"
                                                 onClick={() => {
                                                     navigate('/CatProduct');
                                                     setCatId(category.productCategoryId);
-                                                    setCategoriesOpen(false); // Close dropdown when item is clicked
+                                                    setCategoriesOpen(false);
                                                 }}
                                             >
                                                 <span className="truncate">{category.categoryName}</span>
@@ -281,7 +370,6 @@ const Header = () => {
                                 )}
                             </div>
 
-                            {/* Standard Navigation Links */}
                             {[
                                 { path: "/about", icon: <FaUser className="mr-2 text-indigo-500" />, label: "About" },
                                 { path: "/manufacture", icon: <FaIndustry className="mr-2 text-indigo-500" />, label: "Manufacturers" },
@@ -299,21 +387,6 @@ const Header = () => {
                                 </Link>
                             ))}
                         </nav>
-
-                        {/* Mobile Menu Button - Now absolutely positioned to the right */}
-                        {/* <div className="md:hidden absolute right-4">
-                            <button
-                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-100 focus:outline-none transition duration-150 ease-in-out"
-                                aria-label="Main menu"
-                            >
-                                {mobileMenuOpen ? (
-                                    <FaTimes className="h-6 w-6" />
-                                ) : (
-                                    <FaBars className="h-6 w-6" />
-                                )}
-                            </button>
-                        </div> */}
                     </div>
 
                     {/* Mobile Menu */}
@@ -344,9 +417,9 @@ const Header = () => {
 
                                 {categoriesOpen && (
                                     <div className="ml-8 space-y-1 max-h-60 overflow-y-auto">
-                                        {category.map((category, index) => (
+                                        {category.map((category) => (
                                             <button
-                                                key={index}
+                                                key={category.productCategoryId}
                                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors"
                                                 onClick={() => {
                                                     navigate('/CatProduct');
@@ -363,7 +436,6 @@ const Header = () => {
 
                                 <div className="border-t border-gray-200"></div>
 
-                                {/* Other mobile menu links */}
                                 {[
                                     { path: "/about", icon: <FaUser className="mr-3 text-indigo-500" />, label: "About" },
                                     { path: "/manufacture", icon: <FaIndustry className="mr-3 text-indigo-500" />, label: "Manufacturers" },
@@ -397,14 +469,17 @@ const Header = () => {
                     )}
                 </div>
             </header>
-            {openModal &&
+
+            {/* Modals */}
+            {openModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
-                    <Login onClose={setOpenModal} />
+                    <Login onClose={() => setOpenModal(false)} />
                 </div>
-            }
+            )}
+
             {profileModal && (
-                <div className="fixed inset-0  flex items-center justify-center backdrop-brightness-50 z-100 ">
-                    <div className="border border-gray-300 max-w-7xl w-full mx-4 bg-white rounded-lg shadow-xl overflow-auto-y h-[55vh] ">
+                <div className="fixed inset-0 flex items-center justify-center backdrop-brightness-50 z-[60]">
+                    <div className="border border-gray-300 max-w-7xl w-full mx-4 bg-white rounded-lg shadow-xl overflow-auto-y h-[55vh]">
                         <div className="relative p-1">
                             <button
                                 onClick={handleProfileModal}

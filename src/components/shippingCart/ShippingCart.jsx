@@ -29,18 +29,21 @@ function ShippingCart() {
   const [updatingItems, setUpdatingItems] = useState({});
   const [removing, setRemoving] = useState(false);
   const [currentId, setCurrentID] = useState("");
-  const [platformFee, setPlatformFee] = useState(2.99);
-  const [logisticFee, setLogisticFee] = useState(5.99);
+  const [platformFee, setPlatformFee] = useState(0);
   const [otherFees, setOtherFees] = useState(0);
   const [couponCode, setCouponCode] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponError, setCouponError] = useState('');
-  const [aaNewAddressModal, setAddnewAddressModal] = useState(false)
-  const navigate = useNavigate()
-   const topRef = useRef(null);
+  const [aaNewAddressModal, setAddnewAddressModal] = useState(false);
+  const navigate = useNavigate();
+  const topRef = useRef(null);
 
   const calculateSubtotal = () => {
     return cartData.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  };
+
+  const calculateTotalLogistics = () => {
+    return cartData.reduce((sum, item) => sum + (item.logisticCost * item.quantity), 0);
   };
 
   const applyCoupon = () => {
@@ -63,7 +66,6 @@ function ShippingCart() {
         },
       });
       setCartData(response.data);
-      console.log("cart data", response.data)
     } catch (error) {
       console.error("Error fetching cart items:", error);
       setError("Failed to load cart items. Please try again.");
@@ -163,15 +165,25 @@ function ShippingCart() {
       }
     }
   };
+
   useEffect(() => {
     if (token) {
       getAllCartItems();
     }
   }, [token]);
+
   useEffect(() => {
     topRef.current?.scrollIntoView({ behavior: 'smooth' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [])
+  }, []);
+
+  const openaddresModal = () => {
+    setAddnewAddressModal(true);
+  };
+
+  const closeAddressModal = () => {
+    setAddnewAddressModal(false);
+  };
 
   if (loading && cartData.length === 0) {
     return (
@@ -195,18 +207,18 @@ function ShippingCart() {
       <div className="flex flex-col justify-center items-center h-64 gap-4">
         <FiShoppingCart size={48} className="text-gray-400" />
         <p className="text-lg text-gray-600">Your cart is empty</p>
-        <button onClick={() => navigate('/CatProduct')} className='bg-teal-800 text-white px-4 py-1 rounded-md cursor-pointer'>Continue Shopping</button >
+        <button 
+          onClick={() => navigate('/CatProduct')} 
+          className='bg-teal-800 text-white px-4 py-1 rounded-md cursor-pointer'
+        >
+          Continue Shopping
+        </button>
       </div>
     );
   }
-  const openaddresModal = () => {
-    setAddnewAddressModal(true)
-  }
-  const closeAddressModal = () => {
-    setAddnewAddressModal(false)
-  }
+
   return (
-    <div ref={topRef}  className="w-full mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
+    <div ref={topRef} className="w-full mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
       <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 px-2">Your Cart</h2>
       <div className="flex flex-col lg:flex-row gap-4 sm:gap-8">
         {/* Left side - Scrollable cart items */}
@@ -283,8 +295,13 @@ function ShippingCart() {
                       </button>
                     </div>
 
+                    <p className="text-gray-600">Logistics fee:</p>
+                    <p className="font-medium">${item.logisticCost.toFixed(2)}</p>
+
                     <p className="text-gray-600">Total:</p>
-                    <p className="font-medium">${item.total.toFixed(2)}</p>
+                    <p className="font-medium">
+                      ${((item.price * item.quantity) + (item.logisticCost * item.quantity)).toFixed(2)}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -333,15 +350,13 @@ function ShippingCart() {
                 </div>
               )}
 
-              {logisticFee > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600 flex items-center gap-1">
-                    <FiTruck className="text-yellow-700 w-4 h-4 sm:w-4 sm:h-4 mr-2 sm:mr-4" />
-                    Shipping Fee:
-                  </span>
-                  <span>${logisticFee.toFixed(2)}</span>
-                </div>
-              )}
+              <div className="flex justify-between">
+                <span className="text-gray-600 flex items-center gap-1">
+                  <FiTruck className="text-yellow-700 w-4 h-4 sm:w-4 sm:h-4 mr-2 sm:mr-4" />
+                  Total Logistics Fee:
+                </span>
+                <span>${calculateTotalLogistics().toFixed(2)}</span>
+              </div>
 
               {couponDiscount > 0 && (
                 <div className="flex justify-between text-green-600">
@@ -398,7 +413,9 @@ function ShippingCart() {
                 <FiShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
                 Grand Total:
               </span>
-              <span>${(calculateSubtotal() + platformFee + logisticFee + otherFees - couponDiscount).toFixed(2)}</span>
+              <span>
+                ${(calculateSubtotal() + platformFee + calculateTotalLogistics() + otherFees - couponDiscount).toFixed(2)}
+              </span>
             </div>
 
             <button
