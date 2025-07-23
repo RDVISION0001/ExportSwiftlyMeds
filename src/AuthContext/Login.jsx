@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FcGoogle } from "react-icons/fc";
 import { FaWhatsappSquare } from "react-icons/fa";
 import { FiPhone, FiLock, FiChevronDown } from "react-icons/fi";
@@ -24,6 +24,9 @@ function Login({ onClose }) {
   const inputsRef = useRef([]);
   const navigate = useNavigate();
   const [registerForm, setRegisterForm] = useState(false);
+  const [generateCaptcha, setGenrateCaptcha] = useState("")
+  const [matchCpatcha, setMatchCaptcha] = useState("")
+  const [matched, setMatched] = useState(false)
 
 
   const countryCodes = [
@@ -40,6 +43,20 @@ function Login({ onClose }) {
       setErrors((prev) => ({ ...prev, phone: '' }));
     }
   };
+
+  const generateCaptchaFunction = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let captcha = '';
+    for (let i = 0; i < 6; i++) {
+      captcha += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    setGenrateCaptcha(captcha);
+  };
+
+  useEffect(() => {
+    generateCaptchaFunction();
+  }, []);
+
 
   const handleChange = (element, index) => {
     const value = element.value.replace(/\D/g, '');
@@ -135,6 +152,15 @@ function Login({ onClose }) {
   };
 
   const handleVerifyOtp = async () => {
+    console.log(generateCaptcha, matchCpatcha)
+    if (generateCaptcha !== matchCpatcha) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'CAPTCHA not matched',
+      });
+      return; // Exit early if CAPTCHA is wrong
+    }
+
     setIsLoading(false)
     const otpCode = otp.join('');
 
@@ -227,7 +253,7 @@ function Login({ onClose }) {
   `
       });
       setIsLoading(false)
-    
+
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -248,7 +274,7 @@ function Login({ onClose }) {
         swiftUserPhone: countryCode + phone,
         swiftUserPassword: password
       });
-      if(response.data.message === 'Email already registered'){
+      if (response.data.message === 'Email already registered') {
         Swal.fire({
           icon: 'info',
           title: response.data.message,
@@ -256,7 +282,7 @@ function Login({ onClose }) {
         setIsLoading(false)
         return;
       }
-        
+
       Swal.fire({
         icon: 'success',
         title: response.data.message,
@@ -277,6 +303,8 @@ function Login({ onClose }) {
       setIsLoading(false)
     }
   };
+
+
 
   return (
     <div className="flex flex-col justify-center py-8 sm:px-6 lg:px-8">
@@ -369,6 +397,47 @@ function Login({ onClose }) {
                     Resend
                   </button>
                 </p>
+                <div className="flex flex-col p-4 border border-gray-300 rounded-lg bg-gray-50 max-w-md">
+                  <div className="flex items-center justify-between mb-3">
+                    <label htmlFor="captcha-input" className="text-sm font-medium text-gray-700">
+                      Enter CAPTCHA:
+                    </label>
+                    <div className={`text-sm font-medium ${matchCpatcha && (matchCpatcha === generateCaptcha ? 'text-green-600' : 'text-red-600')}`}>
+                      {matchCpatcha && (matchCpatcha === generateCaptcha ? '✓ Match' : '✗ No match')}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <div className="flex-1 bg-white p-2 rounded border border-gray-200 text-center font-mono text-lg tracking-widest select-none">
+                      {generateCaptcha}
+                    </div>
+
+                    <button
+                      className="p-2 text-gray-500 hover:text-gray-700"
+                      onClick={generateCaptchaFunction}
+                      aria-label="Refresh CAPTCHA"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
+
+                    <input
+                      id="captcha-input"
+                      type="text"
+                      value={matchCpatcha}
+                      onChange={(e) => {
+                        const input = e.target.value;
+                        if (/^[a-zA-Z0-9]{0,6}$/.test(input)) {
+                          setMatchCaptcha(input);
+                        }
+                      }}
+                      maxLength={6}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Type here"
+                    />
+                  </div>
+                </div>
                 <button
                   disabled={isLoading}
                   type="button"

@@ -83,8 +83,7 @@ function Order({ onClose }) {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
 
-  const continueShopping = () => {
-    onClose();
+  const continueShopping = () => {    
     navigate('/CatProduct');
   };
 
@@ -212,7 +211,7 @@ function Order({ onClose }) {
                             </div>
                           </div>
                           <div className="font-medium text-gray-900">
-                            {(item.quantity * item.pricePerUnit).toFixed(2)}
+                            {(order.total + order.logisticsCost + order.platformFee).toFixed(2)}
                           </div>
                         </li>
                       ))}

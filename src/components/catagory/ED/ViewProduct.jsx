@@ -137,24 +137,7 @@ const ProductDetailPage = () => {
             setLoading(prev => ({ ...prev, [loadingKey]: false }));
         }
 
-        setCart(prevCart => {
-            const existingIndex = prevCart.findIndex(item => item.product.id === product.id);
-            if (existingIndex !== -1) {
-                const updatedCart = [...prevCart];
-                updatedCart[existingIndex].prices.push(price);
-                return updatedCart;
-            } else {
-                return [
-                    ...prevCart,
-                    {
-                        product,
-                        name,
-                        brand,
-                        prices: [price],
-                    },
-                ];
-            }
-        });
+      
     };
 
     const updateQuantity = async (productId, newQuantity, priceId, action) => {

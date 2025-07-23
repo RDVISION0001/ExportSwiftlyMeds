@@ -299,7 +299,8 @@ const Header = () => {
                                                     onClick={logout}
                                                     className="block w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer bg-red-300"
                                                 >
-                                                    <span className=" flex justify-center items-center gap-2 "><RiShutDownLine className="text-red-700" /> Logout</span>
+                                                    <span className=" flex justify-center items-center gap-2 "><RiShutDownLine className="text-red-
+                                                    " /> Logout</span>
                                                 </button>
                                             </li>
                                         </ul>
@@ -313,11 +314,10 @@ const Header = () => {
                                 className="p-2 text-white hover:text-gray-200 relative transition-colors"
                             >
                                 <FaShoppingCart className="text-xl text-black" />
-                                {cartCount.length > 0 && (
-                                    <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                        {cartCount.length}
-                                    </span>
-                                )}
+                                <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {cartCount.length || 0}
+                                </span>
+
                             </Link>
                         </div>
                     </div>
