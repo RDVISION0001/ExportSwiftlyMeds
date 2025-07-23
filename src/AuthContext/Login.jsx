@@ -161,7 +161,7 @@ function Login({ onClose }) {
       setUser(response.data.user);
       Swal.fire({
         icon: 'success',
-        title: `${response.data.message} and Login Successfully`,
+        title: `${response.data.message}`,
         html: `
           <div style="
       display: flex;
@@ -232,7 +232,7 @@ function Login({ onClose }) {
       Swal.fire({
         icon: 'error',
         title: 'Verification Failed',
-        text: error.response?.data?.message || 'Invalid OTP',
+        text: error.response?.data?.message || '',
       });
       setIsLoading(false)
     }
@@ -248,6 +248,15 @@ function Login({ onClose }) {
         swiftUserPhone: countryCode + phone,
         swiftUserPassword: password
       });
+      if(response.data.message === 'Email already registered'){
+        Swal.fire({
+          icon: 'info',
+          title: response.data.message,
+        });
+        setIsLoading(false)
+        return;
+      }
+        
       Swal.fire({
         icon: 'success',
         title: response.data.message,
