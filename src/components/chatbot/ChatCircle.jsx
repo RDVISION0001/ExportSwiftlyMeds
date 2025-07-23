@@ -27,15 +27,13 @@ const ChatCircle = () => {
   const [loading, setLoading] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [sndingOtp, setResendingOtp] = useState(false);
+  const [hasMoved, setHasMoved] = useState(false);
   const chatBodyRef = useRef(null);
   const nameInputRef = useRef(null);
   const dragStart = useRef({ x: 0, y: 0 });
   const chatContainerRef = useRef(null);
-  const [conversation, setConversation] = useState()
-
-  //websocket conection constantns
+  const [conversation, setConversation] = useState();
   const stompClientRef = useRef(null);
-
 
   const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
 
@@ -43,7 +41,7 @@ const ChatCircle = () => {
     if (chatBodyRef.current) {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }
-  }, [messages,conversation]);
+  }, [messages, conversation]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -56,9 +54,44 @@ const ChatCircle = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    if (!isDragging) {
+      setHasMoved(false);
+    }
+  }, [isDragging]);
+
+  function formatDateTime(dateTimeStr) {
+    const inputDate = new Date(dateTimeStr);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const inputDay = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate());
+    const timeDiff = today - inputDay;
+    const oneDayMs = 24 * 60 * 60 * 1000;
+
+    const timeStr = inputDate.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }).replace(/^0/, '');
+
+    if (timeDiff === 0) {
+      return timeStr;
+    } else if (timeDiff <= oneDayMs) {
+      return `Yesterday, ${timeStr}`;
+    } else {
+      const dateStr = inputDate.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+      return `${dateStr}, ${timeStr}`;
+    }
+  }
+
   const startDrag = (e) => {
     e.stopPropagation();
     setIsDragging(true);
+    setHasMoved(false);
     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
     const clientY = e.clientY || (e.touches && e.touches[0].clientY);
     dragStart.current = { x: clientX, y: clientY };
@@ -68,6 +101,11 @@ const ChatCircle = () => {
       const moveY = moveEvent.clientY || (moveEvent.touches && moveEvent.touches[0].clientY);
       const dx = moveX - dragStart.current.x;
       const dy = moveY - dragStart.current.y;
+      
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+        setHasMoved(true);
+      }
+
       dragStart.current = { x: moveX, y: moveY };
 
       setPosition((prev) => ({
@@ -203,7 +241,12 @@ const ChatCircle = () => {
   };
 
   const handleToggleChat = (e) => {
-    if (isDragging) return;
+    if (isDragging || hasMoved) {
+      setIsDragging(false);
+      setHasMoved(false);
+      return;
+    }
+    
     if (!isOpen && messages.length === 0) {
       setMessages([
         {
@@ -265,7 +308,7 @@ const ChatCircle = () => {
 
     const client = new Client({
       webSocketFactory: () => socket,
-      reconnectDelay: 5000, // auto-reconnect
+      reconnectDelay: 5000,
       onConnect: () => {
         console.log("WebSocket connected");
         setupSubscriptions(client);
@@ -284,7 +327,6 @@ const ChatCircle = () => {
 
   const setupSubscriptions = (client) => {
     client.subscribe(`/topic/inquiry-chat-` + formData.email, (message) => {
-    
       const newNotification = JSON.parse(message.body);
       console.log(newNotification)
       setConversation((prev) => ({
@@ -293,15 +335,6 @@ const ChatCircle = () => {
       }));
     });
   };
-
-  // useEffect(() => {
-  //   connectWebSocket();
-  //   return () => {
-  //     if (stompClientRef.current) {
-  //       stompClientRef.current.deactivate();
-  //     }
-  //   };
-  // }, []);
 
   const handelSendMessage = async () => {
     const response = await axiosInstance.post("/api/chat/send", {
@@ -316,7 +349,7 @@ const ChatCircle = () => {
       messages: [...prev.messages, response.data]
     }));
   }
-  
+
   return (
     <>
       {isOpen && (
@@ -377,7 +410,7 @@ const ChatCircle = () => {
                 >
                   <div>{msg.content}</div>
                   <div className="text-xs opacity-70 text-right mt-1">
-                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {formatDateTime(msg.timestamp)}
                   </div>
                 </div>
               ))}
@@ -518,8 +551,7 @@ const ChatCircle = () => {
       )}
 
       <div
-        className={`fixed w-14 h-14 rounded-full bg-[#12b9c5] flex items-center justify-center cursor-pointer shadow-lg hover:shadow-xl transition-all ${isOpen ? "hidden" : ""
-          } ${isDragging ? "scale-110" : "scale-100"}`}
+        className={`fixed w-14 h-14 rounded-full bg-[#12b9c5] flex items-center justify-center cursor-pointer shadow-lg hover:shadow-xl transition-all ${isOpen ? "hidden" : ""} ${isDragging ? "scale-110" : "scale-100"}`}
         style={{
           left: position.x,
           top: position.y,
@@ -527,7 +559,11 @@ const ChatCircle = () => {
         }}
         onMouseDown={startDrag}
         onTouchStart={startDrag}
-        onClick={handleToggleChat}
+        onClick={(e) => {
+          if (!hasMoved) {
+            handleToggleChat(e);
+          }
+        }}
       >
         <div className="relative">
           <FaComment className="text-white text-xl" />
