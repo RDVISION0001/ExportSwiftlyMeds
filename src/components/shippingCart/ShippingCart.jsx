@@ -433,7 +433,7 @@ function ShippingCart() {
           </div>
         </div>
       )}
-      <RecomndedProduct categoeryId={"category"} />
+      {/* <RecomndedProduct categoeryId={"category"} /> */}
     </div>
   );
 }

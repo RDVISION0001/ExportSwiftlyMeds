@@ -4,7 +4,7 @@ import { FiUser, FiMail, FiPhone, FiKey, FiClock, FiLogOut, FiCheckCircle, FiXCi
 import { MdVerified, MdOutlinePending } from 'react-icons/md';
 import Order from './Order';
 
-function ProfileWithOrders() {
+function ProfileWithOrders({ onClose }) {
     const { user, logout } = useAuth();
     const [activeTab, setActiveTab] = useState('profile');
 
@@ -51,24 +51,7 @@ function ProfileWithOrders() {
             value: user.swiftUserPhone || 'Not provided',
             bgColor: "bg-purple-100"
         },
-        // {
-        //     icon: <FiKey className="text-yellow-600" />,
-        //     title: "User ID",
-        //     value: user.swiftUserId || 'Not provided',
-        //     bgColor: "bg-yellow-100"
-        // },
-        // ...(user.otp ? [{
-        //     icon: <FiKey className="text-red-600" />,
-        //     title: "OTP",
-        //     value: user.otp,
-        //     bgColor: "bg-red-100"
-        // }] : []),
-        // ...(user.otpExpiry ? [{
-        //     icon: <FiClock className="text-indigo-600" />,
-        //     title: "OTP Expiry",
-        //     value: new Date(user.otpExpiry).toLocaleString(),
-        //     bgColor: "bg-indigo-100"
-        // }] : [])
+
     ];
 
 
@@ -150,7 +133,7 @@ function ProfileWithOrders() {
 
             {/* Orders Tab Content */}
             {activeTab === 'orders' && (
-                <Order />
+                <Order onClose={onClose} />
             )}
         </div>
     );

@@ -98,11 +98,11 @@ const Header = () => {
             console.error("Error fetching cart items:", error);
         }
     };
-   
+
 
     useEffect(() => {
         getAllCartItems();
-    }, [refresh,token])
+    }, [refresh, token])
 
 
 
@@ -129,6 +129,9 @@ const Header = () => {
         return () => clearTimeout(timeoutId);
     }, [token]);
 
+    const handleProfileModal = () => {
+        setProfileModal(false)
+    }
 
 
     return (
@@ -404,7 +407,7 @@ const Header = () => {
                     <div className="border border-gray-300 max-w-7xl w-full mx-4 bg-white rounded-lg shadow-xl overflow-auto-y h-[55vh] ">
                         <div className="relative p-1">
                             <button
-                                onClick={() => setProfileModal(false)}
+                                onClick={handleProfileModal}
                                 className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 bg-white hover:bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition-colors duration-200"
                                 aria-label="Close modal"
                             >
@@ -413,7 +416,7 @@ const Header = () => {
                                 </svg>
                             </button>
                         </div>
-                        <Profile/>
+                        <Profile onClose={handleProfileModal} />
                     </div>
                 </div>
             )}
