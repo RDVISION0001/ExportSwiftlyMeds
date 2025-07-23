@@ -8,11 +8,12 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import axiosInstance from "../../AuthContext/AxiosInstance";
+import Swal from "sweetalert2";
 
-const stripePromiseVox = loadStripe("pk_live_51RY5guKomOVAGS7dAHY7zT0opFxmbzNxNvsR9qwVHg9mnaVAxkGDT0sLztGHAFqXju9FFWXFHjEpIn6rUCNrmZJs001hB3HSlY");
+// const stripePromiseVox = loadStripe("pk_live_51RY5guKomOVAGS7dAHY7zT0opFxmbzNxNvsR9qwVHg9mnaVAxkGDT0sLztGHAFqXju9FFWXFHjEpIn6rUCNrmZJs001hB3HSlY");
+const stripePromiseVox = loadStripe("pk_test_51RY5guKomOVAGS7djPG0yRUk9OHOglAA3haDBNIKDz70klhrJ515LpcDNOcBzO12aCQZNosK1SaZj0mHAoJ39zYy00O3gEYnhK")
 // const stripePromiseRdvision=loadStripe("pk_live_51KpHlnSAxOboMMomzgtOknKDOwEg9AysCqs6g0O2e9ETloartosrHcf8qOAwOsChi8s5EYN8UHzNn2VgyKirIE6K00TujZ91YB")
-const CheckoutForm = ({ orderNumber, remark }) => {
-  console.log(orderNumber, "hello")
+const CheckoutForm = ({closeFunction}) => {
   const stripe = useStripe();
   const elements = useElements();
   const [message, setMessage] = useState("");
@@ -26,15 +27,45 @@ const CheckoutForm = ({ orderNumber, remark }) => {
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `https://swiftlymeds.com/success/${orderNumber}`,
-        // billing_details will be taken from AddressElement automatically
+        // NO return_url – to prevent redirection
+        payment_method_data: {
+          billing_details: {
+            // Optional if using AddressElement
+            name: 'Customer Name',
+            email: 'customer@example.com',
+          },
+        },
       },
+      redirect: 'if_required', // This prevents redirection for cards that don't need 3D Secure
     });
 
+    // Handle the result
     if (result.error) {
-      setMessage(result.error.message);
-    }
+      // ❌ Payment failed
+      Swal.fire({
+        icon: 'error',
+        title: 'Payment Failed',
+        text: result.error.message || 'There was an issue with your payment.',
+      });
+    } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+      // ✅ Payment succeeded
+      Swal.fire({
+        icon: 'success',
+        title: 'Payment Successful',
+        text: 'Thank you! Your payment has been completed.',
+      });
 
+      setTimeout(()=>{
+        closeFunction()
+      },3000)
+    } else {
+      // 🚧 Possibly requires action (like 3D Secure)
+      Swal.fire({
+        icon: 'info',
+        title: 'Additional Authentication Required',
+        text: 'Please complete the authentication to proceed with payment.',
+      });
+    }
     setLoading(false);
   };
 
@@ -80,17 +111,15 @@ const CheckoutForm = ({ orderNumber, remark }) => {
   );
 };
 
-const CheckoutButton = ({ orderNumber, remark }) => {
+const CheckoutButtonSwift = ({ userId, addressId,closeFunction }) => {
   const [clientSecret, setClientSecret] = useState("");
-  console.log("Order number :- ", orderNumber)
 
   useEffect(() => {
     axiosInstance
-      .post("/api/payment/create-payment-intent", {
-        accountType: "vox", // or "vox"
-        amount: 5549,         // optional: if you want to control amount from frontend
+      .post("/api/payment/swift/create-payment-intent", {
+        userId, // or "vox"
+        addressId,         // optional: if you want to control amount from frontend
         currency: "usd",
-        orderNumber       // optional: "inr", "usd", etc.
       })
       .then((res) => setClientSecret(res.data.clientSecret))
       .catch((err) => console.error("PaymentIntent error:", err));
@@ -104,16 +133,15 @@ const CheckoutButton = ({ orderNumber, remark }) => {
     clientSecret,
     appearance,
   };
-  console.log("Remark is ", remark)
   return (
     <div className="flex items-center w-[35vw] justify-center">
       {clientSecret && (
-        <Elements stripe={stripePromiseVox} options={options}>
-          <CheckoutForm orderNumber={orderNumber} remark={remark} />
+        <Elements stripe={stripePromiseVox} options={options} >
+          <CheckoutForm closeFunction={closeFunction}/>
         </Elements>
       )}
     </div>
   );
 };
 
-export default CheckoutButton;
+export default CheckoutButtonSwift;

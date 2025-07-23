@@ -20,9 +20,10 @@ import AddNewAddress from './AddNewAddress';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import RecomndedProduct from './RecomndedProduct';
+import CheckoutButtonSwift from './CheckoutButtonSwift';
 
 function ShippingCart() {
-  const { token, refresh, setRefresh } = useAuth();
+  const { token, refresh, setRefresh, user } = useAuth();
   const [cartData, setCartData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -30,13 +31,17 @@ function ShippingCart() {
   const [removing, setRemoving] = useState(false);
   const [currentId, setCurrentID] = useState("");
   const [platformFee, setPlatformFee] = useState(0);
+  const [logisticFee, setLogisticFee] = useState(5.99);
   const [otherFees, setOtherFees] = useState(0);
   const [couponCode, setCouponCode] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponError, setCouponError] = useState('');
-  const [aaNewAddressModal, setAddnewAddressModal] = useState(false);
-  const navigate = useNavigate();
+  const [aaNewAddressModal, setAddnewAddressModal] = useState(false)
+  const [IsCheckOUtOpned, setIsCheckOutOpned] = useState(false)
+  const navigate = useNavigate()
   const topRef = useRef(null);
+
+  const [selectedAddress, setSelectedAddress] = useState()
 
   const calculateSubtotal = () => {
     return cartData.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -66,6 +71,7 @@ function ShippingCart() {
         },
       });
       setCartData(response.data);
+      console.log("cart data", response.data)
     } catch (error) {
       console.error("Error fetching cart items:", error);
       setError("Failed to load cart items. Please try again.");
@@ -165,25 +171,15 @@ function ShippingCart() {
       }
     }
   };
-
   useEffect(() => {
     if (token) {
       getAllCartItems();
     }
   }, [token]);
-
   useEffect(() => {
     topRef.current?.scrollIntoView({ behavior: 'smooth' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
-
-  const openaddresModal = () => {
-    setAddnewAddressModal(true);
-  };
-
-  const closeAddressModal = () => {
-    setAddnewAddressModal(false);
-  };
+  }, [])
 
   if (loading && cartData.length === 0) {
     return (
@@ -207,16 +203,33 @@ function ShippingCart() {
       <div className="flex flex-col justify-center items-center h-64 gap-4">
         <FiShoppingCart size={48} className="text-gray-400" />
         <p className="text-lg text-gray-600">Your cart is empty</p>
-        <button 
-          onClick={() => navigate('/CatProduct')} 
-          className='bg-teal-800 text-white px-4 py-1 rounded-md cursor-pointer'
-        >
-          Continue Shopping
-        </button>
+        <button onClick={() => navigate('/CatProduct')} className='bg-teal-800 text-white px-4 py-1 rounded-md cursor-pointer'>Continue Shopping</button >
       </div>
     );
   }
+  const openaddresModal = () => {
+    setAddnewAddressModal(true)
+  }
+  const closeAddressModal = (address) => {
+    setAddnewAddressModal(false)
+  }
 
+  const openCheckoutSession = () => {
+    if (!selectedAddress) {
+      Swal.fire(
+        'Delivery Address!',
+        'Please add delivery address first',
+        'Info'
+      );
+      return;
+    }
+    setIsCheckOutOpned(true)
+  }
+
+  const handleCLosePaymnetModel=()=>{
+    getAllCartItems()
+    setIsCheckOutOpned(false)
+  }
   return (
     <div ref={topRef} className="w-full mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
       <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 px-2">Your Cart</h2>
@@ -308,9 +321,42 @@ function ShippingCart() {
             ))}
           </div>
         </div>
-
         {/* Right side - Fixed order summary */}
         <div className="lg:w-1/3">
+          <div className="border border-gray-200 rounded-lg p-4 sm:p-6 sticky top-4 my-2">
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
+                <FiShoppingBag className="text-green-600 w-5 h-5" />
+                Delivery Address
+              </h3>
+
+              <div className="bg-gray-100 p-4 rounded-lg shadow-sm text-sm sm:text-base">
+                {selectedAddress && <div>
+                  <p className="font-medium text-gray-800">{selectedAddress.addressLine}</p>
+                  <p className="text-gray-700">{selectedAddress.city}</p>
+                  <p className="text-gray-700">{selectedAddress.state}</p>
+                  <p className="text-gray-700">{selectedAddress.country}</p>
+                  <p className="text-gray-700">{selectedAddress.pincode}</p>
+                  <p className="text-gray-700 mb-4">{selectedAddress.addressType}</p>
+                </div>}
+
+                <button
+                  className="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition"
+                  onClick={() => {
+                    setAddnewAddressModal(true)
+                  }}
+                >
+                  {selectedAddress ? "Change Address" : "Add Delivery Address"}
+                </button>
+              </div>
+            </div>
+
+
+
+
+            {/* Coupon Code Input */}
+
+          </div>
           <div className="border border-gray-200 rounded-lg p-4 sm:p-6 sticky top-4">
             <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
               <FiShoppingBag className="text-green-600 w-5 h-5" />
@@ -350,13 +396,15 @@ function ShippingCart() {
                 </div>
               )}
 
-              <div className="flex justify-between">
-                <span className="text-gray-600 flex items-center gap-1">
-                  <FiTruck className="text-yellow-700 w-4 h-4 sm:w-4 sm:h-4 mr-2 sm:mr-4" />
+              {logisticFee > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600 flex items-center gap-1">
+                    <FiTruck className="text-yellow-700 w-4 h-4 sm:w-4 sm:h-4 mr-2 sm:mr-4" />
                   Total Logistics Fee:
-                </span>
+                  </span>
                 <span>${calculateTotalLogistics().toFixed(2)}</span>
-              </div>
+                </div>
+              )}
 
               {couponDiscount > 0 && (
                 <div className="flex justify-between text-green-600">
@@ -419,7 +467,7 @@ function ShippingCart() {
             </div>
 
             <button
-              onClick={openaddresModal}
+              onClick={openCheckoutSession}
               className="w-full mt-4 sm:mt-6 cursor-pointer bg-green-600 hover:bg-green-700 text-white py-2 sm:py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
               disabled={Object.values(updatingItems).some(Boolean) || removing}
             >
@@ -446,11 +494,34 @@ function ShippingCart() {
                 <FiX size={24} />
               </button>
             </div>
-            <AddNewAddress onClose={closeAddressModal} />
+            <AddNewAddress onClose={closeAddressModal} selecteAddress={setSelectedAddress} />
           </div>
         </div>
       )}
-      {/* <RecomndedProduct categoeryId={"category"} /> */}
+
+      {
+        IsCheckOUtOpned &&
+
+        <div className="fixed inset-0 backdrop-brightness-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b p-4 sticky top-0 bg-white z-10">
+              {/* <h2 className="text-xl font-bold flex items-center gap-2">
+                <FiMapPin className="text-blue-500" />
+                Payment 
+              </h2> */}
+              <button
+                onClick={() =>setIsCheckOutOpned(false)}
+                className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                aria-label="Close address modal"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
+            <CheckoutButtonSwift userId={user.swiftUserId} addressId={selectedAddress.id} closeFunction={handleCLosePaymnetModel} />
+          </div>
+        </div>
+      }
+      <RecomndedProduct categoeryId={"category"} />
     </div>
   );
 }
