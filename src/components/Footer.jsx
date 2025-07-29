@@ -183,7 +183,7 @@ const Footer = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
                 placeholder="Enter your email"
-                className="w-full sm:flex-grow min-w-0 bg-transparent outline-none text-sm md:text-base text-black border-none px-2 py-1 sm:px-3 sm:py-0"
+                className="flex-grow min-w-[300px] bg-transparent outline-none text-sm md:text-base text-black border-none px-2 py-1 sm:px-3 sm:py-0"
               />
               <button
                 type="submit"
@@ -193,6 +193,7 @@ const Footer = () => {
                 {loading ? <span className="loading loading-dots loading-sm"></span> : "SUBSCRIBE"}
               </button>
             </div>
+
           </form>
         </div>
 

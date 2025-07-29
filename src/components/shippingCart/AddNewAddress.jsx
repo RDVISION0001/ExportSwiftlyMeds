@@ -405,8 +405,8 @@ function AddNewAddress({ onClose,selecteAddress }) {
                                         role="button"
                                         tabIndex={0}
                                         onKeyPress={(e) => e.key === 'Enter' && handleAddressSelect(address)}
-                                    >
-                                        <div className="flex justify-between items-start">
+                                      >
+                                        <div onClick={()=> handleSelectAddress(address)} className="flex justify-between items-start">
                                             <div>
                                                 <div className="flex items-center gap-2">
                                                     <h4 className="font-medium capitalize">{address.addressType}</h4>
