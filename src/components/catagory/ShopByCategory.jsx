@@ -19,9 +19,9 @@ function ShopByCategory() {
 
   const slideLeft = () => {
     if (sliderRef.current) {
-      const cardWidth = sliderRef.current.querySelector('.category-card')?.offsetWidth + 16 || 176; // Fallback width
+      const cardWidth = sliderRef.current.querySelector('.category-card')?.offsetWidth + 16 || 176;
       sliderRef.current.scrollBy({
-        left: -cardWidth,
+        left: -cardWidth * 2, // Scroll two cards at a time on mobile
         behavior: 'smooth',
       });
     }
@@ -29,9 +29,9 @@ function ShopByCategory() {
 
   const slideRight = () => {
     if (sliderRef.current) {
-      const cardWidth = sliderRef.current.querySelector('.category-card')?.offsetWidth + 16 || 176; // Fallback width
+      const cardWidth = sliderRef.current.querySelector('.category-card')?.offsetWidth + 16 || 176;
       sliderRef.current.scrollBy({
-        left: cardWidth,
+        left: cardWidth * 2, // Scroll two cards at a time on mobile
         behavior: 'smooth',
       });
     }
@@ -49,14 +49,12 @@ function ShopByCategory() {
     cat.categoryName?.toLowerCase().includes(searchItem.toLowerCase())
   );
 
-  // Function to generate a unique key for each item
   const getItemKey = (item, index) => {
     return item.id || `${item.categoryName}-${index}`;
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Product Categories */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
           Shop by Category
@@ -120,7 +118,7 @@ function ShopByCategory() {
                   setCatId(item.productCategoryId);
                   navigate('/CatProduct');
                 }}
-                className="bg-white rounded-lg shadow-sm p-4 w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer hover:shadow-lg transition-all duration-300 border border-gray-100 category-card"
+                className="bg-white rounded-lg shadow-sm p-4 w-[calc(50%-0.5rem)] sm:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer hover:shadow-lg transition-all duration-300 border border-gray-100 category-card"
                 style={{ scrollSnapAlign: 'start' }}
               >
                 <img
@@ -141,19 +139,19 @@ function ShopByCategory() {
           {showLeftArrow && (
             <button
               onClick={slideLeft}
-              className="absolute -left-10 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-all hover:scale-105 z-10"
+              className="absolute -left-4 sm:-left-10 top-1/2 -translate-y-1/2 bg-white rounded-full p-1 sm:p-2 shadow-md hover:bg-gray-100 transition-all hover:scale-105 z-10"
               aria-label="Scroll left"
             >
-              <MdChevronLeft className="text-gray-600 text-2xl cursor-pointer" />
+              <MdChevronLeft className="text-gray-600 text-xl sm:text-2xl cursor-pointer" />
             </button>
           )}
           {showRightArrow && (
             <button
               onClick={slideRight}
-              className="absolute -right-10 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-all hover:scale-105 z-10"
+              className="absolute -right-4 sm:-right-10 top-1/2 -translate-y-1/2 bg-white rounded-full p-1 sm:p-2 shadow-md hover:bg-gray-100 transition-all hover:scale-105 z-10"
               aria-label="Scroll right"
             >
-              <MdChevronRight className="text-gray-600 text-2xl cursor-pointer" />
+              <MdChevronRight className="text-gray-600 text-xl sm:text-2xl cursor-pointer" />
             </button>
           )}
         </div>

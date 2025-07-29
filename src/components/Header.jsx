@@ -270,7 +270,7 @@ const Header = () => {
                                 {isDropdownOpen && (
                                     <div
                                         ref={dropdownRef}
-                                        className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg z-50"
+                                        className="absolute right-0 mt-2 p-2 bg-white rounded-lg shadow-lg z-60"
                                     >
                                         <ul className=" text-gray-700">
                                             <li>
@@ -297,7 +297,7 @@ const Header = () => {
                                             <li>
                                                 <button
                                                     onClick={logout}
-                                                    className="block w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer bg-red-300"
+                                                    className="block w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                                 >
                                                     <span className=" flex justify-center items-center gap-2 "><RiShutDownLine className="text-red-
                                                     " /> Logout</span>
@@ -350,7 +350,7 @@ const Header = () => {
 
                                 {categoriesOpen && (
                                     <div
-                                        className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 py-2 z-50 max-h-96 overflow-y-auto"
+                                        className="absolute left-0 mt-1 w-64 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-2 z-20 max-h-96 overflow-y-auto"
                                         onMouseLeave={() => setCategoriesOpen(false)}
                                     >
                                         {category.map((category) => (
@@ -479,7 +479,7 @@ const Header = () => {
 
             {profileModal && (
                 <div className="fixed inset-0 flex items-center justify-center backdrop-brightness-50 z-[60]">
-                    <div className="border border-gray-300 max-w-7xl w-full mx-4 bg-white rounded-lg shadow-xl overflow-auto-y h-[55vh]">
+                    <div className=" bg-white rounded-md">
                         <div className="relative p-1">
                             <button
                                 onClick={handleProfileModal}

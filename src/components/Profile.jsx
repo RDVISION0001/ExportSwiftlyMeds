@@ -43,11 +43,11 @@ function ProfileWithOrders({ onClose }) {
     }
 
     return (
-        <div className="w-full p-6 bg-white ">
+        <div className="max-w-2xl mx-auto p-6">
             <>
                 <div className="space-y-6">
                     {rows.map((row, rowIndex) => (
-                        <div key={rowIndex} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div key={rowIndex} className="flex flex-col justify-center">
                             {row.map((item, itemIndex) => (
                                 <div key={itemIndex} className="flex items-start">
                                     <div className={`p-2 mr-3 ${item.bgColor} rounded-lg`}>
@@ -67,7 +67,7 @@ function ProfileWithOrders({ onClose }) {
                 <div className='flex justify-center'>
                     <button
                         onClick={logout}
-                        className="mt-8 cursor-pointer flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200"
+                        className="mt-8 cursor-pointer flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 rounded-md transition-colors duration-200"
                     >
                         <FiLogOut className="mr-2" />
                         Logout
