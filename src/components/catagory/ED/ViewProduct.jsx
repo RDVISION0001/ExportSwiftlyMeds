@@ -241,7 +241,7 @@ const ProductDetailPage = () => {
 
     return (
         <>
-            <nav className="hidden md:flex mx-auto pt-3 w-full bg-white fixed top-[138px] z-80 border border-gray-100">
+            <nav className="hidden md:flex mx-auto py-3 w-full bg-white fixed top-[138px] z-10 border border-gray-100">
                 <ol className="inline-flex items-center space-x-2 text-sm font-medium mt-2 mx-4 md:mx-14 overflow-x-auto whitespace-nowrap">
                     <li className="flex items-center">
                         <Link

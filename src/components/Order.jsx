@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axiosInstance from '../AuthContext/AxiosInstance';
 import { useAuth } from '../AuthContext/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +22,12 @@ function Order({ onClose }) {
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const navigate = useNavigate();
+  const topRef = useRef(null);
+
+  useEffect(() => {
+    // topRef.current?.scrollIntoView({ });
+    window.scrollTo({ top: 0 });
+  }, [])
 
   useEffect(() => {
     getOrderHistory();
@@ -97,7 +103,7 @@ function Order({ onClose }) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div ref={topRef} className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-8 flex justify-between items-center">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3">
           <FiShoppingBag className="text-blue-600" />
@@ -105,7 +111,7 @@ function Order({ onClose }) {
         </h1>
         <button
           onClick={continueShopping}
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1 transition-colors"
+          className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1 transition-colors cursor-pointer"
         >
           Continue Shopping <FiArrowRight size={16} />
         </button>
@@ -122,7 +128,7 @@ function Order({ onClose }) {
           </p>
           <button
             onClick={continueShopping}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md flex items-center gap-2 transition-colors text-sm font-medium"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md flex items-center gap-2 transition-colors text-sm font-medium cursor-pointer"
           >
             Browse Products <FiArrowRight size={16} />
           </button>
