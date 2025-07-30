@@ -9,8 +9,11 @@ import {
 import { loadStripe } from "@stripe/stripe-js";
 import axiosInstance from "../../AuthContext/AxiosInstance";
 
-const stripePromiseVox = loadStripe("pk_live_51RY5guKomOVAGS7dAHY7zT0opFxmbzNxNvsR9qwVHg9mnaVAxkGDT0sLztGHAFqXju9FFWXFHjEpIn6rUCNrmZJs001hB3HSlY");
-// const stripePromiseRdvision=loadStripe("pk_live_51KpHlnSAxOboMMomzgtOknKDOwEg9AysCqs6g0O2e9ETloartosrHcf8qOAwOsChi8s5EYN8UHzNn2VgyKirIE6K00TujZ91YB")
+
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+const stripePromiseVox = loadStripe(stripeKey);
+
+
 const CheckoutForm = ({ orderNumber, remark }) => {
   console.log(orderNumber, "hello")
   const stripe = useStripe();
