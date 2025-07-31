@@ -65,7 +65,7 @@ export default function PrescriptionUpload({ onClose }) {
     try {
       setLoading(true)
       const formData = new FormData();
-      formData.append("prescriptionData", JSON.stringify({ email: email }));
+      formData.append("prescriptionData", JSON.stringify({ userId: email }));
       formData.append("file", files[0]);
       const response = await axiosInstance.post(
         `/swift/cart/upload`,
