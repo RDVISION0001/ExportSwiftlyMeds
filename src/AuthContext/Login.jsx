@@ -11,23 +11,21 @@ import { useAuth } from './AuthContext';
 function Login({ onClose }) {
   const { token, setToken, user, setUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [phone, setPhone] = useState('');
-  const [countryCode, setCountryCode] = useState('+91');
+  const [email, setEmail] = useState("");
   const [showOtpField, setShowOtpField] = useState(false);
   const [otp, setOtp] = useState(Array(6).fill(''));
   const [otpSent, setOtpSent] = useState(false);
   const [errors, setErrors] = useState({});
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+91');
   const [password, setPassword] = useState("");
-  const phoneInputRef = useRef(null);
   const inputsRef = useRef([]);
   const navigate = useNavigate();
   const [registerForm, setRegisterForm] = useState(false);
-  const [generateCaptcha, setGenrateCaptcha] = useState("")
-  const [matchCpatcha, setMatchCaptcha] = useState("")
-  const [matched, setMatched] = useState(false)
-
+  const [generateCaptcha, setGenerateCaptcha] = useState("");
+  const [matchCaptcha, setMatchCaptcha] = useState("");
+  const [matched, setMatched] = useState(false);
 
   const countryCodes = [
     { code: '+91', name: 'India', flag: '🇮🇳' },
@@ -35,6 +33,11 @@ function Login({ onClose }) {
     { code: '+44', name: 'UK', flag: '🇬🇧' },
     { code: '+971', name: 'UAE', flag: '🇦🇪' },
   ];
+
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
 
   const handlePhoneChange = (e) => {
     const value = e.target.value.replace(/\D/g, '');
@@ -50,13 +53,14 @@ function Login({ onClose }) {
     for (let i = 0; i < 6; i++) {
       captcha += characters.charAt(Math.floor(Math.random() * characters.length));
     }
-    setGenrateCaptcha(captcha);
+    setGenerateCaptcha(captcha);
+    setMatchCaptcha("");
+    setMatched(false);
   };
 
   useEffect(() => {
     generateCaptchaFunction();
   }, []);
-
 
   const handleChange = (element, index) => {
     const value = element.value.replace(/\D/g, '');
@@ -82,20 +86,14 @@ function Login({ onClose }) {
   };
 
   const sendOtp = async () => {
-    console.log(phone.length)
-    if (phone.length < 10) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Invalid Phone Number',
-        text: 'Phone number must be at least 10 digits.',
-        confirmButtonColor: '#3085d6',
-      });
-      return; // prevent further execution
+    if (!validateEmail(email)) {
+      setErrors({ email: 'Please enter a valid email address' });
+      return;
     }
     try {
       setIsLoading(true);
       const response = await axiosInstance.post(`/swiftlymeds/auth/login`, {
-        swiftUserPhone: countryCode + phone,
+        swiftUserEmail: email,
       });
 
       const { message, token } = response.data;
@@ -104,11 +102,12 @@ function Login({ onClose }) {
         setOtpSent(true);
         setShowOtpField(true);
         setRegisterForm(false);
+        setErrors({});
 
         Swal.fire({
           icon: 'success',
           title: 'OTP Sent',
-          text: `A 6-digit OTP has been sent to ${countryCode}${phone}`,
+          text: `A 6-digit OTP has been sent to ${email}`,
           confirmButtonText: 'OK',
         });
 
@@ -116,27 +115,20 @@ function Login({ onClose }) {
           localStorage.setItem('jwtToken', token);
           setToken(token);
         }
-        setIsLoading(false);
-
       } else if (message === "User not found") {
         setShowOtpField(false);
         setRegisterForm(true);
-        setIsLoading(false)
       }
     } catch (error) {
-      console.error("Error sending OTP:", error);
       Swal.fire({
         icon: 'error',
         title: 'Error',
         text: error.response?.data?.message || 'Failed to send OTP. Please try again.',
-        confirmButtonText: 'OK',
       });
-      setIsLoading(false)
     } finally {
       setIsLoading(false);
     }
   };
-
 
   const handleResendOtp = async () => {
     await sendOtp();
@@ -146,165 +138,145 @@ function Login({ onClose }) {
     e.preventDefault();
     if (!showOtpField) {
       await sendOtp();
-    } else {
-      await handleSignUp();
     }
   };
 
   const handleVerifyOtp = async () => {
-    console.log(generateCaptcha, matchCpatcha)
-    if (generateCaptcha !== matchCpatcha) {
+    if (generateCaptcha !== matchCaptcha) {
       Swal.fire({
         icon: 'warning',
         title: 'CAPTCHA not matched',
       });
-      return; // Exit early if CAPTCHA is wrong
+      return;
     }
 
-    setIsLoading(false)
     const otpCode = otp.join('');
-
     if (otpCode.length < 6) {
       Swal.fire({
         icon: 'warning',
         title: 'Invalid OTP',
         text: 'OTP must be 6 digits long',
       });
-      return; // Exit early
+      return;
     }
+
     try {
-      setIsLoading(true)
-      const fullPhone = countryCode + phone;
-      const otpCode = otp.join('');
+      setIsLoading(true);
       const response = await axiosInstance.post('/swiftlymeds/auth/verify-otp', {
-        swiftUserPhone: fullPhone,
+        swiftUserEmail: email,
         otp: otpCode,
       });
-      localStorage.setItem("jwtToken", response.data.token)
-      setToken(response.data.token)
-      console.log('user', response.data.user)
+
+      localStorage.setItem("jwtToken", response.data.token);
+      setToken(response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
+
       Swal.fire({
         icon: 'success',
         title: `${response.data.message}`,
         html: `
           <div style="
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    ">
-      <img src="${Logo}" 
-          alt="SwiftlyMeds Logo" 
-          style="
-            width: 200px;
-            height: 80px;
-            margin-bottom: 15px;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.5s ease-out;
-          "
-          class="swal-welcome-image"
-          onerror="this.style.display='none'; console.error('Image failed to load')">
-    </div>
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+          ">
+            <img src="${Logo}" 
+                alt="SwiftlyMeds Logo" 
+                style="
+                  width: 200px;
+                  height: 80px;
+                  margin-bottom: 15px;
+                  opacity: 0;
+                  transform: scale(0.8);
+                  transition: all 0.5s ease-out;
+                "
+                class="swal-welcome-image"
+                onerror="this.style.display='none'; console.error('Image failed to load')">
+          </div>
         `,
         timer: 4000,
         showConfirmButton: false,
         didOpen: () => {
-          // Trigger animations after the modal is opened
           setTimeout(() => {
             const image = document.querySelector('.swal2-popup .swal-welcome-image');
-            const message = document.querySelector('.swal2-popup .swal-welcome-message');
-
             if (image) {
               image.style.opacity = '1';
               image.style.transform = 'scale(1)';
             }
-
-            if (message) {
-              message.style.opacity = '1';
-              message.style.transform = 'translateY(0)';
-            }
           }, 100);
         },
         willClose: () => {
-          // Optional closing animations
           const image = document.querySelector('.swal2-popup .swal-welcome-image');
-          const message = document.querySelector('.swal2-popup .swal-welcome-message');
-
           if (image) {
             image.style.opacity = '0';
             image.style.transform = 'scale(0.8)';
           }
-
-          if (message) {
-            message.style.opacity = '0';
-            message.style.transform = 'translateY(-20px)';
-          }
         },
         background: '#ffffff',
         backdrop: `
-    rgba(0,0,0,0.4)
-    url("/images/nyan-cat.gif")
-    left top
-    no-repeat
-  `
+          rgba(0,0,0,0.4)
+          url("/images/nyan-cat.gif")
+          left top
+          no-repeat
+        `,
       });
-      setIsLoading(false)
 
+      setEmail("");
+      setOtp(Array(6).fill(''));
+      setShowOtpField(false);
+      setOtpSent(false);
+      navigate('/dashboard'); // Redirect to dashboard
+      if (onClose) onClose(); // Close modal if provided
     } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Verification Failed',
-        text: error.response?.data?.message || '',
+        text: error.response?.data?.message || 'Invalid OTP. Please try again.',
       });
-      setIsLoading(false)
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleRegister = async () => {
-    setIsLoading(false)
+
     try {
-      setIsLoading(true)
+      setIsLoading(true);
       const response = await axiosInstance.post('/swiftlymeds/auth/signup', {
         swiftUserName: name,
         swiftUserEmail: email,
         swiftUserPhone: countryCode + phone,
-        swiftUserPassword: password
+        swiftUserPassword: password,
       });
-      if (response.data.message === 'Email already registered') {
-        Swal.fire({
-          icon: 'info',
-          title: response.data.message,
-        });
-        setIsLoading(false)
-        return;
-      }
 
       Swal.fire({
         icon: 'success',
         title: response.data.message,
-        text: 'Please login with your phone number.',
+        text: 'Please verify your email with the OTP sent.',
       });
 
       setRegisterForm(false);
       setShowOtpField(true);
-      setOtpSent(false);
+      setOtpSent(true);
       setOtp(Array(6).fill(''));
-      setIsLoading(false)
+      setName("");
+      setPhone("");
+      setPassword("");
+      setErrors({});
+      await sendOtp(); // Automatically send OTP after signup
     } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Registration Failed',
         text: error.response?.data?.message || 'Something went wrong',
       });
-      setIsLoading(false)
+    } finally {
+      setIsLoading(false);
     }
   };
-
-
 
   return (
     <div className="flex flex-col justify-center py-8 sm:px-6 lg:px-8">
@@ -315,53 +287,26 @@ function Login({ onClose }) {
           </h2>
           <p className="text-sm text-gray-600 mb-6">
             {showOtpField && !registerForm
-              ? `We've sent a 6-digit OTP to ${countryCode}${phone}`
+              ? `We've sent a 6-digit OTP to ${email}`
               : 'Sign up or Sign in to access your orders, special offers, health tips and more!'}
           </p>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             {!showOtpField && !registerForm && (
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
                 </label>
-                <div className="mt-1 flex gap-2 rounded-md shadow-sm">
-                  <div className="relative">
-                    <select
-                      value={countryCode}
-                      onChange={(e) => setCountryCode(e.target.value)}
-                      className="h-full py-2 pl-3 rounded-md font-bold border border-gray-300 bg-[#BBFBFF] text-sm appearance-none"
-                      aria-label="Select country code"
-                    >
-                      {countryCodes.map((country) => (
-                        <option key={country.code} value={country.code}>
-                          {country.flag} {country.code}
-                        </option>
-                      ))}
-                    </select>
-                    <FiChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                  </div>
-                  <div className="relative flex-1 flex items-center">
-                    <div className="absolute left-0 pl-3 flex items-center pointer-events-none">
-                      <FiPhone className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      ref={phoneInputRef}
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={phone}
-                      onChange={handlePhoneChange}
-                      placeholder="Enter phone number"
-                      className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                      minLength="8"
-                      maxLength="10"
-                    />
-                  </div>
-                </div>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="your@email.com"
+                  required
+                />
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
             )}
 
@@ -402,16 +347,14 @@ function Login({ onClose }) {
                     <label htmlFor="captcha-input" className="text-sm font-medium text-gray-700">
                       Enter CAPTCHA:
                     </label>
-                    <div className={`text-sm font-medium ${matchCpatcha && (matchCpatcha === generateCaptcha ? 'text-green-600' : 'text-red-600')}`}>
-                      {matchCpatcha && (matchCpatcha === generateCaptcha ? '✓ Match' : '✗ No match')}
+                    <div className={`text-sm font-medium ${matchCaptcha && (matchCaptcha === generateCaptcha ? 'text-green-600' : 'text-red-600')}`}>
+                      {matchCaptcha && (matchCaptcha === generateCaptcha ? '✓ Match' : '✗ No match')}
                     </div>
                   </div>
-
                   <div className="flex items-center space-x-2">
                     <div className="flex-1 bg-white p-2 rounded border border-gray-200 text-center font-mono text-lg tracking-widest select-none">
                       {generateCaptcha}
                     </div>
-
                     <button
                       className="p-2 text-gray-500 hover:text-gray-700"
                       onClick={generateCaptchaFunction}
@@ -421,15 +364,15 @@ function Login({ onClose }) {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
                     </button>
-
                     <input
                       id="captcha-input"
                       type="text"
-                      value={matchCpatcha}
+                      value={matchCaptcha}
                       onChange={(e) => {
                         const input = e.target.value;
                         if (/^[a-zA-Z0-9]{0,6}$/.test(input)) {
                           setMatchCaptcha(input);
+                          setMatched(input === generateCaptcha);
                         }
                       }}
                       maxLength={6}
@@ -439,12 +382,12 @@ function Login({ onClose }) {
                   </div>
                 </div>
                 <button
-                  disabled={isLoading}
+                  disabled={isLoading || !matched || otp.join('').length < 6}
                   type="button"
                   onClick={handleVerifyOtp}
-                  className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-200"
+                  className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 disabled:opacity-50"
                 >
-                  {isLoading ? "Please Wait.." : "Verify OTP"}
+                  {isLoading ? "Please Wait..." : "Verify OTP"}
                 </button>
               </div>
             )}
@@ -464,45 +407,55 @@ function Login({ onClose }) {
                     placeholder="John Doe"
                     required
                   />
+                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                 </div>
-
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number
                   </label>
-                  <input
-                    type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="your@email.com"
-                    required
-                  />
+                  <div className="mt-1 flex gap-2 rounded-md shadow-sm">
+                    <div className="relative">
+                      <select
+                        value={countryCode}
+                        onChange={(e) => setCountryCode(e.target.value)}
+                        className="h-full py-2 pl-3 rounded-md font-bold border border-gray-300 bg-[#BBFBFF] text-sm appearance-none"
+                        aria-label="Select country code"
+                      >
+                        {countryCodes.map((country) => (
+                          <option key={country.code} value={country.code}>
+                            {country.flag} {country.code}
+                          </option>
+                        ))}
+                      </select>
+                      <FiChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                    </div>
+                    <div className="relative flex-1 flex items-center">
+                      <div className="absolute left-0 pl-3 flex items-center pointer-events-none">
+                        <FiPhone className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={phone}
+                        onChange={handlePhoneChange}
+                        placeholder="Enter phone number"
+                        className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                        minLength="8"
+                        maxLength="10"
+                      />
+                    </div>
+                  </div>
+                  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                 </div>
-
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="••••••••"
-                    minLength="8"
-                    required
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
-                </div>
-
                 <button
                   disabled={isLoading}
                   type="button"
                   onClick={handleRegister}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 disabled:opacity-50"
                 >
                   {isLoading ? "Please Wait..." : "Register"}
                 </button>
@@ -512,11 +465,10 @@ function Login({ onClose }) {
             {!showOtpField && !registerForm && (
               <button
                 type="submit"
-                disabled={isLoading}
-                className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold bg-[#BBFBFF] hover:bg-[#4ED7F1] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${isLoading || phone.length < 8 ? 'opacity-80 cursor-not-allowed' : ''
-                  }`}
+                disabled={isLoading || !email}
+                className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold bg-[#BBFBFF] hover:bg-[#4ED7F1] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${isLoading || !email ? 'opacity-80 cursor-not-allowed' : ''}`}
               >
-                {isLoading ? "Please Wait " : "Continue"}
+                {isLoading ? "Please Wait..." : "Continue"}
               </button>
             )}
           </form>
