@@ -341,7 +341,6 @@ const Header = () => {
                                 <button
                                     className="px-3 py-2 rounded-md cursor-pointer text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center"
                                     onClick={() => setCategoriesOpen(!categoriesOpen)}
-                                    onMouseEnter={() => setCategoriesOpen(true)}
                                 >
                                     <FaBoxes className="mr-2 text-indigo-500" />
                                     Categories
