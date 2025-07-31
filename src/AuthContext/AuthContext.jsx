@@ -27,6 +27,7 @@ export function AuthProvider({ children }) {
       const [refresh,setRefresh] = useState(1);
       const [cartCount,setCartCount] = useState('');
       const [messagesFrom,setMessagesFrom]=useState([])
+      const [productData,setProductData] = useState()
 
 
     const logout = async () => {
@@ -81,6 +82,7 @@ export function AuthProvider({ children }) {
             logout, // Add the logout function to the context,
             refresh,setRefresh,
             cartCount,setCartCount,
+            productData,setProductData
         }}>
             {children}
         </AuthContext.Provider>
