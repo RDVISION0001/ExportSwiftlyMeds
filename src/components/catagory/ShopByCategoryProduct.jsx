@@ -374,7 +374,7 @@ const ShopByCategoryProduct = () => {
                                     <button
                                         className="mt-auto bg-white text-green-600 border border-green-600 rounded-full px-6 py-2 hover:bg-green-600 hover:text-white transition-colors hover:shadow-md transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                         aria-label={`Buy ${product.name} now`}
-                                    >
+                                     >
                                         BUY NOW
                                     </button>
                                 </div>

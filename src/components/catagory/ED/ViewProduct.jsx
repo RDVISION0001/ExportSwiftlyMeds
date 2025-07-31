@@ -21,7 +21,7 @@ const ProductDetailPage = () => {
     };
 
     const location = useLocation();
-    const { product } = location.state || {};
+    const { product } = location.state || {};  
     const topRef = useRef(null);
     const [activeImage, setActiveImage] = useState(0);
     const [openAccordion, setOpenAccordion] = useState(null);
@@ -137,7 +137,7 @@ const ProductDetailPage = () => {
             setLoading(prev => ({ ...prev, [loadingKey]: false }));
         }
 
-      
+
     };
 
     const updateQuantity = async (productId, newQuantity, priceId, action) => {
@@ -668,8 +668,8 @@ const ProductDetailPage = () => {
                                     </div>
                                 ))}
                                 <div className="text-center mt-4">
-                                    <button 
-                                        onClick={() => navigate('/shipping')} 
+                                    <button
+                                        onClick={() => navigate('/shipping')}
                                         className="bg-green-400 rounded-md px-3 py-2 text-white cursor-pointer text-sm sm:text-base w-full sm:w-auto"
                                     >
                                         Go to Cart

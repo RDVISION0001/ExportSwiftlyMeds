@@ -79,6 +79,7 @@ function Home1() {
           keyword: searchItem,
         },
       });
+      setSearchItem("")
       // Ensure productList is an array, default to empty array if undefined
       setSearchResults(response.data.productList || []);
       console.log('Search Results:', response.data); // Log for debugging
@@ -150,8 +151,8 @@ function Home1() {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSearch}
                 className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-3 sm:px-6 py-1 sm:py-2 rounded-full flex items-center hover:bg-blue-700 transition-colors shadow-md text-sm sm:text-base cursor-pointer"
-              >
-                <FaSearch className="mr-1 sm:mr-2" /> Search
+               >
+                {loading ? ( "Searching..." ) : ( <> <FaSearch className="mr-1 sm:mr-2" /> Search </> )}
               </motion.button>
             </motion.div>
 
