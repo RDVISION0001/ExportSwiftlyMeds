@@ -15,12 +15,14 @@ import { useAuth } from "../../AuthContext/AuthContext";
 const stripePromiseVox = loadStripe("pk_live_51RY5guKomOVAGS7dAHY7zT0opFxmbzNxNvsR9qwVHg9mnaVAxkGDT0sLztGHAFqXju9FFWXFHjEpIn6rUCNrmZJs001hB3HSlY");
 // const stripePromiseVox = loadStripe("pk_test_51RY5guKomOVAGS7djPG0yRUk9OHOglAA3haDBNIKDz70klhrJ515LpcDNOcBzO12aCQZNosK1SaZj0mHAoJ39zYy00O3gEYnhK")
 // const stripePromiseRdvision=loadStripe("pk_live_51KpHlnSAxOboMMomzgtOknKDOwEg9AysCqs6g0O2e9ETloartosrHcf8qOAwOsChi8s5EYN8UHzNn2VgyKirIE6K00TujZ91YB")
+// ... (imports remain the same)
+
 const CheckoutForm = ({ closeFunction }) => {
   const navigate = useNavigate()
   const stripe = useStripe();
   const elements = useElements();
   const [message, setMessage] = useState("");
-  const [loading,setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const { setCartCount } = useAuth();
 
@@ -32,28 +34,23 @@ const CheckoutForm = ({ closeFunction }) => {
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        // NO return_url – to prevent redirection
         payment_method_data: {
           billing_details: {
-            // Optional if using AddressElement
             name: 'Customer Name',
             email: 'customer@example.com',
           },
         },
       },
-      redirect: 'if_required', // This prevents redirection for cards that don't need 3D Secure
+      redirect: 'if_required',
     });
 
-    // Handle the result
     if (result.error) {
-      // ❌ Payment failed
       Swal.fire({
         icon: 'error',
         title: 'Payment Failed',
         text: result.error.message || 'There was an issue with your payment.',
       });
     } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-      // ✅ Payment succeeded
       Swal.fire({
         icon: 'success',
         title: 'Payment Successful',
@@ -61,28 +58,27 @@ const CheckoutForm = ({ closeFunction }) => {
       });
 
       setTimeout(() => {
-        closeFunction()
-        navigate("/orders")
-        setCartCount(0)
-      }, 3000)
+        closeFunction();
+        navigate("/orders");
+        setCartCount(0);
+      }, 3000);
     } else {
-      // 🚧 Possibly requires action (like 3D Secure)
       Swal.fire({
         icon: 'info',
         title: 'Additional Authentication Required',
         text: 'Please complete the authentication to proceed with payment.',
       });
     }
+
     setLoading(false);
   };
 
-
   return (
-    <form onSubmit={handleSubmit} className="w-[35vw] p-6 rounded-lg space-y-6">
-      {/* Address input */}
+    <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto p-4 sm:p-6 md:p-8 space-y-6 rounded-lg bg-white shadow">
       {message && (
         <div className="text-sm text-center text-red-600 mt-4">{message}</div>
       )}
+
       <div>
         <label className="block text-sm font-medium mb-2">Billing Address</label>
         <AddressElement
@@ -99,7 +95,6 @@ const CheckoutForm = ({ closeFunction }) => {
         />
       </div>
 
-      {/* Payment method selection */}
       <div>
         <label className="block text-sm font-medium mb-2">Payment Method</label>
         <PaymentElement options={{ layout: "tabs" }} />
@@ -112,8 +107,6 @@ const CheckoutForm = ({ closeFunction }) => {
       >
         {loading ? "Processing..." : "Pay"}
       </button>
-
-
     </form>
   );
 };
@@ -124,8 +117,8 @@ const CheckoutButtonSwift = ({ userId, addressId, closeFunction }) => {
   useEffect(() => {
     axiosInstance
       .post("/api/payment/swift/create-payment-intent", {
-        userId, // or "vox"
-        addressId,         // optional: if you want to control amount from frontend
+        userId,
+        addressId,
         currency: "usd",
       })
       .then((res) => setClientSecret(res.data.clientSecret))
@@ -140,10 +133,11 @@ const CheckoutButtonSwift = ({ userId, addressId, closeFunction }) => {
     clientSecret,
     appearance,
   };
+
   return (
-    <div className="flex items-center w-[35vw] justify-center">
+    <div className="flex items-center justify-center px-4 py-8">
       {clientSecret && (
-        <Elements stripe={stripePromiseVox} options={options} >
+        <Elements stripe={stripePromiseVox} options={options}>
           <CheckoutForm closeFunction={closeFunction} />
         </Elements>
       )}

@@ -323,7 +323,7 @@ function ShippingCart() {
         </div>
         {/* Right side - Fixed order summary */}
         <div className="lg:w-1/3">
-          <div className="border border-gray-200 rounded-lg p-4 sm:p-6 sticky top-4 my-2">
+          <div className="border border-gray-200 rounded-lg top-4 my-2">
             <div>
               <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
                 <FiShoppingBag className="text-green-600 w-5 h-5" />
