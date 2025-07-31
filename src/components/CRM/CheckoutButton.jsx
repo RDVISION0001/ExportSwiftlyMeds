@@ -9,13 +9,10 @@ import {
 import { loadStripe } from "@stripe/stripe-js";
 import axiosInstance from "../../AuthContext/AxiosInstance";
 
-
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 const stripePromiseVox = loadStripe(stripeKey);
 
-
 const CheckoutForm = ({ orderNumber, remark }) => {
-  console.log(orderNumber, "hello")
   const stripe = useStripe();
   const elements = useElements();
   const [message, setMessage] = useState("");
@@ -30,7 +27,6 @@ const CheckoutForm = ({ orderNumber, remark }) => {
       elements,
       confirmParams: {
         return_url: `https://swiftlymeds.com/success/${orderNumber}`,
-        // billing_details will be taken from AddressElement automatically
       },
     });
 
@@ -41,13 +37,15 @@ const CheckoutForm = ({ orderNumber, remark }) => {
     setLoading(false);
   };
 
-
   return (
-    <form onSubmit={handleSubmit} className="w-[35vw] p-6 rounded-lg space-y-6">
-      {/* Address input */}
+    <form
+      onSubmit={handleSubmit}
+      className="w-full max-w-md mx-auto p-4 sm:p-6 md:p-8 space-y-6 rounded-lg bg-white shadow"
+    >
       {message && (
-        <div className="text-sm text-center text-red-600 mt-4">{message}</div>
+        <div className="text-sm text-center text-red-600 mt-2">{message}</div>
       )}
+
       <div>
         <label className="block text-sm font-medium mb-2">Billing Address</label>
         <AddressElement
@@ -64,7 +62,6 @@ const CheckoutForm = ({ orderNumber, remark }) => {
         />
       </div>
 
-      {/* Payment method selection */}
       <div>
         <label className="block text-sm font-medium mb-2">Payment Method</label>
         <PaymentElement options={{ layout: "tabs" }} />
@@ -73,27 +70,24 @@ const CheckoutForm = ({ orderNumber, remark }) => {
       <button
         type="submit"
         disabled={!stripe || loading}
-        className="w-full py-2 px-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700"
+        className="w-full py-2 px-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
       >
         {loading ? "Processing..." : "Pay"}
       </button>
-
-
     </form>
   );
 };
 
 const CheckoutButton = ({ orderNumber, remark }) => {
   const [clientSecret, setClientSecret] = useState("");
-  console.log("Order number :- ", orderNumber)
 
   useEffect(() => {
     axiosInstance
       .post("/api/payment/create-payment-intent", {
-        accountType: "vox", // or "vox"
-        amount: 5549,         // optional: if you want to control amount from frontend
+        accountType: "vox",
+        amount: 5549,
         currency: "usd",
-        orderNumber       // optional: "inr", "usd", etc.
+        orderNumber,
       })
       .then((res) => setClientSecret(res.data.clientSecret))
       .catch((err) => console.error("PaymentIntent error:", err));
@@ -107,9 +101,9 @@ const CheckoutButton = ({ orderNumber, remark }) => {
     clientSecret,
     appearance,
   };
-  console.log("Remark is ", remark)
+
   return (
-    <div className="flex items-center w-[35vw] justify-center">
+    <div className="w-full  flex items-center justify-center px-4 py-8 bg-gray-50">
       {clientSecret && (
         <Elements stripe={stripePromiseVox} options={options}>
           <CheckoutForm orderNumber={orderNumber} remark={remark} />
