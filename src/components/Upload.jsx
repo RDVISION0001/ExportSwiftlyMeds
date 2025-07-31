@@ -65,7 +65,7 @@ export default function PrescriptionUpload({ onClose }) {
     try {
       setLoading(true)
       const formData = new FormData();
-      formData.append("prescriptionData", JSON.stringify({ userId: email }));
+      formData.append("prescriptionData", JSON.stringify({ swiftUserEmail: email }));
       formData.append("file", files[0]);
       const response = await axiosInstance.post(
         `/swift/cart/upload`,
@@ -86,10 +86,11 @@ export default function PrescriptionUpload({ onClose }) {
       });
       onClose(false);
     } catch (error) {
+      console.log(error)
       setLoading(false)
       Swal.fire({
         title: "Upload Failed",
-        text: "Failed to upload prescription. Please try again.",
+        text: error.response.data.message,
         icon: "error",
         confirmButtonText: "Retry",
       });

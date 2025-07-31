@@ -97,29 +97,29 @@ function ContactUs() {
 
                 {/* Hero Section */}
                 <div className="flex flex-col md:flex-row justify-between items-center gap-12 mb-16">
-  <div className="md:w-1/2">
-    <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">
-      SwiftlyMeds
-    </h2>
-    <p className="text-lg text-gray-600 mb-4">
-      Trusted Global Supplier of Quality Medications
-    </p>
-    <p className="text-lg font-medium text-gray-700">
-      Our Mission: Providing Affordable Healthcare Worldwide
-    </p>
-    <p className="text-gray-600 mt-4">
-      We specialize in prescription medications for chronic conditions including Hepatitis, Cancer treatments, and Kidney disease management.
-    </p>
-  </div>
-  <div className="md:w-1/2 flex justify-center">
-    <img
-      src={contact}
-      alt="Pharmaceutical medicines and healthcare products"
-      className="w-full max-w-md rounded-lg shadow-md"
-      loading="lazy"
-    />
-  </div>
-</div>
+                    <div className="md:w-1/2">
+                        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">
+                            SwiftlyMeds
+                        </h2>
+                        <p className="text-lg text-gray-600 mb-4">
+                            Trusted Global Supplier of Quality Medications
+                        </p>
+                        <p className="text-lg font-medium text-gray-700">
+                            Our Mission: Providing Affordable Healthcare Worldwide
+                        </p>
+                        <p className="text-gray-600 mt-4">
+                            We specialize in prescription medications for chronic conditions including Hepatitis, Cancer treatments, and Kidney disease management.
+                        </p>
+                    </div>
+                    <div className="md:w-1/2 flex justify-center">
+                        <img
+                            src={contact}
+                            alt="Pharmaceutical medicines and healthcare products"
+                            className="w-full max-w-md rounded-lg shadow-md"
+                            loading="lazy"
+                        />
+                    </div>
+                </div>
 
                 {/* Contact Form Section */}
                 <div className="bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 rounded-xl">
@@ -137,7 +137,7 @@ function ContactUs() {
                                         <h2 className="text-xl font-semibold text-gray-800 mb-4">Visit Our Store</h2>
                                         <p className="text-gray-600 mb-6">Take our wellness test to find the perfect products for your needs.</p>
                                         <a
-                                            href="https://www.google.com/maps/search/H-6-K+Chandra+Chauraha+SA+20%2F205+Ashapur+Road+Hanuman+Nagar+Ashapur+Varanasi+Uttar+Pradesh+221007"
+                                            href="https://share.google/WbFjDNgTkFkMsu5lY"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="inline-block bg-black hover:bg-gray-800 text-white font-medium py-2 px-6 rounded-md transition-colors duration-200"
@@ -171,7 +171,7 @@ function ContactUs() {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 </svg>
                                                 <div>
-                                                    <a href="https://www.google.com/maps/search/H-6-K+Chandra+Chauraha+SA+20%2F205+Ashapur+Road+Hanuman+Nagar+Ashapur+Varanasi+Uttar+Pradesh+221007"
+                                                    <a href="https://share.google/WbFjDNgTkFkMsu5lY"
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="hover:underline hover:text-gray-700">
@@ -283,9 +283,11 @@ function ContactUs() {
                                 <p className='text-lg text-gray-600'>
                                     Discover personalized wellness solutions tailored just for you
                                 </p>
-                                <button className='px-8 py-3 rounded-lg bg-black text-white font-medium hover:bg-gray-800 transition-colors duration-300 shadow-lg mt-6'>
+                                <a href='https://share.google/WbFjDNgTkFkMsu5lY'
+                                    target='_blank'
+                                    className='px-8 py-3 rounded-lg bg-black text-white font-medium hover:bg-gray-800 transition-colors duration-300 shadow-lg mt-6'>
                                     Visit Store
-                                </button>
+                                </a>
                             </div>
                             {/* <div className='md:w-1/2 flex justify-center'>
                                 <img
