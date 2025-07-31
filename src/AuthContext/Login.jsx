@@ -228,7 +228,6 @@ function Login({ onClose }) {
       setOtp(Array(6).fill(''));
       setShowOtpField(false);
       setOtpSent(false);
-      navigate('/dashboard'); // Redirect to dashboard
       if (onClose) onClose(); // Close modal if provided
     } catch (error) {
       Swal.fire({

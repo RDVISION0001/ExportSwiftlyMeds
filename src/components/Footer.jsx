@@ -151,7 +151,7 @@ const Footer = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <div>
-                  <a href="https://www.google.com/maps/search/H-6-K+Chandra+Chauraha+SA+20%2F205+Ashapur+Road+Hanuman+Nagar+Ashapur+Varanasi+Uttar+Pradesh+221007"
+                  <a href="https://share.google/WbFjDNgTkFkMsu5lY"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:underline hover:text-gray-300">
