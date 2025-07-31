@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaSearch, FaHistory, FaPlusCircle, FaBell, FaUserCircle } from 'react-icons/fa';
 import { MdMedication, MdLocalPharmacy } from 'react-icons/md';
 
 const PrescriptionRefills = () => {
   const [activeTab, setActiveTab] = useState('current');
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const topref = useRef(null);
+
+  useEffect(() =>{
+    topref.current?.scrollIntoView({ behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [])
   // Sample data
   const currentPrescriptions = [
     {
@@ -48,7 +53,7 @@ const PrescriptionRefills = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div ref={topref} className="min-h-screen bg-gray-50">
 
       {/* Main Content */}
       <main className="container mx-auto p-4 md:p-6">
