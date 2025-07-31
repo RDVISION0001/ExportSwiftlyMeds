@@ -29,6 +29,7 @@ import PaymentSuccess from './components/CRM/PaymentSuccess';
 import PaymentFailed from './components/CRM/PaymentFailed';
 import { useAuth } from './AuthContext/AuthContext';
 import Order from './components/Order';
+import PrescriptionRefills from './components/PrescriptionRelif';
 
 
 // Create a ProtectedRoute component
@@ -62,7 +63,6 @@ function App() {
         <Route path='/newArive' element={<NewArrive />} />
         <Route path='/proserve' element={<ProductServices />} />
         <Route path='/review' element={<GoogleReviews />} />
-        <Route path='/priRefil' element={<PrescriptionRelief />} />
         <Route path='/our' element={<OurMission />} />
         <Route path='/career' element={<Career />} />
         <Route path='/login' element={<Login />} />
@@ -77,6 +77,7 @@ function App() {
         <Route path="/checkout/:orderNumber" element={<CrmPayment />} />
         <Route path="/success/:orderNumber" element={<PaymentSuccess />} />
         <Route path="/failed/:orderNumber" element={<PaymentFailed />} />
+        <Route path='/priRefil' element={<PrescriptionRefills/>}/>
         
 
         
