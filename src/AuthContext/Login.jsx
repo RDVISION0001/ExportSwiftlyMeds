@@ -50,7 +50,7 @@ function Login({ onClose }) {
   const generateCaptchaFunction = () => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let captcha = '';
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 4; i++) {
       captcha += characters.charAt(Math.floor(Math.random() * characters.length));
     }
     setGenerateCaptcha(captcha);
@@ -61,6 +61,20 @@ function Login({ onClose }) {
   useEffect(() => {
     generateCaptchaFunction();
   }, []);
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData('text/plain').replace(/\D/g, '');
+    if (pasteData.length === 6) {
+      const newOtp = pasteData.split('').slice(0, 6);
+      setOtp(newOtp);
+      
+      // Focus on the last input after paste
+      if (inputsRef.current[5]) {
+        inputsRef.current[5].focus();
+      }
+    }
+  };
 
   const handleChange = (element, index) => {
     const value = element.value.replace(/\D/g, '');
@@ -95,28 +109,18 @@ function Login({ onClose }) {
       const response = await axiosInstance.post(`/swiftlymeds/auth/login`, {
         swiftUserEmail: email,
       });
-
-      const { message, token } = response.data;
-
-      if (message === "OTP sent") {
+      if (response.data.message == "OTP sent") {
         setOtpSent(true);
         setShowOtpField(true);
         setRegisterForm(false);
-        setErrors({});
-
         Swal.fire({
           icon: 'success',
           title: 'OTP Sent',
           text: `A 6-digit OTP has been sent to ${email}`,
           confirmButtonText: 'OK',
         });
-
-        if (token) {
-          localStorage.setItem('jwtToken', token);
-          setToken(token);
-        }
-      } else if (message === "User not found") {
-        setShowOtpField(false);
+      } else {
+        setShowOtpField(true);
         setRegisterForm(true);
       }
     } catch (error) {
@@ -130,7 +134,8 @@ function Login({ onClose }) {
     }
   };
 
-  const handleResendOtp = async () => {
+  const handleResendOtp = async () => {    
+    setOtp(Array(6).fill(''));
     await sendOtp();
   };
 
@@ -166,15 +171,25 @@ function Login({ onClose }) {
         swiftUserEmail: email,
         otp: otpCode,
       });
-
+      if (response.data.message == "Invalid OTP") {
+        Swal.fire({
+          icon: 'error',
+          title: 'Verification Failed',
+          text: response.data.message
+        });
+        return;
+      }
       localStorage.setItem("jwtToken", response.data.token);
       setToken(response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
-
+      setEmail("");
+      setOtp(Array(6).fill(''));
+      setShowOtpField(false);
+      setOtpSent(false);
       Swal.fire({
         icon: 'success',
-        title: `${response.data.message}`,
+        title: `${response.data.message} , Login Successfully`,
         html: `
           <div style="
             display: flex;
@@ -183,8 +198,8 @@ function Login({ onClose }) {
             justify-content: center;
             text-align: center;
           ">
-            <img src="${Logo}" 
-                alt="SwiftlyMeds Logo" 
+            <img src="${Logo}"
+                alt="SwiftlyMeds Logo"
                 style="
                   width: 200px;
                   height: 80px;
@@ -223,12 +238,7 @@ function Login({ onClose }) {
           no-repeat
         `,
       });
-
-      setEmail("");
-      setOtp(Array(6).fill(''));
-      setShowOtpField(false);
-      setOtpSent(false);
-      if (onClose) onClose(); // Close modal if provided
+      if (onClose) onClose();
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -241,7 +251,6 @@ function Login({ onClose }) {
   };
 
   const handleRegister = async () => {
-
     try {
       setIsLoading(true);
       const response = await axiosInstance.post('/swiftlymeds/auth/signup', {
@@ -250,7 +259,6 @@ function Login({ onClose }) {
         swiftUserPhone: countryCode + phone,
         swiftUserPassword: password,
       });
-
       Swal.fire({
         icon: 'success',
         title: response.data.message,
@@ -265,7 +273,7 @@ function Login({ onClose }) {
       setPhone("");
       setPassword("");
       setErrors({});
-      await sendOtp(); // Automatically send OTP after signup
+      await sendOtp();
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -314,7 +322,7 @@ function Login({ onClose }) {
                 <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
                   Enter OTP
                 </label>
-                <div className="flex justify-center space-x-2 mt-4">
+                <div className="flex justify-center space-x-2 mt-4" onPaste={handlePaste}>
                   {otp.map((digit, index) => (
                     <input
                       key={index}
@@ -327,6 +335,7 @@ function Login({ onClose }) {
                       value={digit}
                       onChange={(e) => handleChange(e.target, index)}
                       onKeyDown={(e) => handleKeyDown(e, index)}
+                      onFocus={(e) => e.target.select()}
                     />
                   ))}
                 </div>
