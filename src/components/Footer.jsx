@@ -202,7 +202,6 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-3  border-b-1 border-gray-600 inline pb-1 ">Shop</h4>
             <ul className="space-y-2 mt-2">
-              <li><Link to="/newArive" className="hover:text-blue-600 hover:underline">New Arrivals</Link></li>
               <li><Link to="/manufacture" className="hover:text-blue-600 hover:underline">Best Sellers</Link></li>
               <li><Link to="/" className="hover:text-blue-600 hover:underline">Swiftly Marketplace</Link></li>
               <li><Link to="/marketArea" className="hover:text-blue-600 hover:underline">Target Country</Link></li>
@@ -242,11 +241,11 @@ const Footer = () => {
             <ul className="space-y-2 mt-2">
               <li><Link to="/privacy" className="hover:text-blue-600 hover:underline">Privacy Policy</Link></li>
               <div className="flex justify-start items-center gap-2">
-                <li><Link to="/hipaa" className="hover:text-blue-600 hover:underline">Hipaa Policy</Link></li>
+                <li><Link to="/hipaa" className="hover:text-blue-600 hover:underline">Hipaa Compliance</Link></li>
                 <img src={hippa} alt="" className="h-10 w-10 rounded-full" />
               </div>
               <div className="flex justify-start items-center gap-2">
-                <li><Link to="/pci-dss" className="hover:text-blue-600 hover:underline">PCI DSS Policy</Link></li>
+                <li><Link to="/pci-dss" className="hover:text-blue-600 hover:underline">PCI DSS Compliance</Link></li>
                 <img src={pci} alt="" className="h-10 w-10 rounded-full" />
               </div>
               <li><Link to="/refund" className="hover:text-blue-600 hover:underline">Return / Refund Policy</Link></li>
