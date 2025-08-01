@@ -3,6 +3,8 @@ import { FiCalendar, FiClock } from 'react-icons/fi';
 import axiosInstance from '../../AuthContext/AxiosInstance';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../AuthContext/AuthContext';
+import Swal from 'sweetalert2';
+import { title } from 'framer-motion/client';
 
 function ScheduleCall() {
   const { id: ticketId } = useParams();
@@ -13,8 +15,6 @@ function ScheduleCall() {
   const [time, setTime] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-
   const handleSchedule = async (e) => {
     e.preventDefault();
     setError('');
@@ -36,8 +36,14 @@ function ScheduleCall() {
     const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     
     const response = await axiosInstance.put(`/ticket/schedule_call/${ticketId}`, payload );
-    
-      setSuccess(true);
+    Swal.fire({
+        icon: 'success',
+        title: 'success',
+        text: response.data.message || 'Call Schedule Successfully',
+        showConfirmButton: 'ok'
+    })
+    setDate('')
+    setTime('');
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to schedule call');
     } finally {
@@ -56,14 +62,6 @@ function ScheduleCall() {
 
         {/* Form Section */}
         <div className="p-6">
-          {success ? (
-            <div className="text-center py-4">
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                Call scheduled successfully!
-              </div>
-              <p>You'll be redirected shortly...</p>
-            </div>
-          ) : (
             <form onSubmit={handleSchedule} className="space-y-6">
               {/* Date Input */}
               <div>
@@ -116,7 +114,6 @@ function ScheduleCall() {
                 {isLoading ? 'Scheduling...' : 'Schedule Call'}
               </button>
             </form>
-          )}
         </div>
       </div>
     </div>
