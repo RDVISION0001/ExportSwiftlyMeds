@@ -29,6 +29,7 @@ import PaymentFailed from './components/CRM/PaymentFailed';
 import { useAuth } from './AuthContext/AuthContext';
 import Order from './components/Order';
 import PrescriptionRefills from './components/PrescriptionRelif';
+import ScheduleCall from './components/schedulCall/SchedulCall';
 
 
 // Create a ProtectedRoute component
@@ -76,6 +77,7 @@ function App() {
         <Route path="/success/:orderNumber" element={<PaymentSuccess />} />
         <Route path="/failed/:orderNumber" element={<PaymentFailed />} />
         <Route path='/priRefil' element={<PrescriptionRefills/>}/>
+        <Route path='/schedul/:id' element={<ScheduleCall/>}/>
         
 
         
