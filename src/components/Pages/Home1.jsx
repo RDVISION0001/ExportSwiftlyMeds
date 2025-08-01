@@ -12,6 +12,7 @@ import Upload from '../Upload';
 import ShopByCategory from '../catagory/ShopByCategory';
 import SearchResults from '../catagory/SearchResults';
 import { useAuth } from '../../AuthContext/AuthContext';
+import axiosInstance from '../../AuthContext/AxiosInstance';
 
 function Home1() {
   const { searchItem, setSearchItem } = useAuth();
@@ -71,7 +72,7 @@ function Home1() {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get('http://192.168.1.25:8081/product/search', {
+      const response = await axiosInstance.get('/product/search', {
         params: {
           itemsPerPage: 10,
           requestFrom: 'swift',
