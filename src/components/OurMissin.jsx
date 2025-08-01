@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const OurMissin = () => {
+
+  const topRef = useRef(null);
+
+  useEffect(() =>{
+    topRef.current?.scrollIntoView({ behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [])
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div ref={topRef} className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
         <div className="max-w-4xl mx-auto text-center">
