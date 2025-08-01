@@ -29,13 +29,13 @@ import PaymentFailed from './components/CRM/PaymentFailed';
 import { useAuth } from './AuthContext/AuthContext';
 import Order from './components/Order';
 import PrescriptionRefills from './components/PrescriptionRelif';
-import ScheduleCall from './components/schedulCall/SchedulCall';
+import Unsubscribe from './components/Unsubscribe';
 
 
 // Create a ProtectedRoute component
 const ProtectedRoute = ({ children }) => {
   const { token } = useAuth();
-  
+
   if (!token) {
     // Redirect to home page if not authenticated
     return <Navigate to="/" replace />;
@@ -46,7 +46,7 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   const { token } = useAuth();
-  
+
   return (
     <Router>
       <Header />
@@ -78,9 +78,9 @@ function App() {
         <Route path="/failed/:orderNumber" element={<PaymentFailed />} />
         <Route path='/priRefil' element={<PrescriptionRefills/>}/>
         <Route path='/schedul/:id' element={<ScheduleCall/>}/>
-        
+        <Route path='/unsubscribe/:email' element={<Unsubscribe />} />
 
-        
+
         {/* Protected routes - require token */}
         <Route path='/view' element={
           <ProtectedRoute>
