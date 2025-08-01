@@ -30,6 +30,7 @@ import { useAuth } from './AuthContext/AuthContext';
 import Order from './components/Order';
 import PrescriptionRefills from './components/PrescriptionRelif';
 import Unsubscribe from './components/Unsubscribe';
+import ScheduleCall from './components/schedulCall/SchedulCall';
 
 
 // Create a ProtectedRoute component
