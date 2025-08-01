@@ -5,6 +5,7 @@ import emcure from '../../assets/Brand/emcure.jpg';
 import cipla from '../../assets/Brand/Cipla.jpg';
 import hetro from '../../assets/Brand/Hetero.jpg';
 import roche from '../../assets/Brand/Roche.jpg';
+import ShopByBrand from '../catagory/ShopByBrand';
 
 function Home2() {
 
@@ -74,46 +75,33 @@ function Home2() {
     ]
 
     return (
-        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold text-gray-800 mb-4">WHY CHOOSE US?</h2>
-                <div className="w-20 h-1 bg-blue-500 mx-auto"></div>
-            </div>
+        <>
+            <div className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+                <div className="text-center mb-16">
+                    <h2 className="text-4xl font-bold text-gray-800 mb-4">WHY CHOOSE US?</h2>
+                    <div className="w-20 h-1 bg-blue-500 mx-auto"></div>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {benefits.map((benefit, index) => (
-                    <div
-                        key={index}
-                        className="bg-gray-100 p-8 rounded-lg shadow-md hover:shadow-xl duration-300 hover:-translate-y-2 transition-transform"
-                    >
-                        <div className="text-blue-500 mb-6">
-                            {benefit.icon}
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-800 mb-3">{benefit.title}</h3>
-                        <p className="text-gray-600">{benefit.description}</p>
-                    </div>
-                ))}
-            </div>
-            <div className='py-20'>
-                <h2 className='text-4xl font-bold text-gray-800 mb-4 text-center'>Our Valuable Brand</h2>
-                <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 space-x-10 '>
-                    {brand.map((img, index) => (
-                        <div key={index}
-                            className="bg-white shadow-xl rounded-lg p-4 cursor-pointer mt-10 
-                  transition-all duration-300 ease-in-out 
-                  hover:shadow-2xl hover:scale-[1.02] hover:border hover:border-blue-100
-                  transform-gpu"
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {benefits.map((benefit, index) => (
+                        <div
+                            key={index}
+                            className="bg-gray-100 p-8 rounded-lg shadow-md hover:shadow-xl duration-300 hover:-translate-y-2 transition-transform"
                         >
-                            <img
-                                src={img.image}
-                                alt={img.alt || "Product image"}
-                                className="w-40 h-auto object-contain transition-opacity duration-300 hover:opacity-90"
-                            />
+                            <div className="text-blue-500 mb-6">
+                                {benefit.icon}
+                            </div>
+                            <h3 className="text-xl font-semibold text-gray-800 mb-3">{benefit.title}</h3>
+                            <p className="text-gray-600">{benefit.description}</p>
                         </div>
                     ))}
                 </div>
             </div>
-            <div className="bg-gray-50 p-6 md:p-8 rounded-lg border border-gray-200">
+            <div className='py-20'>
+                <h2 className='text-4xl font-bold text-gray-800 mb-4 text-center'>Our Valuable Brand</h2>
+                <ShopByBrand />
+            </div>
+            <div className="bg-gray-50 p-6 md:p-8 rounded-lg border border-gray-200 max-w-7xl mx-auto">
                 <h2 className="text-2xl font-bold mb-4">MEDICAL DISCLAIMER</h2>
                 <p className="mb-4">
                     <strong>Swiftly Meds Private Limited</strong> only expresses opinions and provides information.
@@ -129,7 +117,7 @@ function Home2() {
                     Resellers, Medical Institutions and Pharmacies.
                 </p>
             </div>
-        </section>
+        </>
     )
 }
 

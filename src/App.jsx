@@ -10,7 +10,6 @@ import FAQ from './components/Pages/Faq';
 import Blog from './components/blog/Blog';
 import Manufacturer from './components/Pages/Manufacuter';
 import PrivacyPolicy from './components/Privacy';
-import NewArrive from './components/NewArrive';
 import ProductServices from './components/ProductServices';
 import GoogleReviews from './components/GoogleReview';
 import PrescriptionRelief from './components/PrescriptionRefills';
@@ -60,7 +59,6 @@ function App() {
         <Route path='/proserve' element={<ProductServices/>}/>
         <Route path='/manufacture' element={<Manufacturer />} />
         <Route path='/privacy' element={<PrivacyPolicy />} />
-        <Route path='/newArive' element={<NewArrive />} />
         <Route path='/proserve' element={<ProductServices />} />
         <Route path='/review' element={<GoogleReviews />} />
         <Route path='/our' element={<OurMission />} />

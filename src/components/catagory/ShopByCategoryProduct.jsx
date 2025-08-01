@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { IoSearchOutline, IoArrowForward, IoMenu, IoClose, IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { useAuth } from '../../AuthContext/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../AuthContext/AxiosInstance';
 
 const currencyRates = {
@@ -37,6 +37,12 @@ const ShopByCategoryProduct = () => {
     const itemsPerPage = itemsPerpage || 20;
     const navigate = useNavigate();
     const topRef = useRef(null);
+    const location = useLocation();
+    const brandId = location.state?.item?.brandId || location.state?.brandId;
+    const manufacturerId = location.state?.manufacture?.manufacturerId || location.state?.manufacturerId;
+
+
+
 
     // Detect forced reload and call clearAllFilters
     useEffect(() => {
@@ -101,6 +107,7 @@ const ShopByCategoryProduct = () => {
         }
     };
 
+
     const callAnAPI = async (data) => {
         try {
             if (data.brandId) {
@@ -124,6 +131,18 @@ const ShopByCategoryProduct = () => {
             console.error("API call failed:", error);
         }
     };
+
+    useEffect(() => {
+        if (brandId) {
+            getBrandByProduct(brandId);
+        }
+    }, [brandId]);
+
+    useEffect(() => {
+        if (manufacturerId) {
+            getManufacturerByProduct(manufacturerId);
+        }
+    }, [manufacturerId]);
 
     // Filter brands based on search term
     const filteredBrands = useMemo(() => {
@@ -229,8 +248,8 @@ const ShopByCategoryProduct = () => {
         if (window.innerWidth < 768) setShowMobileSidebar(false);
     };
 
-    const handleBrandSelect = (brand) => {
-        callAnAPI(brand);
+    const handleBrandSelect = (brand, catId) => {
+        callAnAPI(brand || catId);
     };
 
     const handleManufacturerSelect = (manufacturer) => {
@@ -374,7 +393,7 @@ const ShopByCategoryProduct = () => {
                                     <button
                                         className="mt-auto bg-white text-green-600 border border-green-600 rounded-full px-6 py-2 hover:bg-green-600 hover:text-white transition-colors hover:shadow-md transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                         aria-label={`Buy ${product.name} now`}
-                                     >
+                                    >
                                         BUY NOW
                                     </button>
                                 </div>
