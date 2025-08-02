@@ -2,14 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { FiCalendar, FiClock } from 'react-icons/fi';
 import axiosInstance from '../../AuthContext/AxiosInstance';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../AuthContext/AuthContext';
 import Swal from 'sweetalert2';
-import { title } from 'framer-motion/client';
 
 function ScheduleCall() {
   const { id: ticketId } = useParams();
-  const { token } = useAuth();
-  console.log('token',token);
   const navigate = useNavigate();
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
@@ -30,11 +26,7 @@ function ScheduleCall() {
       };
 
     try {
-        setIsLoading(true);
-    
-    // Get token from storage (fallback if interceptor isn't working)
-    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-    
+        setIsLoading(true);    
     const response = await axiosInstance.put(`/ticket/schedule_call/${ticketId}`, payload );
     Swal.fire({
         icon: 'success',
