@@ -4,8 +4,8 @@ import { FiUser, FiMail, FiPhone, FiLogOut,  } from 'react-icons/fi';
 import { MdVerified } from 'react-icons/md';
 
 
-function ProfileWithOrders({ onClose }) {
-    const { user, logout } = useAuth();   
+function ProfileWithOrders({ onClose, editeOpen }) {
+    const { user, logout,updatedData } = useAuth();   
     if (!user) {
         return null; // or return <LoadingSpinner />;
     }
@@ -64,14 +64,15 @@ function ProfileWithOrders({ onClose }) {
                     ))}
                 </div>
 
-                <div className='flex justify-center'>
+                <div className='flex justify-center items-center gap-2 mt-8'>
                     <button
                         onClick={logout}
-                        className="mt-8 cursor-pointer flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 rounded-md transition-colors duration-200"
+                        className=" cursor-pointer flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 rounded-md transition-colors duration-200"
                     >
                         <FiLogOut className="mr-2" />
                         Logout
                     </button>
+                    <button onClick={() => {onClose(false) , editeOpen(true)}} className='bg-green-400 text-white rounded-md py-2 px-3 font-bold cursor-pointer'>EditeProfile</button>
                 </div>
             </>
 

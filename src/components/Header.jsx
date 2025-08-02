@@ -23,6 +23,8 @@ import Login from "../AuthContext/Login";
 import Profile from '../components/Profile';
 import { RiShutDownLine } from "react-icons/ri";
 import { FiPackage } from "react-icons/fi";
+import { Phone } from "lucide-react";
+import Swal from "sweetalert2";
 
 
 
@@ -42,9 +44,9 @@ const Header = () => {
         token,
         user,
         refresh,
-        logout
+        logout,updatedData
     } = useAuth();
-
+    console.log('user', user);
     const countryOptions = [
         { code: 'US', name: 'United States', currency: 'USD', language: 'English' },
         { code: 'IN', name: 'India', currency: 'INR', language: 'Hindi' },
@@ -67,7 +69,9 @@ const Header = () => {
     const [openModal, setOpenModal] = useState(false);
     const [profileModal, setProfileModal] = useState(false);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
-
+    const [profileEditModal, setProfileEditModal] = useState(false);
+    const [name, setName] = useState(user?.swiftUserName || '');
+    const [phone, setPhone] = useState(user?.swiftUserPhone || '');
     // Refs for dropdown closing functionality
     const dropdownRef = useRef(null);
     const profileButtonRef = useRef(null);
@@ -188,6 +192,38 @@ const Header = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [isDropdownOpen]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axiosInstance.post('/swiftlymeds/auth/update-profile', {
+                swiftUserName: name,
+                swiftUserPhone: phone
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            console.log('responce', response);
+            localStorage.setItem("user", JSON.stringify(response.data.updatedData));
+            Swal.fire({
+                icon: 'success',
+                text: response.data.message || 'profile update successfully',
+                confirmButtonText: 'ok'
+            })
+            window.location.reload();
+            setProfileEditModal(false);
+
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            Swal.fire({
+                icon: 'error',
+                text: error.response.data.error || 'Failed to update profile',
+                confirmButtonText: 'ok'
+            })
+        }
+    };
 
     return (
         <>
@@ -490,10 +526,79 @@ const Header = () => {
                                 </svg>
                             </button>
                         </div>
-                        <Profile onClose={handleProfileModal} />
+                        <Profile onClose={handleProfileModal} editeOpen={setProfileEditModal} />
                     </div>
                 </div>
             )}
+
+            {
+                profileEditModal && (
+                    <div className="fixed inset-0 flex items-center justify-center backdrop-brightness-50 z-[60]">
+                        <div className=" bg-white rounded-md">
+                            <div className="relative p-1">
+                                <button
+                                    onClick={() => setProfileEditModal(false)}
+                                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 bg-white hover:bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition-colors duration-200"
+                                    aria-label="Close modal"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-6">Edit Profile</h2>
+
+                                <form className="space-y-4" onSubmit={handleSubmit}>
+                                    <div>
+                                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                                            Full Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="name"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter your full name"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                                            Phone Number
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            id="phone"
+                                            value={phone}
+                                            onChange={(e) => {
+                                                // Remove all non-numeric characters
+                                                const numericValue = e.target.value.replace(/\D/g, '');
+                                                setPhone(numericValue);
+                                            }}
+                                            maxLength={10}
+                                            pattern="[0-9]*" // Ensures numeric keyboard on mobile devices
+                                            inputMode="numeric" // Shows numeric keyboard on mobile devices
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter your phone number"
+                                        />
+                                    </div>
+
+                                    <div className="pt-2">
+                                        <button
+                                            type="submit"
+                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                        >
+                                            Update Profile
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
         </>
     );
 };
