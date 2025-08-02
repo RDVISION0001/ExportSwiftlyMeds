@@ -273,7 +273,6 @@ function Login({ onClose }) {
       setPhone("");
       setPassword("");
       setErrors({});
-      await sendOtp();
     } catch (error) {
       Swal.fire({
         icon: 'error',
