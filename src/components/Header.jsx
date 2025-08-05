@@ -26,8 +26,6 @@ import { FiPackage } from "react-icons/fi";
 import { Phone } from "lucide-react";
 import Swal from "sweetalert2";
 
-
-
 const Header = () => {
     const navigate = useNavigate();
     const {
@@ -69,9 +67,13 @@ const Header = () => {
     const [openModal, setOpenModal] = useState(false);
     const [profileModal, setProfileModal] = useState(false);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
+    const [showCloseButton, setShowCloseButton] = useState(true);
+    const [loginAttempt, setLoginAttempt] = useState(0);
+    const loginTimerRef = useRef(null);
     const [profileEditModal, setProfileEditModal] = useState(false);
     const [name, setName] = useState(user?.swiftUserName || '');
     const [phone, setPhone] = useState(user?.swiftUserPhone || '');
+
     // Refs for dropdown closing functionality
     const dropdownRef = useRef(null);
     const profileButtonRef = useRef(null);
@@ -151,17 +153,44 @@ const Header = () => {
         }
     };
 
-    useEffect(() => {
-        if (token) {
-            setOpenModal(false);
-            return;
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setLoginAttempt(prev => prev + 1);
+        
+        // Clear any existing timer
+        if (loginTimerRef.current) {
+            clearTimeout(loginTimerRef.current);
         }
+        
+        // Set timer for next appearance based on attempt count
+        if (loginAttempt === 0) {
+            // First close - show again after 10 seconds
+            loginTimerRef.current = setTimeout(() => {
+                setOpenModal(true);
+            }, 10000);
+        } else if (loginAttempt === 1) {
+            // Second close - show again after 30 seconds
+            loginTimerRef.current = setTimeout(() => {
+                setOpenModal(true);
+                setShowCloseButton(false); // Disable close button after this
+            }, 30000);
+        }
+    };
 
-        const timeoutId = setTimeout(() => {
-            setOpenModal(true);
-        }, 5000);
+    useEffect(() => {
+        // Initial timer - show after 1 second
+        const initialTimer = setTimeout(() => {
+            if (!token) {
+                setOpenModal(true);
+            }
+        }, 1000);
 
-        return () => clearTimeout(timeoutId);
+        return () => {
+            clearTimeout(initialTimer);
+            if (loginTimerRef.current) {
+                clearTimeout(loginTimerRef.current);
+            }
+        };
     }, [token]);
 
     const handleProfileModal = () => {
@@ -508,7 +537,10 @@ const Header = () => {
             {/* Modals */}
             {openModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
-                    <Login onClose={() => setOpenModal(false)} />
+                    <Login 
+                        onClose={loginAttempt >= 2 ? undefined : handleCloseModal} 
+                        showCloseButton={showCloseButton && loginAttempt < 2}
+                    />
                 </div>
             )}
 
