@@ -7,10 +7,10 @@ const axiosInstance = axios.create({
 // // <<<<<<< RAJAN
     // baseURL: 'http://192.168.1.7:8083/',
     // baseURL: 'http://192.168.1.13:8081/',
-   //     baseURL: 'http://192.168.1.7:8083/',
+       baseURL: 'http://192.168.1.9:8081/',
 // >>>>>>> main
     // For Backend Env
-    baseURL:'https://crmbackend.swiftlymeds.com'
+    // baseURL:'https://crmbackend.swiftlymeds.com'
 });
 
 

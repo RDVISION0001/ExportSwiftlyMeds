@@ -1,14 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { FcGoogle } from "react-icons/fc";
 import { FaWhatsappSquare } from "react-icons/fa";
-import { FiPhone, FiLock, FiChevronDown } from "react-icons/fi";
+import { FiPhone, FiLock, FiChevronDown, FiX } from "react-icons/fi";
 import axiosInstance from './AxiosInstance';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../assets/Nlogo.png';
 import { useAuth } from './AuthContext';
 
-function Login({ onClose }) {
+function Login({ onClose, showCloseButton = true }) {
   const { token, setToken, user, setUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -26,6 +26,7 @@ function Login({ onClose }) {
   const [generateCaptcha, setGenerateCaptcha] = useState("");
   const [matchCaptcha, setMatchCaptcha] = useState("");
   const [matched, setMatched] = useState(false);
+  const [captchaVerified, setCaptchaVerified] = useState(false);
 
   const countryCodes = [
     { code: '+91', name: 'India', flag: '🇮🇳' },
@@ -56,11 +57,28 @@ function Login({ onClose }) {
     setGenerateCaptcha(captcha);
     setMatchCaptcha("");
     setMatched(false);
+    setCaptchaVerified(false);
   };
 
   useEffect(() => {
     generateCaptchaFunction();
   }, []);
+
+  // Effect to handle CAPTCHA verification and auto-submit
+  useEffect(() => {
+    if (matched && !captchaVerified) {
+      setCaptchaVerified(true);
+      Swal.fire({
+        icon: 'success',
+        title: 'Human Verification',
+        text: 'You are human! Verifying OTP Plaese wait...',
+        timer: 1500,
+        showConfirmButton: false
+      }).then(() => {
+        handleVerifyOtp();
+      });
+    }
+  }, [matched]);
 
   const handlePaste = (e) => {
     e.preventDefault();
@@ -68,7 +86,7 @@ function Login({ onClose }) {
     if (pasteData.length === 6) {
       const newOtp = pasteData.split('').slice(0, 6);
       setOtp(newOtp);
-      
+
       // Focus on the last input after paste
       if (inputsRef.current[5]) {
         inputsRef.current[5].focus();
@@ -134,7 +152,7 @@ function Login({ onClose }) {
     }
   };
 
-  const handleResendOtp = async () => {    
+  const handleResendOtp = async () => {
     setOtp(Array(6).fill(''));
     await sendOtp();
   };
@@ -147,14 +165,6 @@ function Login({ onClose }) {
   };
 
   const handleVerifyOtp = async () => {
-    if (generateCaptcha !== matchCaptcha) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'CAPTCHA not matched',
-      });
-      return;
-    }
-
     const otpCode = otp.join('');
     if (otpCode.length < 6) {
       Swal.fire({
@@ -247,6 +257,8 @@ function Login({ onClose }) {
       });
     } finally {
       setIsLoading(false);
+      setCaptchaVerified(false);
+      generateCaptchaFunction();
     }
   };
 
@@ -259,11 +271,12 @@ function Login({ onClose }) {
         swiftUserPhone: countryCode + phone,
         swiftUserPassword: password,
       });
-      Swal.fire({
-        icon: 'success',
-        title: response.data.message,
-        text: 'Please verify your email with the OTP sent.',
-      });
+      console.log(response)
+      // Swal.fire({
+      //   icon: 'success',
+      //   title: `OTP Ssend Your ${email}` ,
+      //   text: 'Please verify your email with the OTP sent.',
+      // });
 
       setRegisterForm(false);
       setShowOtpField(true);
@@ -274,6 +287,7 @@ function Login({ onClose }) {
       setPassword("");
       setErrors({});
       await sendOtp();
+      
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -286,9 +300,20 @@ function Login({ onClose }) {
   };
 
   return (
-    <div className="flex flex-col justify-center py-8 sm:px-6 lg:px-8">
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-lg rounded-xl border border-gray-100 sm:px-10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
+      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+        {/* Close Button - conditionally rendered */}
+        {showCloseButton && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none"
+            aria-label="Close login modal"
+          >
+            <FiX size={24} />
+          </button>
+        )}
+
+        <div className="py-8 px-6 sm:px-10">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
             {registerForm ? 'Register' : showOtpField ? 'Enter OTP' : 'Sign In / Sign Up'}
           </h2>
@@ -318,11 +343,11 @@ function Login({ onClose }) {
             )}
 
             {showOtpField && !registerForm && (
-              <div>
+              <div className=''>
                 <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
                   Enter OTP
                 </label>
-                <div className="flex justify-center space-x-2 mt-4" onPaste={handlePaste}>
+                <div className="flex justify-center space-x-2 mt-4 w-full " onPaste={handlePaste}>
                   {otp.map((digit, index) => (
                     <input
                       key={index}
@@ -331,7 +356,7 @@ function Login({ onClose }) {
                       inputMode="numeric"
                       pattern="[0-9]*"
                       maxLength="1"
-                      className="w-10 h-10 text-center border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-[55px] h-[50px] text-center border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                       value={digit}
                       onChange={(e) => handleChange(e.target, index)}
                       onKeyDown={(e) => handleKeyDown(e, index)}

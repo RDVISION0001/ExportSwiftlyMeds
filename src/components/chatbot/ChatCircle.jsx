@@ -5,8 +5,11 @@ import { Link } from "react-router-dom";
 import axiosInstance from "../../AuthContext/AxiosInstance";
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
+import { useAuth } from "../../AuthContext/AuthContext";
 
 const ChatCircle = () => {
+  const { user } = useAuth()
+  // console.log(user)
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -14,19 +17,11 @@ const ChatCircle = () => {
     x: window.innerWidth - 80,
     y: window.innerHeight - 80,
   });
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ name: "", mobile: "", email: "" });
-  const [formErrors, setFormErrors] = useState({});
-  const [selectedReply, setSelectedReply] = useState("");
-  const [showOtpInput, setShowOtpInput] = useState(false);
-  const [otp, setOtp] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
   const [unreadCount, setUnreadCount] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
-  const [sndingOtp, setResendingOtp] = useState(false);
+  const [typemsg, setTypeMsg] = useState(false)
   const [hasMoved, setHasMoved] = useState(false);
   const chatBodyRef = useRef(null);
   const nameInputRef = useRef(null);
@@ -101,7 +96,7 @@ const ChatCircle = () => {
       const moveY = moveEvent.clientY || (moveEvent.touches && moveEvent.touches[0].clientY);
       const dx = moveX - dragStart.current.x;
       const dy = moveY - dragStart.current.y;
-      
+
       if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
         setHasMoved(true);
       }
@@ -128,117 +123,6 @@ const ChatCircle = () => {
     document.addEventListener("touchend", onEnd);
   };
 
-  const validateForm = () => {
-    const errors = {};
-    if (!formData.name.trim()) errors.name = "Name is required";
-    if (!/^\+?\d{10,15}$/.test(formData.mobile)) errors.mobile = "Invalid phone number";
-    if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.email)) errors.email = "Invalid email address";
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleQuickReply = (reply) => {
-    setSelectedReply(reply);
-    setShowForm(true);
-    setMessages((prev) => [...prev, { text: reply, sender: "user" }]);
-  };
-
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    if (validateForm()) {
-      setMessages((prev) => [
-        ...prev,
-        { text: `We've sent a verification code to ${formData.email}. Please enter it below.`, sender: "bot" },
-      ]);
-      try {
-        setLoading(true);
-        const response = await axiosInstance.post(`/auth/otp/send`, {
-          email: formData.email,
-          phone: formData.mobile,
-          name: formData.name
-        });
-        setShowForm(false);
-        setShowOtpInput(true);
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setMessages((prev) => [
-          ...prev,
-          { text: "Failed to send OTP. Please try again.", sender: "bot" },
-        ]);
-        setLoading(false);
-      }
-    }
-  };
-
-  const handleResendOTP = async () => {
-    try {
-      setResendingOtp(true);
-      const response = await axiosInstance.post(`/auth/otp/send`, {
-        email: formData.email,
-        phone: formData.mobile,
-        name: formData.name
-      });
-      setMessages((prev) => [
-        ...prev,
-        { text: `We've resent the verification code to ${formData.email}.`, sender: "bot" },
-      ]);
-      setResendingOtp(false);
-    } catch (error) {
-      console.log(error);
-      setMessages((prev) => [
-        ...prev,
-        { text: `Failed to resend OTP. Please try again later.`, sender: "bot" },
-      ]);
-      setResendingOtp(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    if (!otp.trim()) return;
-
-    setLoading(true);
-
-    try {
-      const response = await axiosInstance.post(`/auth/otp/verify`, {
-        email: formData.email,
-        otp: otp
-      });
-
-      setMessages((prev) => [
-        ...prev,
-        { text: otp, sender: "user" },
-        { text: `Verification successful!`, sender: "bot" },
-      ]);
-      setFormData({
-        email: '',
-        mobile: '',
-        name: ''
-      });
-      setOtp("");
-      setShowOtpInput(false);
-      setConversation(response.data.conversation)
-      setIsVerified(true);
-      connectWebSocket()
-    } catch (error) {
-      console.error("Verification error:", error);
-      const errorMessage = error.response?.data || "Verification failed. Please try again.";
-
-      setMessages((prev) => [
-        ...prev,
-        { text: otp, sender: "user" },
-        { text: `❌ ${errorMessage}`, sender: "bot" },
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleToggleChat = (e) => {
     if (isDragging || hasMoved) {
@@ -246,7 +130,7 @@ const ChatCircle = () => {
       setHasMoved(false);
       return;
     }
-    
+
     if (!isOpen && messages.length === 0) {
       setMessages([
         {
@@ -301,10 +185,14 @@ const ChatCircle = () => {
     };
   };
 
+  const handleQuickReply = (text) => {
+    connectWebSocket()
+  }
+
   const connectWebSocket = () => {
     console.log("Connecting to WebSocket...");
 
-    const socket = new SockJS("https://crmbackend.swiftlymeds.com/ws");
+    const socket = new SockJS("http://192.168.1.9:8081/ws");
 
     const client = new Client({
       webSocketFactory: () => socket,
@@ -312,6 +200,7 @@ const ChatCircle = () => {
       onConnect: () => {
         console.log("WebSocket connected");
         setupSubscriptions(client);
+        setTypeMsg(true)
       },
       onStompError: (frame) => {
         console.error("STOMP error:", frame.body);
@@ -320,13 +209,13 @@ const ChatCircle = () => {
         console.error("WebSocket error:", error);
       },
     });
-
     client.activate();
     stompClientRef.current = client;
   };
 
   const setupSubscriptions = (client) => {
-    client.subscribe(`/topic/inquiry-chat-` + formData.email, (message) => {
+    getConversationId()
+    client.subscribe(`/topic/inquiry-chat-${user.swiftUserEmail}`, (message) => {
       const newNotification = JSON.parse(message.body);
       console.log(newNotification)
       setConversation((prev) => ({
@@ -335,6 +224,19 @@ const ChatCircle = () => {
       }));
     });
   };
+
+  const getConversationId = async () => {
+    try {
+      const response = await axiosInstance.get(`/auth/getConversation?email=${user.swiftUserEmail}` );
+      console.log("Conversation Response:", response.data);
+      setConversation(response.data.conversation)
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching conversation:", error);
+    }
+  };
+
+
 
   const handelSendMessage = async () => {
     const response = await axiosInstance.post("/api/chat/send", {
@@ -414,96 +316,7 @@ const ChatCircle = () => {
                   </div>
                 </div>
               ))}
-
-              {showForm && (
-                <form
-                  className="bg-white p-4 rounded-xl shadow-sm mt-3"
-                  onSubmit={handleFormSubmit}
-                >
-                  <h4 className="text-sm font-medium text-gray-800 mb-4">Please provide your details:</h4>
-                  {[
-                    { field: "name", label: "Full Name", placeholder: "John Smith", type: "text" },
-                    { field: "mobile", label: "Mobile Number", placeholder: "+1 (123) 456-7890", type: "tel" },
-                    { field: "email", label: "Email Address", placeholder: "your@email.com", type: "email" }
-                  ].map(({ field, label, placeholder, type }) => (
-                    <div className="mb-3" key={field}>
-                      <label className="block text-xs text-gray-600 mb-1 font-medium">
-                        {label}
-                        {formErrors[field] && <span className="text-red-500 font-normal"> • {formErrors[field]}</span>}
-                      </label>
-                      <input
-                        type={type}
-                        className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#12b9c5] focus:border-[#12b9c5] ${formErrors[field] ? 'border-red-500' : 'border-gray-300'} text-gray-900 bg-white`}
-                        placeholder={placeholder}
-                        id={field}
-                        name={field}
-                        value={formData[field]}
-                        onChange={handleFormChange}
-                        ref={field === "name" ? nameInputRef : null}
-                      />
-                    </div>
-                  ))}
-                  <div className="flex gap-2 mt-4">
-                    <button
-                      type="submit"
-                      className="py-1 px-4 bg-[#12b9c5] text-white text-sm rounded-lg font-medium hover:bg-[#4b8f94] transition-colors cursor-pointer"
-                    >
-                      {loading ? <span className="loading loading-spinner loading-sm"></span> : 'Submit'}
-                    </button>
-                    <button
-                      type="button"
-                      className="py-1 px-4 bg-white cursor-pointer text-gray-600 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-                      onClick={() => setShowForm(false)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {showOtpInput && (
-                <form
-                  className="bg-white p-4 rounded-xl shadow-sm mt-3"
-                  onSubmit={handleVerifyOtp}
-                >
-                  <div className="mb-3">
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#12b9c5] focus:border-[#42d5e0] text-gray-900 bg-white"
-                      placeholder="Enter 6-digit code"
-                      id="otp"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                    />
-                    <div className="text-xs text-gray-500 mt-1">Check your email for the verification code</div>
-                    <button
-                      type="button"
-                      className="text-xs hover:cursor-pointer px-4 py-0.5 rounded-xl bg-green-200 text-green-800 mt-1"
-                      onClick={handleResendOTP}
-                      disabled={loading}
-                    >
-                      {sndingOtp ? 'Sending...' : 'Resend OTP'}
-                    </button>
-                  </div>
-                  <div className="flex gap-2 mt-4">
-                    <button
-                      type="submit"
-                      className="px-4 py-1 text-xs bg-[#12b9c5] text-white rounded-lg font-medium hover:bg-[#376a6e] transition-colors cursor-pointer"
-                    >
-                      {loading ? <span className="loading loading-spinner loading-sm"></span> : 'Verify'}
-                    </button>
-                    <button
-                      type="button"
-                      className="px-4 py-1 text-xs bg-white text-gray-600 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors cursor-pointer"
-                      onClick={() => setShowOtpInput(false)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {!showForm && !showOtpInput && messages.length > 0 && !isVerified && (
+              {!typemsg ? (
                 <div className="mt-3">
                   <h4 className="text-xs text-gray-500 mb-2 font-medium">Quick options:</h4>
                   <div className="flex flex-wrap gap-2">
@@ -511,18 +324,21 @@ const ChatCircle = () => {
                       <button
                         key={i}
                         onClick={() => handleQuickReply(reply.text)}
-                        className="flex items-center px-3 py-2 bg-white text-gray-700 border border-gray-200 rounded-full text-xs font-medium hover:bg-blue-50 hover:text-green-600 hover:border-blue-200 transition-colors"
+                        className="flex items-center gap-1 px-3 py-2 bg-white text-gray-700 border border-gray-200 rounded-full text-xs font-medium hover:bg-blue-50 hover:text-green-600 hover:border-blue-200 transition-colors"
                       >
-                        {reply.icon}
+                        {reply.icon && <span className="text-lg">{reply.icon}</span>}
                         <span>{reply.text}</span>
                       </button>
                     ))}
                   </div>
                 </div>
+              ) : (
+                <div className="mt-3 text-gray-500 text-sm">Let's start the chat</div>
               )}
+
             </div>
 
-            <div className="p-3 bg-white border-t border-gray-200">
+            {typemsg && <div className="p-3 bg-white border-t border-gray-200">
               <form
                 className="flex gap-2"
                 onSubmit={(e) => {
@@ -545,7 +361,7 @@ const ChatCircle = () => {
                   <FaPaperPlane />
                 </button>
               </form>
-            </div>
+            </div>}
           </div>
         </div>
       )}
