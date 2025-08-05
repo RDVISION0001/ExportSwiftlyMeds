@@ -288,6 +288,7 @@ function Login({ onClose, showCloseButton = true }) {
       setErrors({});
       await sendOtp();
       
+
     } catch (error) {
       Swal.fire({
         icon: 'error',

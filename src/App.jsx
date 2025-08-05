@@ -10,7 +10,6 @@ import FAQ from './components/Pages/Faq';
 import Blog from './components/blog/Blog';
 import Manufacturer from './components/Pages/Manufacuter';
 import PrivacyPolicy from './components/Privacy';
-import NewArrive from './components/NewArrive';
 import ProductServices from './components/ProductServices';
 import GoogleReviews from './components/GoogleReview';
 import PrescriptionRelief from './components/PrescriptionRefills';
@@ -30,12 +29,14 @@ import PaymentFailed from './components/CRM/PaymentFailed';
 import { useAuth } from './AuthContext/AuthContext';
 import Order from './components/Order';
 import PrescriptionRefills from './components/PrescriptionRelif';
+import Unsubscribe from './components/Unsubscribe';
+import ScheduleCall from './components/schedulCall/SchedulCall';
 
 
 // Create a ProtectedRoute component
 const ProtectedRoute = ({ children }) => {
   const { token } = useAuth();
-  
+
   if (!token) {
     // Redirect to home page if not authenticated
     return <Navigate to="/" replace />;
@@ -46,7 +47,7 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   const { token } = useAuth();
-  
+
   return (
     <Router>
       <Header />
@@ -60,7 +61,6 @@ function App() {
         <Route path='/proserve' element={<ProductServices/>}/>
         <Route path='/manufacture' element={<Manufacturer />} />
         <Route path='/privacy' element={<PrivacyPolicy />} />
-        <Route path='/newArive' element={<NewArrive />} />
         <Route path='/proserve' element={<ProductServices />} />
         <Route path='/review' element={<GoogleReviews />} />
         <Route path='/our' element={<OurMission />} />
@@ -78,9 +78,10 @@ function App() {
         <Route path="/success/:orderNumber" element={<PaymentSuccess />} />
         <Route path="/failed/:orderNumber" element={<PaymentFailed />} />
         <Route path='/priRefil' element={<PrescriptionRefills/>}/>
-        
+        <Route path='/schedul/:id' element={<ScheduleCall/>}/>
+        <Route path='/unsubscribe/:email' element={<Unsubscribe />} />
 
-        
+
         {/* Protected routes - require token */}
         <Route path='/view' element={
           <ProtectedRoute>

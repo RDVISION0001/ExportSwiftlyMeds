@@ -37,45 +37,58 @@ const CheckoutForm = ({ orderNumber, remark }) => {
     setLoading(false);
   };
 
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="w-full max-w-md mx-auto p-4 sm:p-6 md:p-8 space-y-6 rounded-lg bg-white shadow"
-    >
-      {message && (
-        <div className="text-sm text-center text-red-600 mt-2">{message}</div>
-      )}
+    <div className="w-[80vw] max-w-md mx-auto p-4 sm:p-2 md:p-8 bg-white shadow rounded-lg h-[70vh] overflow-y-auto">
+      <form onSubmit={handleSubmit} className="space-y-1">
+        {message && (
+          <div className="text-sm text-center text-red-600 mt-2">{message}</div>
+        )}
 
-      <div>
-        <label className="block text-sm font-medium mb-2">Billing Address</label>
-        <AddressElement
-          options={{
-            mode: "billing",
-            allowedCountries: ["US", "IN", "GB", "CA"],
-            defaultValues: {
-              name: "Customer Name",
-              address: {
-                country: "IN",
+        <div>
+          <label className="block text-sm font-medium mb-2">Billing Address</label>
+          <AddressElement
+            options={{
+              mode: "billing",
+              allowedCountries: [
+                "AF", "AL", "DZ", "AD", "AO", "AG", "AR", "AM", "AU", "AT", "AZ", "BS", "BH", "BD", "BB", "BY",
+                "BE", "BZ", "BJ", "BT", "BO", "BA", "BW", "BR", "BN", "BG", "BF", "BI", "KH", "CM", "CA", "CV",
+                "CF", "TD", "CL", "CN", "CO", "KM", "CG", "CD", "CR", "HR", "CU", "CY", "CZ", "DK", "DJ", "DM",
+                "DO", "EC", "EG", "SV", "GQ", "ER", "EE", "ET", "FJ", "FI", "FR", "GA", "GM", "GE", "DE", "GH",
+                "GR", "GD", "GT", "GN", "GW", "GY", "HT", "HN", "HK", "HU", "IS", "IN", "ID", "IR", "IQ", "IE",
+                "IL", "IT", "JM", "JP", "JO", "KZ", "KE", "KI", "KR", "KW", "KG", "LA", "LV", "LB", "LS", "LR",
+                "LY", "LI", "LT", "LU", "MO", "MK", "MG", "MW", "MY", "MV", "ML", "MT", "MH", "MR", "MU", "MX",
+                "FM", "MD", "MC", "MN", "ME", "MA", "MZ", "MM", "NA", "NP", "NL", "NZ", "NI", "NE", "NG", "NO",
+                "OM", "PK", "PW", "PA", "PG", "PY", "PE", "PH", "PL", "PT", "QA", "RO", "RU", "RW", "KN", "LC",
+                "VC", "WS", "SM", "ST", "SA", "SN", "RS", "SC", "SL", "SG", "SK", "SI", "SB", "SO", "ZA", "ES",
+                "LK", "SD", "SR", "SZ", "SE", "CH", "SY", "TW", "TJ", "TZ", "TH", "TL", "TG", "TO", "TT", "TN",
+                "TR", "TM", "TV", "UG", "UA", "AE", "GB", "US", "UY", "UZ", "VU", "VA", "VE", "VN", "YE", "ZM", "ZW"
+              ], defaultValues: {
+                name: "Customer Name",
+                address: {
+                  country: "IN",
+                },
               },
-            },
-          }}
-        />
-      </div>
+            }}
+          />
+        </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">Payment Method</label>
-        <PaymentElement options={{ layout: "tabs" }} />
-      </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Payment Method</label>
+          <PaymentElement options={{ layout: "tabs" }} />
+        </div>
 
-      <button
-        type="submit"
-        disabled={!stripe || loading}
-        className="w-full py-2 px-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
-      >
-        {loading ? "Processing..." : "Pay"}
-      </button>
-    </form>
+        <button
+          type="submit"
+          disabled={!stripe || loading}
+          className="w-full py-2 px-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+        >
+          {loading ? "Processing..." : "Pay"}
+        </button>
+      </form>
+    </div>
   );
+
 };
 
 const CheckoutButton = ({ orderNumber, remark }) => {
@@ -103,13 +116,14 @@ const CheckoutButton = ({ orderNumber, remark }) => {
   };
 
   return (
-    <div className="w-full  flex items-center justify-center px-4 py-8 bg-gray-50">
+    <div className="w-full min-h-[80vh] overflow-y-auto flex items-center justify-center px-4  bg-gray-50">
       {clientSecret && (
         <Elements stripe={stripePromiseVox} options={options}>
           <CheckoutForm orderNumber={orderNumber} remark={remark} />
         </Elements>
       )}
     </div>
+
   );
 };
 

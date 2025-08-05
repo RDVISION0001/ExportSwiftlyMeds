@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-// import Swal from 'sweetalert2';
+import Swal from 'sweetalert2';
 import contact from "../../assets/contact.png";
 // import con from "../../src/assets/contact1.png";
+import axiosInstance from "../../AuthContext/AxiosInstance";
 
 
 function ContactUs() {
@@ -56,14 +57,24 @@ function ContactUs() {
 
         setIsSubmitting(true);
 
-        try {
-            const response = await axiosInstance.post("/contact/addNewContact", formData);
+        // Prepare payload matching the API requirements
+        const payload = {
+            fullName: formData.fullName,
+            mobileNumber: formData.mobileNumber,
+            email: formData.email,
+            city: formData.city,
+            message: formData.message,
+            active: true
+        };
 
-            if (response.data) {
+        try {
+            const response = await axiosInstance.post("/swift-contact/add", payload);
+
+            if (response.data.code === "200" && response.data.status === "success") {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Message Sent!',
-                    text: 'Thank you for contacting us. We will get back to you soon.',
+                    title: 'Success!',
+                    text: response.data.message || 'Contact Added',
                     confirmButtonColor: '#000'
                 });
                 // Reset form
@@ -75,7 +86,7 @@ function ContactUs() {
                     city: ''
                 });
             } else {
-                throw new Error(response.data.message || 'Failed to send message');
+                throw new Error(response.data.message || 'Failed to add contact');
             }
         } catch (error) {
             console.error('Error sending message:', error);
