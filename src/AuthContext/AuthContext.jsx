@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 import Swal from 'sweetalert2';
+import axiosInstance from "./AxiosInstance";
 
 // Create the context
 const AuthContext = createContext();
@@ -16,19 +17,28 @@ export function AuthProvider({ children }) {
     const [token, setToken] = useState(localStorage.getItem("jwtToken"));
     const [user, setUser] = useState(() => {
         try {
-          const storedUser = localStorage.getItem("user");
-          if (!storedUser || storedUser === "undefined") return null;
-          return JSON.parse(storedUser);
+            const storedUser = localStorage.getItem("user");
+            if (!storedUser || storedUser === "undefined") return null;
+            return JSON.parse(storedUser);
         } catch (e) {
-          console.error("Failed to parse stored user:", e);
-          return null;
+            console.error("Failed to parse stored user:", e);
+            return null;
         }
-      });
-      const [refresh,setRefresh] = useState(1);
-      const [cartCount,setCartCount] = useState('');
-      const [messagesFrom,setMessagesFrom]=useState([])
-      const [productData,setProductData] = useState()
+    });
+    const [currencyRates, setCurrencyRates] = useState({});
+    const [refresh, setRefresh] = useState(1);
+    const [cartCount, setCartCount] = useState('');
+    const [messagesFrom, setMessagesFrom] = useState([])
+    const [productData, setProductData] = useState()
 
+    const fetchCurrencyRates=async()=>{
+        const resp =await axiosInstance.get("https://api.frankfurter.app/latest?from=USD")
+        setCurrencyRates(resp.data.rates)
+    }
+
+    useEffect(()=>{
+        fetchCurrencyRates()
+    },[])
 
     const logout = async () => {
         const result = await Swal.fire({
@@ -80,9 +90,10 @@ export function AuthProvider({ children }) {
             token, setToken,
             user, setUser,
             logout, // Add the logout function to the context,
-            refresh,setRefresh,
-            cartCount,setCartCount,
-            productData,setProductData
+            refresh, setRefresh,
+            cartCount, setCartCount,
+            productData, setProductData,
+            currencyRates, setCurrencyRates
         }}>
             {children}
         </AuthContext.Provider>

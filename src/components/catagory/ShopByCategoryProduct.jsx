@@ -4,19 +4,9 @@ import { useAuth } from '../../AuthContext/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../AuthContext/AxiosInstance';
 
-const currencyRates = {
-    USD: 1,
-    EUR: 0.85,
-    GBP: 0.73,
-    INR: 75.0,
-    CAD: 1.25,
-    AUD: 1.35,
-    JPY: 110.0,
-    RUB: 75.0,
-};
 
 const ShopByCategoryProduct = () => {
-    const { category, catProduct, setCatId, catId, loading, selectCountry, itemsPerpage, setItemsPerpage } = useAuth();
+    const { category,currencyRates, catProduct, setCatId, catId, loading, selectCountry, itemsPerpage, setItemsPerpage } = useAuth();
     const [activePage, setActivePage] = useState(catId);
     const [selectedBrand, setSelectedBrand] = useState('');
     const [selectedBrandId, setSelectedBrandId] = useState('');

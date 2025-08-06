@@ -8,18 +8,7 @@ import axiosInstance from '../../../AuthContext/AxiosInstance';
 import Swal from 'sweetalert2';
 
 const ProductDetailPage = () => {
-    const { selectCountry, setCart, token, cartCount, setRefresh } = useAuth();
-    const currencyRates = {
-        USD: 1,
-        EUR: 0.93,
-        GBP: 0.80,
-        INR: 83.33,
-        CAD: 1.36,
-        AUD: 1.51,
-        JPY: 151.61,
-        RUB: 92.58
-    };
-
+    const { selectCountry, setCart, token, cartCount, setRefresh,currencyRates } = useAuth();
     const location = useLocation();
     const { product } = location.state || {};  
     const topRef = useRef(null);
@@ -38,6 +27,46 @@ const ProductDetailPage = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, []);
 
+    const currencySymbols = {
+        USD: "$",
+        EUR: "€",
+        GBP: "£",
+        INR: "₹",
+        AUD: "A$",
+        CAD: "C$",
+        SGD: "S$",
+        JPY: "¥",
+        CNY: "¥",
+        CHF: "CHF",
+        KRW: "₩",
+        BRL: "R$",
+        ZAR: "R",
+        RUB: "₽",
+        THB: "฿",
+        MXN: "$",
+        NOK: "kr",
+        SEK: "kr",
+        DKK: "kr",
+        PLN: "zł",
+        HUF: "Ft",
+        IDR: "Rp",
+        PHP: "₱",
+        MYR: "RM",
+        TRY: "₺",
+        NZD: "NZ$",
+        BGN: "лв",
+        RON: "lei",
+        CZK: "Kč",
+        ISK: "kr",
+        HKD: "HK$",
+        ILS: "₪",
+      };
+
+      function getCurrencySymbol(currencyCode) {
+        const symbol = currencySymbols[currencyCode?currencyCode.toUpperCase():"USD"];
+        return symbol !== undefined ? symbol : `Symbol not found for "${currencyCode}"`;
+      }
+      
     useEffect(() => {
         if (selectCountry?.currency) {
             setCartItems(prevCart =>
@@ -56,29 +85,15 @@ const ProductDetailPage = () => {
     };
 
     const convertPrice = (price, fromCurrency, toCurrency) => {
+        if(toCurrency=="USD"){
+            return 1;
+        }
         if (fromCurrency === toCurrency) return price;
-        if (!currencyRates[fromCurrency] || !currencyRates[toCurrency]) return price;
-
-        const usdValue = price / currencyRates[fromCurrency];
-        const convertedValue = usdValue * currencyRates[toCurrency];
-        return parseFloat(convertedValue.toFixed(2));
+        const currencyValue = price*currencyRates[toCurrency];
+        return parseFloat(currencyValue.toFixed(2));
     };
 
-    const getCurrencySymbol = (currencyCode) => {
-        const symbols = {
-            USD: '$',
-            EUR: '€',
-            GBP: '£',
-            INR: '₹',
-            CAD: 'CA$',
-            AUD: 'A$',
-            JPY: '¥',
-            RUB: '₽'
-        };
-        return symbols[currencyCode] || currencyCode;
-    };
-
-    const formatPrice = (price, currencyCode) => {
+      const formatPrice = (price, currencyCode) => {
         const symbol = getCurrencySymbol(currencyCode);
         return `${symbol}${price.toFixed(2)}`;
     };
@@ -623,7 +638,7 @@ const ProductDetailPage = () => {
 
                                         <div className="grid grid-cols-2 gap-2 mt-2 text-xs sm:text-sm">
                                             <p className="text-gray-600">Price:</p>
-                                            <p>${item.price}</p>
+                                            <p>{getCurrencySymbol(selectCountry.currency)} {convertPrice(item.price,"USD",selectCountry.currency)}</p>
 
                                             <p className="text-gray-600">Quantity:</p>
                                             <div className="flex justify-center items-center gap-1 border border-gray-300 rounded-md w-fit px-2 py-1">
@@ -663,7 +678,7 @@ const ProductDetailPage = () => {
                                             </div>
 
                                             <p className="text-gray-600">Total:</p>
-                                            <p className="font-medium">${item.total}</p>
+                                            <p className="font-medium">{getCurrencySymbol(selectCountry.currency)} {convertPrice(item.total,"USD",selectCountry.currency)}</p>
                                         </div>
                                     </div>
                                 ))}
