@@ -17,7 +17,9 @@ export default defineConfig({
     hmr: {
       overlay: false,
     },
-    allowedHosts: ['swiftlymeds.com', 'crm.swiftlymeds.com'],
+    // allowedHosts: ['swiftlymeds.com', 'crm.swiftlymeds.com'],
+        origin: 'https://swiftlymeds.com', // If needed
+
   }
   
 })
