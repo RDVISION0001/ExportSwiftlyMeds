@@ -23,7 +23,7 @@ import RecomndedProduct from './RecomndedProduct';
 import CheckoutButtonSwift from './CheckoutButtonSwift';
 
 function ShippingCart() {
-  const { token, refresh, setRefresh, user } = useAuth();
+  const { token, refresh, setRefresh, user, currencyRates, selectCountry } = useAuth();
   const [cartData, setCartData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -40,8 +40,70 @@ function ShippingCart() {
   const [IsCheckOUtOpned, setIsCheckOutOpned] = useState(false)
   const navigate = useNavigate()
   const topRef = useRef(null);
-
+  const [rate, setRates] = useState(1)
   const [selectedAddress, setSelectedAddress] = useState()
+  const currencySymbols = {
+    USD: "$",
+    EUR: "€",
+    GBP: "£",
+    INR: "₹",
+    AUD: "A$",
+    CAD: "C$",
+    SGD: "S$",
+    JPY: "¥",
+    CNY: "¥",
+    CHF: "CHF",
+    KRW: "₩",
+    BRL: "R$",
+    ZAR: "R",
+    RUB: "₽",
+    THB: "฿",
+    MXN: "$",
+    NOK: "kr",
+    SEK: "kr",
+    DKK: "kr",
+    PLN: "zł",
+    HUF: "Ft",
+    IDR: "Rp",
+    PHP: "₱",
+    MYR: "RM",
+    TRY: "₺",
+    NZD: "NZ$",
+    BGN: "лв",
+    RON: "lei",
+    CZK: "Kč",
+    ISK: "kr",
+    HKD: "HK$",
+    ILS: "₪",
+  };
+
+  const getCurrencySymbol = (currencyCode) => {
+    if (!currencyCode || typeof currencyCode !== "string") {
+      console.warn("Invalid currency code, defaulting to USD");
+      return currencySymbols["USD"] || "$";
+    }
+
+    const symbol = currencySymbols[currencyCode.toUpperCase()];
+    return symbol !== undefined ? symbol : `Symbol not found for "${currencyCode}"`;
+  };
+
+
+  const getCurrencyRate = (selectCountry) => {
+    if (!selectCountry || !selectCountry.currency) {
+      console.log("Currency not provided, returning 1");
+      setRates(1);
+      return 1;
+    }
+    const rate = currencyRates[selectCountry.currency] || 1;
+    setRates(rate);
+    console.log(`Selected Currency: ${selectCountry.currency}, Rate: ${rate}`);
+    return rate;
+  };
+
+
+  useEffect(() => {
+    getCurrencyRate(selectCountry)
+  }, [selectCountry])
 
   const calculateSubtotal = () => {
     return cartData.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -226,7 +288,7 @@ function ShippingCart() {
     setIsCheckOutOpned(true)
   }
 
-  const handleCLosePaymnetModel=()=>{
+  const handleCLosePaymnetModel = () => {
     getAllCartItems()
     setIsCheckOutOpned(false)
   }
@@ -238,7 +300,7 @@ function ShippingCart() {
         <div className="lg:w-2/3">
           <div className="space-y-3 sm:space-y-4">
             {cartData.map((item, index) => (
-              <div key={`${item.productId}-${index}`} className="flex flex-col sm:flex-row border border-gray-200 rounded-lg p-3 sm:p-4 gap-3 sm:gap-4 relative">
+              <div key={`${item.productId}-${index}`} className="flex flex-col sm:flex-row border mt-2 border-gray-200 rounded-lg p-3 sm:p-4 gap-3 sm:gap-4 relative">
                 {/* Delete button */}
                 <button
                   onClick={() => removeItem(item.productId, item.priceId, item.quantity)}
@@ -269,11 +331,10 @@ function ShippingCart() {
 
                 {/* Product details */}
                 <div className="flex-grow">
-                  <h3 className="text-base sm:text-lg font-semibold pr-6 line-clamp-2">{item.name}</h3>
+                  <h3 className="text-base sm:text-lg font-semibold pr-6 line-clamp-2 capitalize">{item.name}</h3>
                   <div className="grid grid-cols-2 gap-2 mt-1 sm:mt-2 text-sm sm:text-base">
                     <p className="text-gray-600">Price:</p>
-                    <p>${item.price.toFixed(2)}</p>
-
+                    <p>{getCurrencySymbol(selectCountry.currency)} {(rate * item.price).toFixed(2)}</p>
                     <p className="text-gray-600">Quantity:</p>
                     <div className="flex justify-start sm:justify-center items-center gap-1 border border-gray-300 rounded-md w-fit px-2 py-1">
                       <button
@@ -309,12 +370,17 @@ function ShippingCart() {
                     </div>
 
                     <p className="text-gray-600">Logistics fee:</p>
-                    <p className="font-medium">${item.logisticCost.toFixed(2)}</p>
+                    {/* <p className="font-medium">${item.logisticCost.toFixed(2)}</p> */}
+                    <p className="font-medium">
+                      {getCurrencySymbol(selectCountry.currency)} {(rate * item.logisticCost).toFixed(2)}
+                    </p>
+
 
                     <p className="text-gray-600">Total:</p>
                     <p className="font-medium">
-                      ${((item.price * item.quantity) + (item.logisticCost * item.quantity)).toFixed(2)}
+                      {getCurrencySymbol(selectCountry.currency)} {(rate * ((item.price * item.quantity) + (item.logisticCost * item.quantity))).toFixed(2)}
                     </p>
+
                   </div>
                 </div>
               </div>
@@ -324,7 +390,7 @@ function ShippingCart() {
         {/* Right side - Fixed order summary */}
         <div className="lg:w-1/3">
           <div className="border border-gray-200 rounded-lg top-4 my-2">
-            <div>
+            <div className='p-2'>
               <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
                 <FiShoppingBag className="text-green-600 w-5 h-5" />
                 Delivery Address
@@ -383,8 +449,9 @@ function ShippingCart() {
                   <FiDollarSign className="text-orange-700 w-4 h-4 sm:w-4 sm:h-4 mr-2 sm:mr-4" />
                   Subtotal:
                 </span>
-                <span>${calculateSubtotal().toFixed(2)}</span>
+                <span>{getCurrencySymbol(selectCountry.currency)} {(rate * calculateSubtotal()).toFixed(2)}</span>
               </div>
+
 
               {platformFee > 0 && (
                 <div className="flex justify-between">
@@ -392,7 +459,7 @@ function ShippingCart() {
                     <FiCreditCard className="text-teal-800 w-4 h-4 sm:w-4 sm:h-4 mr-2 sm:mr-4" />
                     Platform Fee:
                   </span>
-                  <span>${platformFee.toFixed(2)}</span>
+                  <span>{getCurrencySymbol(selectCountry.currency)} {(rate * platformFee).toFixed(2)}</span>
                 </div>
               )}
 
@@ -400,10 +467,13 @@ function ShippingCart() {
                 <div className="flex justify-between">
                   <span className="text-gray-600 flex items-center gap-1">
                     <FiTruck className="text-yellow-700 w-4 h-4 sm:w-4 sm:h-4 mr-2 sm:mr-4" />
-                  Total Logistics Fee:
+                    Total Logistics Fee:
                   </span>
-                <span>${calculateTotalLogistics().toFixed(2)}</span>
+                  <span>
+                    {getCurrencySymbol(selectCountry.currency)} {(rate * calculateTotalLogistics()).toFixed(2)}
+                  </span>
                 </div>
+
               )}
 
               {couponDiscount > 0 && (
@@ -412,19 +482,11 @@ function ShippingCart() {
                     <FiTag className="text-[#B12C00] w-4 h-4 sm:w-4 sm:h-4 mr-2 sm:mr-4" />
                     Coupon Discount:
                   </span>
-                  <span>-${couponDiscount.toFixed(2)}</span>
+                  <span>- {getCurrencySymbol(selectCountry.currency)} {(rate * couponDiscount).toFixed(2)}</span>
                 </div>
               )}
 
-              {otherFees > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600 flex items-center gap-1">
-                    <FiFileText className="w-4 h-4 sm:w-4 sm:h-4 mr-2 sm:mr-4" />
-                    Other Fees:
-                  </span>
-                  <span>${otherFees.toFixed(2)}</span>
-                </div>
-              )}
+
             </div>
 
             {/* Coupon Code Input */}
@@ -462,8 +524,9 @@ function ShippingCart() {
                 Grand Total:
               </span>
               <span>
-                ${(calculateSubtotal() + platformFee + calculateTotalLogistics() + otherFees - couponDiscount).toFixed(2)}
+                {getCurrencySymbol(selectCountry.currency)} {(rate * (calculateSubtotal() + platformFee + calculateTotalLogistics() + otherFees - couponDiscount)).toFixed(2)}
               </span>
+
             </div>
 
             <button
@@ -510,7 +573,7 @@ function ShippingCart() {
                 Payment 
               </h2> */}
               <button
-                onClick={() =>setIsCheckOutOpned(false)}
+                onClick={() => setIsCheckOutOpned(false)}
                 className="text-gray-500 hover:text-gray-700 cursor-pointer"
                 aria-label="Close address modal"
               >

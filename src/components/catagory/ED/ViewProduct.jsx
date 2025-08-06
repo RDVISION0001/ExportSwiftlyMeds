@@ -8,9 +8,9 @@ import axiosInstance from '../../../AuthContext/AxiosInstance';
 import Swal from 'sweetalert2';
 
 const ProductDetailPage = () => {
-    const { selectCountry, setCart, token, cartCount, setRefresh,currencyRates } = useAuth();
+    const { selectCountry, setCart, token, cartCount, setRefresh, currencyRates } = useAuth();
     const location = useLocation();
-    const { product } = location.state || {};  
+    const { product } = location.state || {};
     const topRef = useRef(null);
     const [activeImage, setActiveImage] = useState(0);
     const [openAccordion, setOpenAccordion] = useState(null);
@@ -21,11 +21,29 @@ const ProductDetailPage = () => {
     const [currentId, setCurrentID] = useState("");
     const [activeLoadingButton, setActiveLoadingButton] = useState(null);
     const navigate = useNavigate();
+    const [rate, setRates] = useState(1)
 
     useEffect(() => {
         topRef.current?.scrollIntoView({ behavior: 'smooth' });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, []);
+
+    const getCurrencyRate = (selectCountry) => {
+        if (!selectCountry || !selectCountry.currency) {
+            console.log("Currency not provided, returning 1");
+            setRates(1);
+            return 1;
+        }
+        const rate = currencyRates[selectCountry.currency] || 1;
+        setRates(rate);
+        console.log(`Selected Currency: ${selectCountry.currency}, Rate: ${rate}`);
+        return rate;
+    };
+
+
+    useEffect(() => {
+        getCurrencyRate(selectCountry)
+    }, [selectCountry])
 
     const currencySymbols = {
         USD: "$",
@@ -60,13 +78,13 @@ const ProductDetailPage = () => {
         ISK: "kr",
         HKD: "HK$",
         ILS: "₪",
-      };
+    };
 
-      function getCurrencySymbol(currencyCode) {
-        const symbol = currencySymbols[currencyCode?currencyCode.toUpperCase():"USD"];
+    function getCurrencySymbol(currencyCode) {
+        const symbol = currencySymbols[currencyCode ? currencyCode.toUpperCase() : "USD"];
         return symbol !== undefined ? symbol : `Symbol not found for "${currencyCode}"`;
-      }
-      
+    }
+
     useEffect(() => {
         if (selectCountry?.currency) {
             setCartItems(prevCart =>
@@ -85,15 +103,15 @@ const ProductDetailPage = () => {
     };
 
     const convertPrice = (price, fromCurrency, toCurrency) => {
-        if(toCurrency=="USD"){
+        if (toCurrency == "USD") {
             return 1;
         }
         if (fromCurrency === toCurrency) return price;
-        const currencyValue = price*currencyRates[toCurrency];
+        const currencyValue = price * currencyRates[toCurrency];
         return parseFloat(currencyValue.toFixed(2));
     };
 
-      const formatPrice = (price, currencyCode) => {
+    const formatPrice = (price, currencyCode) => {
         const symbol = getCurrencySymbol(currencyCode);
         return `${symbol}${price.toFixed(2)}`;
     };
@@ -638,7 +656,8 @@ const ProductDetailPage = () => {
 
                                         <div className="grid grid-cols-2 gap-2 mt-2 text-xs sm:text-sm">
                                             <p className="text-gray-600">Price:</p>
-                                            <p>{getCurrencySymbol(selectCountry.currency)} {convertPrice(item.price,"USD",selectCountry.currency)}</p>
+                                            <p>{getCurrencySymbol(selectCountry.currency)} {(rate * item.price).toFixed(2)}
+                                            </p>
 
                                             <p className="text-gray-600">Quantity:</p>
                                             <div className="flex justify-center items-center gap-1 border border-gray-300 rounded-md w-fit px-2 py-1">
@@ -678,7 +697,8 @@ const ProductDetailPage = () => {
                                             </div>
 
                                             <p className="text-gray-600">Total:</p>
-                                            <p className="font-medium">{getCurrencySymbol(selectCountry.currency)} {convertPrice(item.total,"USD",selectCountry.currency)}</p>
+                                            <p className="font-medium">{getCurrencySymbol(selectCountry.currency)} {(rate * item.total).toFixed(2)}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
