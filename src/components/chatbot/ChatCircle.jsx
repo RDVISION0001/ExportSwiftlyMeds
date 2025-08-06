@@ -6,6 +6,10 @@ import axiosInstance from "../../AuthContext/AxiosInstance";
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { useAuth } from "../../AuthContext/AuthContext";
+import { FaWindowMinimize } from "react-icons/fa";
+
+
+
 
 const ChatCircle = () => {
   const { user } = useAuth()
@@ -17,6 +21,7 @@ const ChatCircle = () => {
     x: window.innerWidth - 80,
     y: window.innerHeight - 80,
   });
+  const [loading, setLoading] = useState(false)
   const [isDragging, setIsDragging] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
@@ -190,9 +195,9 @@ const ChatCircle = () => {
   }
 
   const connectWebSocket = () => {
+    setLoading(true)
     console.log("Connecting to WebSocket...");
-
-    const socket = new SockJS("http://192.168.1.9:8081/ws");
+    const socket = new SockJS("https://crmbackend.swiftlymeds.com/ws");
 
     const client = new Client({
       webSocketFactory: () => socket,
@@ -201,12 +206,15 @@ const ChatCircle = () => {
         console.log("WebSocket connected");
         setupSubscriptions(client);
         setTypeMsg(true)
+        setLoading(false)
       },
       onStompError: (frame) => {
         console.error("STOMP error:", frame.body);
+        setLoading(false)
       },
       onWebSocketError: (error) => {
         console.error("WebSocket error:", error);
+        setLoading(false)
       },
     });
     client.activate();
@@ -227,7 +235,7 @@ const ChatCircle = () => {
 
   const getConversationId = async () => {
     try {
-      const response = await axiosInstance.get(`/auth/getConversation?email=${user.swiftUserEmail}` );
+      const response = await axiosInstance.get(`/auth/getConversation?email=${user.swiftUserEmail}`);
       console.log("Conversation Response:", response.data);
       setConversation(response.data.conversation)
       return response.data;
@@ -282,10 +290,11 @@ const ChatCircle = () => {
                 )}
                 <button
                   className="text-white opacity-70 hover:opacity-100 transition-opacity p-1 cursor-pointer"
-                  onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
-                  aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                  onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
+                  aria-label="Close chat"
                 >
-                  {isFullscreen ? <FaCompress /> : <FaExpand />}
+                  <FaWindowMinimize className="mb-2 " />
+
                 </button>
                 <button
                   className="text-white opacity-70 hover:opacity-100 transition-opacity p-1 cursor-pointer"
@@ -317,24 +326,29 @@ const ChatCircle = () => {
                 </div>
               ))}
               {!typemsg ? (
-                <div className="mt-3">
-                  <h4 className="text-xs text-gray-500 mb-2 font-medium">Quick options:</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {quickReplies.map((reply, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleQuickReply(reply.text)}
-                        className="flex items-center gap-1 px-3 py-2 bg-white text-gray-700 border border-gray-200 rounded-full text-xs font-medium hover:bg-blue-50 hover:text-green-600 hover:border-blue-200 transition-colors"
-                      >
-                        {reply.icon && <span className="text-lg">{reply.icon}</span>}
-                        <span>{reply.text}</span>
-                      </button>
-                    ))}
+                loading ? (
+                  <div className="flex justify-center items-center mt-5">
+                    <span className="loading loading-spinner loading-xl  text-black"></span>
                   </div>
-                </div>
-              ) : (
-                <div className="mt-3 text-gray-500 text-sm">Let's start the chat</div>
-              )}
+                ) : (
+                  <div className="mt-3">
+                    <h4 className="text-xs text-gray-500 mb-2 font-medium">Quick options:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {quickReplies.map((reply, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleQuickReply(reply.text)}
+                          className="flex cursor-pointer items-center gap-1 px-3 py-2 bg-white text-gray-700 border border-gray-200 rounded-full text-xs font-medium hover:bg-blue-50 hover:text-green-600 hover:border-blue-200 transition-colors"
+                        >
+                          {reply.icon && <span className="text-lg">{reply.icon}</span>}
+                          <span>{reply.text}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              ) : null}
+
 
             </div>
 
@@ -363,7 +377,7 @@ const ChatCircle = () => {
               </form>
             </div>}
           </div>
-        </div>
+        </div >
       )}
 
       <div
