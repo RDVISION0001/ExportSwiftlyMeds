@@ -11,7 +11,7 @@ export default function PrescriptionUpload({ onClose }) {
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false)
   const fileInputRef = useRef(null);
-  const { token, user } = useAuth();
+  const { token, user,  setUploadPriscrption } = useAuth();
   console.log("fhg", user)
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -77,6 +77,8 @@ export default function PrescriptionUpload({ onClose }) {
           },
         }
       );
+     
+      setUploadPriscrption(response.data.url)
       setLoading(false)
       Swal.fire({
         title: "Success!",

@@ -31,6 +31,8 @@ import Order from './components/Order';
 import PrescriptionRefills from './components/PrescriptionRelif';
 import Unsubscribe from './components/Unsubscribe';
 import ScheduleCall from './components/schedulCall/SchedulCall';
+import OrderTracking from './components/OrderTracking';
+import AllPriscription from './components/AllPriscription';
 
 
 // Create a ProtectedRoute component
@@ -58,7 +60,7 @@ function App() {
         <Route path='/contact' element={<ContactUs />} />
         <Route path='/faq' element={<FAQ />} />
         <Route path='/blog' element={<Blog />} />
-        <Route path='/proserve' element={<ProductServices/>}/>
+        <Route path='/proserve' element={<ProductServices />} />
         <Route path='/manufacture' element={<Manufacturer />} />
         <Route path='/privacy' element={<PrivacyPolicy />} />
         <Route path='/proserve' element={<ProductServices />} />
@@ -71,18 +73,20 @@ function App() {
         <Route path='/refund' element={<RefundPolicy />} />
         <Route path='/deliveryShipping' element={<DeliveryShippingPolicy />} />
         <Route path='/pci-dss' element={<PCIDSS />} />
-        <Route path='/marketArea' element={<TaregetCountry/>}/>
-        <Route path='/orders' element={<Order/>}/>
+        <Route path='/marketArea' element={<TaregetCountry />} />
+        <Route path='/orders' element={<Order />} />
 
         <Route path="/checkout/:orderNumber" element={<CrmPayment />} />
         <Route path="/success/:orderNumber" element={<PaymentSuccess />} />
         <Route path="/failed/:orderNumber" element={<PaymentFailed />} />
-        <Route path='/priRefil' element={<PrescriptionRefills/>}/>
-        <Route path='/schedul/:id' element={<ScheduleCall/>}/>
+        <Route path='/priRefil' element={<PrescriptionRefills />} />
+        <Route path='/schedul/:id' element={<ScheduleCall />} />
+        <Route path='/orderTracking/:orderId' element={<OrderTracking />} />
         <Route path='/unsubscribe/:email' element={<Unsubscribe />} />
+        <Route path='/all_priscription' element={<AllPriscription />}/>
 
 
-        {/* Protected routes - require token */}
+          {/* Protected routes - require token */}
         <Route path='/view' element={
           <ProtectedRoute>
             <ViewProduct />

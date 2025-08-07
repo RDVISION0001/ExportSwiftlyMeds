@@ -30,15 +30,16 @@ export function AuthProvider({ children }) {
     const [cartCount, setCartCount] = useState('');
     const [messagesFrom, setMessagesFrom] = useState([])
     const [productData, setProductData] = useState()
+    const [uploadPriscription, setUploadPriscrption] = useState(null)
 
-    const fetchCurrencyRates=async()=>{
-        const resp =await axiosInstance.get("https://api.frankfurter.app/latest?from=USD")
+    const fetchCurrencyRates = async () => {
+        const resp = await axiosInstance.get("https://api.frankfurter.app/latest?from=USD")
         setCurrencyRates(resp.data.rates)
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchCurrencyRates()
-    },[])
+    }, [])
 
     const logout = async () => {
         const result = await Swal.fire({
@@ -93,7 +94,8 @@ export function AuthProvider({ children }) {
             refresh, setRefresh,
             cartCount, setCartCount,
             productData, setProductData,
-            currencyRates, setCurrencyRates
+            currencyRates, setCurrencyRates,
+            uploadPriscription, setUploadPriscrption
         }}>
             {children}
         </AuthContext.Provider>

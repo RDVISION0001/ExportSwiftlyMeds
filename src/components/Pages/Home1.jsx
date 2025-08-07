@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import img from '../../assets/image.png';
@@ -15,11 +15,23 @@ import { useAuth } from '../../AuthContext/AuthContext';
 import axiosInstance from '../../AuthContext/AxiosInstance';
 
 function Home1() {
-  const { searchItem, setSearchItem } = useAuth();
+  const { searchItem, setSearchItem, uploadPriscription, setUploadPriscrption } = useAuth();
   const [uploadModal, setUploadModal] = useState(false);
-  const [searchResults, setSearchResults] = useState([]); // State to store search results
-  const [loading, setLoading] = useState(false); // State to handle loading
-  const [error, setError] = useState(null); // State to handle errors
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [uploadPriscriptionVal, setUploadPriscritptionVal] = useState(false);
+  const [priscriptionModal, setPriscritionModal] = useState(false)
+  const [prescriptionImage, setPriscriptionImage] = useState(null)
+
+  // Effect to automatically set uploadPriscriptionVal when uploadPriscription has data
+  useEffect(() => {
+    if (uploadPriscription) {
+      setUploadPriscritptionVal(true);
+    } else {
+      setUploadPriscritptionVal(false);
+    }
+  }, [uploadPriscription]);
 
   const features = [
     { name: 'Worldwide Shipping', image: Wolrd },
@@ -67,7 +79,6 @@ function Home1() {
     show: { scale: 1, opacity: 1, transition: { duration: 0.5 } },
   };
 
-  // Function to call /product/search API
   const handleSearch = async () => {
     setLoading(true);
     setError(null);
@@ -80,21 +91,30 @@ function Home1() {
           keyword: searchItem,
         },
       });
-      setSearchItem("")
-      // Ensure productList is an array, default to empty array if undefined
+      setSearchItem("");
       setSearchResults(response.data.productList || []);
-      console.log('Search Results:', response.data); // Log for debugging
     } catch (err) {
       setError('Failed to fetch search results. Please try again.');
-      setSearchResults([]); // Reset to empty array on error
+      setSearchResults([]);
       console.error('Search Error:', err);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleClosePriscription = () => {
+    setUploadPriscritptionVal(false);
+    setUploadPriscrption(null);
+  };
+
+  const handlePricriptionImageModal = (image) => {
+    setPriscriptionImage(image)
+    setPriscritionModal(true)
+  }
+
+
   return (
-    <>
+    <motion.div>
       {/* Hero Section */}
       <div className="w-full relative">
         <motion.div
@@ -127,33 +147,61 @@ function Home1() {
             </motion.p>
 
             {/* Search Bar */}
-            <motion.div variants={scaleUp} className="relative max-w-2xl mx-auto">
+            <motion.div variants={scaleUp} className="relative max-w-3xl mx-auto border">
               <input
                 type="text"
                 placeholder="Search for medicines, brands or categories..."
                 value={searchItem}
                 onChange={(e) => setSearchItem(e.target.value)}
-                className="w-full py-2 sm:py-3 px-4 sm:px-6 pr-32 sm:pr-40 rounded-full bg-white/90 border-none focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg text-gray-800 text-sm sm:text-base"
+                className={`w-full py-2 sm:py-3 px-4 sm:px-6 rounded-full bg-white/90 border-none focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg text-gray-800 text-sm sm:text-base
+                ${uploadPriscriptionVal ? "pr-36 sm:pr-48" : "pr-24 sm:pr-36"}`}
               />
 
-              {/* Upload Button (Left Side) */}
+              {/* Upload Button */}
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setUploadModal(true)}
-                className="absolute right-22 sm:right-34 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-[#4ED7F1] to-[#A8F1FF] text-gray-800 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full flex items-center hover:opacity-90 transition-opacity shadow-md text-sm sm:text-base font-medium cursor-pointer"
-              >
-                <FaUpload className="mr-1 sm:mr-2" /> Upload
+                whileHover={!uploadPriscriptionVal ? { scale: 1.05 } : {}}
+                whileTap={!uploadPriscriptionVal ? { scale: 0.95 } : {}}
+                onClick={() => !uploadPriscriptionVal && setUploadModal(true)}
+                disabled={uploadPriscriptionVal}
+                className={`absolute ${uploadPriscriptionVal ? "right-36 sm:right-48" : "right-24 sm:right-36"} 
+                  top-1/2 -translate-y-1/2 bg-gradient-to-r from-[#4ED7F1] to-[#A8F1FF] text-gray-800 
+                  px-3 sm:px-4 py-1 sm:py-1.5 rounded-full flex items-center 
+                  transition-opacity shadow-md text-sm sm:text-base font-medium
+                  ${uploadPriscriptionVal ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 cursor-pointer"}`}
+                  >
+                <FaUpload className="mr-1 sm:mr-2" />
+                {uploadPriscriptionVal ? "Uploaded" : "Upload"}
               </motion.button>
 
-              {/* Search Button (Right Side) */}
+
+              {/* Image in between Upload and Search */}
+              {uploadPriscriptionVal && (
+                <div className="absolute right-30 px-2 sm:right-32 top-1/2 -translate-y-1/2 z-10">
+                  <div className="relative">
+                    <img
+                      onClick={() => handlePricriptionImageModal(uploadPriscription)}
+                      src={uploadPriscription}
+                      alt="Prescription"
+                      className="h-9 w-9 sm:h-10 sm:w-10 object-cover shadow"
+                    />
+                    <button
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                      onClick={handleClosePriscription}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Search Button */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSearch}
-                className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-3 sm:px-6 py-1 sm:py-2 rounded-full flex items-center hover:bg-blue-700 transition-colors shadow-md text-sm sm:text-base cursor-pointer"
-               >
-                {loading ? ( "Searching..." ) : ( <> <FaSearch className="mr-1 sm:mr-2" /> Search </> )}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 sm:px-6 py-1 sm:py-2 rounded-full flex items-center hover:bg-blue-700 transition-colors shadow-md text-sm sm:text-base"
+              >
+                {loading ? "Searching..." : (<><FaSearch className="mr-1 sm:mr-2" /> Search</>)}
               </motion.button>
             </motion.div>
 
@@ -276,7 +324,37 @@ function Home1() {
           <Upload onClose={setUploadModal} />
         </motion.div>
       )}
-    </>
+      {priscriptionModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 backdrop-brightness-50 flex items-center justify-center z-50 p-4"
+        >
+          <div className="relative bg-white rounded-md shadow-lg max-w-full max-h-full overflow-auto">
+            {/* Close Button */}
+            <button
+              onClick={() => setPriscritionModal(false)}
+              className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition"
+            >
+              ×
+            </button>
+
+            {/* Prescription Image */}
+            <img
+              src={prescriptionImage}
+              alt="Prescription"
+              className="w-full h-[80vh] rounded"
+            />
+          </div>
+        </motion.div>
+      )}
+
+
+
+
+
+    </motion.div >
   );
 }
 
