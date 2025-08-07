@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(),
-    tailwindcss(),
+  tailwindcss(),
   ],
   define: {
     // Define global
@@ -17,9 +17,9 @@ export default defineConfig({
     hmr: {
       overlay: false,
     },
-    // allowedHosts: ['swiftlymeds.com', 'crm.swiftlymeds.com'],
-        origin: 'https://swiftlymeds.com', // If needed
+    allowedHosts: ['swiftlymeds.com', 'crm.swiftlymeds.com'],
+    origin: 'https://swiftlymeds.com', // If needed
 
   }
-  
+
 })
