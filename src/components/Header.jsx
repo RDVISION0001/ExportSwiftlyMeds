@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
     FaUser,
     FaShoppingCart,
@@ -13,8 +13,11 @@ import {
     FaBlog,
     FaChevronDown,
     FaQq,
-    FaIndustry
+    FaIndustry,
+    FaFileInvoice
 } from 'react-icons/fa';
+
+
 
 import Logo from '../assets/Nlogo.png';
 import { useAuth } from "../AuthContext/AuthContext";
@@ -28,6 +31,7 @@ import Swal from "sweetalert2";
 
 const Header = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const {
         cartCount,
         setCartCount,
@@ -42,9 +46,10 @@ const Header = () => {
         token,
         user,
         refresh,
-        logout,updatedData
+        logout,
+        updatedData
     } = useAuth();
-    console.log('user', user);
+
     const countryOptions = [
         { code: 'US', name: 'United States', currency: 'USD', language: 'English' },
         { code: 'IN', name: 'India', currency: 'INR', language: 'Hindi' },
@@ -73,10 +78,36 @@ const Header = () => {
     const [profileEditModal, setProfileEditModal] = useState(false);
     const [name, setName] = useState(user?.swiftUserName || '');
     const [phone, setPhone] = useState(user?.swiftUserPhone || '');
+    const [activeMenu, setActiveMenu] = useState('');
+    const [Isloading, setIsLoading] = useState(false)
 
     // Refs for dropdown closing functionality
     const dropdownRef = useRef(null);
     const profileButtonRef = useRef(null);
+
+    // Set active menu based on current path
+    useEffect(() => {
+        const path = location.pathname;
+        if (path === '/') {
+            setActiveMenu('home');
+        } else if (path === '/about') {
+            setActiveMenu('about');
+        } else if (path === '/manufacture') {
+            setActiveMenu('manufacture');
+        } else if (path === '/faq') {
+            setActiveMenu('faq');
+        } else if (path === '/contact') {
+            setActiveMenu('contact');
+        } else if (path === '/blog') {
+            setActiveMenu('blog');
+        } else if (path === '/CatProduct') {
+            setActiveMenu('categories');
+        } else if (path === '/orders') {
+            setActiveMenu('orders');
+        } else if (path === '/shipping') {
+            setActiveMenu('cart');
+        }
+    }, [location]);
 
     const fetchCategory = async () => {
         setLoading(true);
@@ -156,12 +187,12 @@ const Header = () => {
     const handleCloseModal = () => {
         setOpenModal(false);
         setLoginAttempt(prev => prev + 1);
-        
+
         // Clear any existing timer
         if (loginTimerRef.current) {
             clearTimeout(loginTimerRef.current);
         }
-        
+
         // Set timer for next appearance based on attempt count
         if (loginAttempt === 0) {
             // First close - show again after 10 seconds
@@ -199,6 +230,7 @@ const Header = () => {
 
     const handleProfileNavigate = () => {
         navigate('/orders');
+        navigate('/all_priscription')
         setDropdownOpen(false);
     }
 
@@ -224,35 +256,45 @@ const Header = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true)
         try {
-            const response = await axiosInstance.post('/swiftlymeds/auth/update-profile', {
-                swiftUserName: name,
-                swiftUserPhone: phone
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
+            const response = await axiosInstance.post(
+                '/swiftlymeds/auth/update-profile',
+                {
+                    swiftUserName: name,
+                    swiftUserPhone: phone
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    }
                 }
-            });
-            console.log('responce', response);
+            );
             localStorage.setItem("user", JSON.stringify(response.data.updatedData));
+            setIsLoading(false)
             Swal.fire({
                 icon: 'success',
-                text: response.data.message || 'profile update successfully',
-                confirmButtonText: 'ok'
-            })
-            window.location.reload();
+                text: response.data.message || 'Profile updated successfully',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.reload();
+            });
+
             setProfileEditModal(false);
+            setIsLoading(false)
 
         } catch (error) {
             console.error("Error updating profile:", error);
+            setIsLoading(false)
             Swal.fire({
                 icon: 'error',
-                text: error.response.data.error || 'Failed to update profile',
-                confirmButtonText: 'ok'
-            })
+                text: error.response?.data?.error || 'Failed to update profile',
+                confirmButtonText: 'OK'
+            });
         }
     };
+
 
     return (
         <>
@@ -337,7 +379,7 @@ const Header = () => {
                                         ref={dropdownRef}
                                         className="absolute right-0 mt-2 p-2 bg-white rounded-lg shadow-lg z-60"
                                     >
-                                        <ul className=" text-gray-700">
+                                        <ul className=" text-gray-700 text-start">
                                             <li>
                                                 <button
                                                     onClick={() => {
@@ -354,9 +396,17 @@ const Header = () => {
                                             <li>
                                                 <button
                                                     onClick={handleProfileNavigate}
-                                                    className="block w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                    className={`block w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer ${activeMenu === 'orders' ? 'bg-gray-100 text-indigo-600' : ''}`}
                                                 >
                                                     <span className="flex justify-center items-center gap-2"><FiPackage className="text-yellow-700" /> Orders</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    onClick={handleProfileNavigate}
+                                                    className={`block w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer ${activeMenu === 'Priscription' ? 'bg-gray-100 text-indigo-600' : ''}`}
+                                                >
+                                                    <span className="flex justify-center items-center gap-2 whitespace-nowrap"><FaFileInvoice className="text-yellow-700" />Priscription</span>
                                                 </button>
                                             </li>
                                             <li>
@@ -364,8 +414,7 @@ const Header = () => {
                                                     onClick={logout}
                                                     className="block w-full text-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                                 >
-                                                    <span className=" flex justify-center items-center gap-2 "><RiShutDownLine className="text-red-
-                                                    " /> Logout</span>
+                                                    <span className=" flex justify-center items-center gap-2 "><RiShutDownLine className="text-red-500" /> Logout</span>
                                                 </button>
                                             </li>
                                         </ul>
@@ -376,13 +425,12 @@ const Header = () => {
                             {/* Cart Icon */}
                             <Link
                                 to="/shipping"
-                                className="p-2 text-white hover:text-gray-200 relative transition-colors"
+                                className={`p-2 text-white hover:text-gray-200 relative transition-colors ${activeMenu === 'cart' ? 'text-indigo-600' : ''}`}
                             >
                                 <FaShoppingCart className="text-xl text-black" />
                                 <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                                     {cartCount.length || 0}
                                 </span>
-
                             </Link>
                         </div>
                     </div>
@@ -396,7 +444,7 @@ const Header = () => {
                         <nav className="hidden md:flex items-center space-x-1">
                             <Link
                                 to="/"
-                                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center"
+                                className={`px-3 py-2 rounded-md text-sm font-medium hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center ${activeMenu === 'home' ? 'text-indigo-600 bg-gray-100' : 'text-gray-700'}`}
                             >
                                 <FaHome className="mr-2 text-indigo-500" />
                                 Home
@@ -404,7 +452,7 @@ const Header = () => {
 
                             <div className="relative">
                                 <button
-                                    className="px-3 py-2 rounded-md cursor-pointer text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center"
+                                    className={`px-3 py-2 rounded-md cursor-pointer text-sm font-medium hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center ${activeMenu === 'categories' ? 'text-indigo-600 bg-gray-100' : 'text-gray-700'}`}
                                     onClick={() => setCategoriesOpen(!categoriesOpen)}
                                 >
                                     <FaBoxes className="mr-2 text-indigo-500" />
@@ -425,6 +473,7 @@ const Header = () => {
                                                     navigate('/CatProduct');
                                                     setCatId(category.productCategoryId);
                                                     setCategoriesOpen(false);
+                                                    setActiveMenu('categories');
                                                 }}
                                             >
                                                 <span className="truncate">{category.categoryName}</span>
@@ -435,16 +484,16 @@ const Header = () => {
                             </div>
 
                             {[
-                                { path: "/about", icon: <FaUser className="mr-2 text-indigo-500" />, label: "About" },
-                                { path: "/manufacture", icon: <FaIndustry className="mr-2 text-indigo-500" />, label: "Manufacturers" },
-                                { path: "/faq", icon: <FaQq className="mr-2 text-indigo-500" />, label: "FAQ" },
-                                { path: "/contact", icon: <FaEnvelope className="mr-2 text-indigo-500" />, label: "Contact" },
-                                { path: "/blog", icon: <FaBlog className="mr-2 text-indigo-500" />, label: "Blog" }
+                                { path: "/about", icon: <FaUser className="mr-2 text-indigo-500" />, label: "About", menuKey: "about" },
+                                { path: "/manufacture", icon: <FaIndustry className="mr-2 text-indigo-500" />, label: "Manufacturers", menuKey: "manufacture" },
+                                { path: "/faq", icon: <FaQq className="mr-2 text-indigo-500" />, label: "FAQ", menuKey: "faq" },
+                                { path: "/contact", icon: <FaEnvelope className="mr-2 text-indigo-500" />, label: "Contact", menuKey: "contact" },
+                                { path: "/blog", icon: <FaBlog className="mr-2 text-indigo-500" />, label: "Blog", menuKey: "blog" }
                             ].map((item) => (
                                 <Link
                                     key={item.path}
                                     to={item.path}
-                                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center"
+                                    className={`px-3 py-2 rounded-md text-sm font-medium hover:text-indigo-600 hover:bg-gray-50 transition-colors duration-200 flex items-center ${activeMenu === item.menuKey ? 'text-indigo-600 bg-gray-100' : 'text-gray-700'}`}
                                 >
                                     {item.icon}
                                     {item.label}
@@ -459,8 +508,11 @@ const Header = () => {
                             <div className="pt-2 space-y-1">
                                 <Link
                                     to="/"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center"
+                                    onClick={() => {
+                                        setMobileMenuOpen(false);
+                                        setActiveMenu('home');
+                                    }}
+                                    className={`px-4 py-3 text-base font-medium hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center ${activeMenu === 'home' ? 'text-indigo-600 bg-gray-50' : 'text-gray-700'}`}
                                 >
                                     <FaHome className="mr-3 text-indigo-500" />
                                     Home
@@ -470,7 +522,7 @@ const Header = () => {
 
                                 <button
                                     onClick={() => setCategoriesOpen(!categoriesOpen)}
-                                    className="w-full text-left px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                                    className={`w-full text-left px-4 py-3 text-base font-medium hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center justify-between ${activeMenu === 'categories' ? 'text-indigo-600 bg-gray-50' : 'text-gray-700'}`}
                                 >
                                     <div className="flex items-center">
                                         <FaBoxes className="mr-3 text-indigo-500" />
@@ -490,6 +542,7 @@ const Header = () => {
                                                     setCatId(category.productCategoryId);
                                                     setMobileMenuOpen(false);
                                                     setCategoriesOpen(false);
+                                                    setActiveMenu('categories');
                                                 }}
                                             >
                                                 {category.categoryName}
@@ -501,17 +554,20 @@ const Header = () => {
                                 <div className="border-t border-gray-200"></div>
 
                                 {[
-                                    { path: "/about", icon: <FaUser className="mr-3 text-indigo-500" />, label: "About" },
-                                    { path: "/manufacture", icon: <FaIndustry className="mr-3 text-indigo-500" />, label: "Manufacturers" },
-                                    { path: "/faq", icon: <FaQq className="mr-3 text-indigo-500" />, label: "FAQ" },
-                                    { path: "/contact", icon: <FaEnvelope className="mr-3 text-indigo-500" />, label: "Contact" },
-                                    { path: "/blog", icon: <FaBlog className="mr-3 text-indigo-500" />, label: "Blog" }
+                                    { path: "/about", icon: <FaUser className="mr-3 text-indigo-500" />, label: "About", menuKey: "about" },
+                                    { path: "/manufacture", icon: <FaIndustry className="mr-3 text-indigo-500" />, label: "Manufacturers", menuKey: "manufacture" },
+                                    { path: "/faq", icon: <FaQq className="mr-3 text-indigo-500" />, label: "FAQ", menuKey: "faq" },
+                                    { path: "/contact", icon: <FaEnvelope className="mr-3 text-indigo-500" />, label: "Contact", menuKey: "contact" },
+                                    { path: "/blog", icon: <FaBlog className="mr-3 text-indigo-500" />, label: "Blog", menuKey: "blog" }
                                 ].map((item) => (
                                     <Link
                                         key={item.path}
                                         to={item.path}
-                                        onClick={() => setMobileMenuOpen(false)}
-                                        className="px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center"
+                                        onClick={() => {
+                                            setMobileMenuOpen(false);
+                                            setActiveMenu(item.menuKey);
+                                        }}
+                                        className={`px-4 py-3 text-base font-medium hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center ${activeMenu === item.menuKey ? 'text-indigo-600 bg-gray-50' : 'text-gray-700'}`}
                                     >
                                         {item.icon}
                                         {item.label}
@@ -522,8 +578,11 @@ const Header = () => {
 
                                 <Link
                                     to="/account"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="px-4 py-3 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center"
+                                    onClick={() => {
+                                        setMobileMenuOpen(false);
+                                        setActiveMenu('account');
+                                    }}
+                                    className={`px-4 py-3 text-base font-medium hover:text-indigo-600 hover:bg-gray-50 transition-colors flex items-center ${activeMenu === 'account' ? 'text-indigo-600 bg-gray-50' : 'text-gray-700'}`}
                                 >
                                     <FaUser className="mr-3 text-indigo-500" />
                                     <span>Login</span>
@@ -537,8 +596,8 @@ const Header = () => {
             {/* Modals */}
             {openModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
-                    <Login 
-                        onClose={loginAttempt >= 2 ? undefined : handleCloseModal} 
+                    <Login
+                        onClose={loginAttempt >= 2 ? undefined : handleCloseModal}
                         showCloseButton={showCloseButton && loginAttempt < 2}
                     />
                 </div>
@@ -609,8 +668,7 @@ const Header = () => {
                                                 const numericValue = e.target.value.replace(/\D/g, '');
                                                 setPhone(numericValue);
                                             }}
-                                            maxLength={10}
-                                            pattern="[0-9]*" // Ensures numeric keyboard on mobile devices
+                                            maxLength={15}
                                             inputMode="numeric" // Shows numeric keyboard on mobile devices
                                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             placeholder="Enter your phone number"
@@ -619,10 +677,16 @@ const Header = () => {
 
                                     <div className="pt-2">
                                         <button
+                                            disabled={Isloading}
                                             type="submit"
-                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                            className={` 
+                                                ${Isloading ? "cursor-not-allowed bg-blue-400" : "cursor-pointer bg-blue-600"} 
+                                                w-full  hover:bg-blue-700 text-white font-medium 
+                                                py-2 px-4 rounded-md transition duration-200 
+                                                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                                                `}
                                         >
-                                            Update Profile
+                                            {Isloading ? "Updating.." : "Update Profile"}
                                         </button>
                                     </div>
                                 </form>

@@ -4,38 +4,46 @@ import Swal from 'sweetalert2';
 import { useAuth } from '../../../AuthContext/AuthContext';
 
 function EnquireForm({ product, onClose }) {
-    const { token, } = useAuth();
+    const { token, user } = useAuth();
     const [countryCode, setCountryCode] = useState('')
     const [enquiryForm, setEnquiryForm] = useState({
         queryMessage: '',
         queryProductName: product?.name || '',
-        senderName: '',
-        senderMobile: '',
+        senderName: user?.swiftUserName || "",
+        senderMobile: user?.swiftUserPhone || "",
         senderCountryIso: '',
-        senderEmail: ''
+        senderEmail: user?.swiftUserEmail || ""
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+
     const validateForm = () => {
         const newErrors = {};
+
         if (!enquiryForm.senderName.trim()) newErrors.senderName = 'Name is required';
+
         if (!enquiryForm.senderEmail.trim()) {
             newErrors.senderEmail = 'Email is required';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(enquiryForm.senderEmail)) {
             newErrors.senderEmail = 'Invalid email format';
         }
+
         if (!enquiryForm.queryProductName.trim()) newErrors.queryProductName = 'Product name is required';
-        if (!enquiryForm.senderMobile.trim()) {
-            newErrors.senderMobile = 'Mobile number is required';
-        } else if (!/^\d{10,15}$/.test(enquiryForm.senderMobile)) {
-            newErrors.senderMobile = 'Invalid mobile number';
-        }
+
+        // Mobile number validation removed
+        // if (!enquiryForm.senderMobile.trim()) {
+        //     newErrors.senderMobile = 'Mobile number is required';
+        // } else if (!/^\d{10,15}$/.test(enquiryForm.senderMobile)) {
+        //     newErrors.senderMobile = 'Invalid mobile number';
+        // }
+
         if (!enquiryForm.queryMessage.trim()) newErrors.queryMessage = 'Message is required';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -45,10 +53,271 @@ function EnquireForm({ product, onClose }) {
         }
     };
 
-    const handleEnquirySubmit = async (e) => {      
-        e.preventDefault();
-        if (!validateForm()) return;
+    function getCountryCodeFromCallingCode(callingCode) {
+        const countryCallingCodes = {
+            '+93': 'AF', // Afghanistan
+            '+355': 'AL', // Albania
+            '+213': 'DZ', // Algeria
+            '+1': 'US', // United States (shared with others)
+            '+376': 'AD', // Andorra
+            '+244': 'AO', // Angola
+            '+54': 'AR', // Argentina
+            '+374': 'AM', // Armenia
+            '+297': 'AW', // Aruba
+            '+61': 'AU', // Australia
+            '+43': 'AT', // Austria
+            '+994': 'AZ', // Azerbaijan
+            '+973': 'BH', // Bahrain
+            '+880': 'BD', // Bangladesh
+            '+375': 'BY', // Belarus
+            '+32': 'BE', // Belgium
+            '+501': 'BZ', // Belize
+            '+229': 'BJ', // Benin
+            '+975': 'BT', // Bhutan
+            '+591': 'BO', // Bolivia
+            '+387': 'BA', // Bosnia and Herzegovina
+            '+267': 'BW', // Botswana
+            '+55': 'BR', // Brazil
+            '+246': 'IO', // British Indian Ocean Territory
+            '+673': 'BN', // Brunei
+            '+359': 'BG', // Bulgaria
+            '+226': 'BF', // Burkina Faso
+            '+257': 'BI', // Burundi
+            '+855': 'KH', // Cambodia
+            '+237': 'CM', // Cameroon
+            '+238': 'CV', // Cape Verde
+            '+236': 'CF', // Central African Republic
+            '+235': 'TD', // Chad
+            '+56': 'CL', // Chile
+            '+86': 'CN', // China
+            '+57': 'CO', // Colombia
+            '+269': 'KM', // Comoros
+            '+682': 'CK', // Cook Islands
+            '+506': 'CR', // Costa Rica
+            '+385': 'HR', // Croatia
+            '+53': 'CU', // Cuba
+            '+599': 'CW', // Curacao
+            '+357': 'CY', // Cyprus
+            '+420': 'CZ', // Czech Republic
+            '+243': 'CD', // Democratic Republic of the Congo
+            '+45': 'DK', // Denmark
+            '+253': 'DJ', // Djibouti
+            '+1-767': 'DM', // Dominica
+            '+1-809': 'DO', // Dominican Republic
+            '+1-829': 'DO', // Dominican Republic
+            '+1-849': 'DO', // Dominican Republic
+            '+670': 'TL', // East Timor
+            '+593': 'EC', // Ecuador
+            '+20': 'EG', // Egypt
+            '+503': 'SV', // El Salvador
+            '+240': 'GQ', // Equatorial Guinea
+            '+291': 'ER', // Eritrea
+            '+372': 'EE', // Estonia
+            '+251': 'ET', // Ethiopia
+            '+500': 'FK', // Falkland Islands
+            '+298': 'FO', // Faroe Islands
+            '+679': 'FJ', // Fiji
+            '+358': 'FI', // Finland
+            '+33': 'FR', // France
+            '+689': 'PF', // French Polynesia
+            '+241': 'GA', // Gabon
+            '+220': 'GM', // Gambia
+            '+995': 'GE', // Georgia
+            '+49': 'DE', // Germany
+            '+233': 'GH', // Ghana
+            '+350': 'GI', // Gibraltar
+            '+30': 'GR', // Greece
+            '+299': 'GL', // Greenland
+            '+502': 'GT', // Guatemala
+            '+224': 'GN', // Guinea
+            '+245': 'GW', // Guinea-Bissau
+            '+592': 'GY', // Guyana
+            '+509': 'HT', // Haiti
+            '+504': 'HN', // Honduras
+            '+852': 'HK', // Hong Kong
+            '+36': 'HU', // Hungary
+            '+354': 'IS', // Iceland
+            '+91': 'IN', // India
+            '+62': 'ID', // Indonesia
+            '+98': 'IR', // Iran
+            '+964': 'IQ', // Iraq
+            '+353': 'IE', // Ireland
+            '+972': 'IL', // Israel
+            '+39': 'IT', // Italy
+            '+225': 'CI', // Ivory Coast
+            '+1-876': 'JM', // Jamaica
+            '+81': 'JP', // Japan
+            '+962': 'JO', // Jordan
+            '+7': 'RU', // Russia (shared with others)
+            '+254': 'KE', // Kenya
+            '+686': 'KI', // Kiribati
+            '+965': 'KW', // Kuwait
+            '+996': 'KG', // Kyrgyzstan
+            '+856': 'LA', // Laos
+            '+371': 'LV', // Latvia
+            '+961': 'LB', // Lebanon
+            '+266': 'LS', // Lesotho
+            '+231': 'LR', // Liberia
+            '+218': 'LY', // Libya
+            '+423': 'LI', // Liechtenstein
+            '+370': 'LT', // Lithuania
+            '+352': 'LU', // Luxembourg
+            '+853': 'MO', // Macau
+            '+389': 'MK', // North Macedonia
+            '+261': 'MG', // Madagascar
+            '+265': 'MW', // Malawi
+            '+60': 'MY', // Malaysia
+            '+960': 'MV', // Maldives
+            '+223': 'ML', // Mali
+            '+356': 'MT', // Malta
+            '+692': 'MH', // Marshall Islands
+            '+222': 'MR', // Mauritania
+            '+230': 'MU', // Mauritius
+            '+262': 'RE', // Reunion
+            '+52': 'MX', // Mexico
+            '+691': 'FM', // Micronesia
+            '+373': 'MD', // Moldova
+            '+377': 'MC', // Monaco
+            '+976': 'MN', // Mongolia
+            '+382': 'ME', // Montenegro
+            '+212': 'MA', // Morocco
+            '+258': 'MZ', // Mozambique
+            '+95': 'MM', // Myanmar
+            '+264': 'NA', // Namibia
+            '+674': 'NR', // Nauru
+            '+977': 'NP', // Nepal
+            '+31': 'NL', // Netherlands
+            '+687': 'NC', // New Caledonia
+            '+64': 'NZ', // New Zealand
+            '+505': 'NI', // Nicaragua
+            '+227': 'NE', // Niger
+            '+234': 'NG', // Nigeria
+            '+683': 'NU', // Niue
+            '+850': 'KP', // North Korea
+            '+47': 'NO', // Norway
+            '+968': 'OM', // Oman
+            '+92': 'PK', // Pakistan
+            '+680': 'PW', // Palau
+            '+970': 'PS', // Palestine
+            '+507': 'PA', // Panama
+            '+675': 'PG', // Papua New Guinea
+            '+595': 'PY', // Paraguay
+            '+51': 'PE', // Peru
+            '+63': 'PH', // Philippines
+            '+48': 'PL', // Poland
+            '+351': 'PT', // Portugal
+            '+974': 'QA', // Qatar
+            '+242': 'CG', // Republic of the Congo
+            '+40': 'RO', // Romania
+            '+250': 'RW', // Rwanda
+            '+590': 'BL', // Saint Barthelemy
+            '+290': 'SH', // Saint Helena
+            '+1-869': 'KN', // Saint Kitts and Nevis
+            '+1-758': 'LC', // Saint Lucia
+            '+508': 'PM', // Saint Pierre and Miquelon
+            '+1-784': 'VC', // Saint Vincent and the Grenadines
+            '+685': 'WS', // Samoa
+            '+378': 'SM', // San Marino
+            '+239': 'ST', // Sao Tome and Principe
+            '+966': 'SA', // Saudi Arabia
+            '+221': 'SN', // Senegal
+            '+381': 'RS', // Serbia
+            '+248': 'SC', // Seychelles
+            '+232': 'SL', // Sierra Leone
+            '+65': 'SG', // Singapore
+            '+421': 'SK', // Slovakia
+            '+386': 'SI', // Slovenia
+            '+677': 'SB', // Solomon Islands
+            '+252': 'SO', // Somalia
+            '+27': 'ZA', // South Africa
+            '+82': 'KR', // South Korea
+            '+211': 'SS', // South Sudan
+            '+34': 'ES', // Spain
+            '+94': 'LK', // Sri Lanka
+            '+249': 'SD', // Sudan
+            '+597': 'SR', // Suriname
+            '+268': 'SZ', // Eswatini
+            '+46': 'SE', // Sweden
+            '+41': 'CH', // Switzerland
+            '+963': 'SY', // Syria
+            '+886': 'TW', // Taiwan
+            '+992': 'TJ', // Tajikistan
+            '+255': 'TZ', // Tanzania
+            '+66': 'TH', // Thailand
+            '+228': 'TG', // Togo
+            '+690': 'TK', // Tokelau
+            '+676': 'TO', // Tonga
+            '+1-868': 'TT', // Trinidad and Tobago
+            '+216': 'TN', // Tunisia
+            '+90': 'TR', // Turkey
+            '+993': 'TM', // Turkmenistan
+            '+688': 'TV', // Tuvalu
+            '+256': 'UG', // Uganda
+            '+380': 'UA', // Ukraine
+            '+971': 'AE', // United Arab Emirates
+            '+44': 'GB', // United Kingdom
+            '+598': 'UY', // Uruguay
+            '+998': 'UZ', // Uzbekistan
+            '+678': 'VU', // Vanuatu
+            '+379': 'VA', // Vatican
+            '+58': 'VE', // Venezuela
+            '+84': 'VN', // Vietnam
+            '+681': 'WF', // Wallis and Futuna
+            '+967': 'YE', // Yemen
+            '+260': 'ZM', // Zambia
+            '+263': 'ZW', // Zimbabwe
+        };
 
+        // Handle special cases where multiple countries share the same calling code
+        const specialCases = {
+            '+1': {
+                'US': ['United States'],
+                'CA': ['Canada'],
+                'DO': ['Dominican Republic'],
+                'PR': ['Puerto Rico'],
+                'JM': ['Jamaica'],
+                'TT': ['Trinidad and Tobago'],
+                'BS': ['Bahamas'],
+                'BB': ['Barbados'],
+                'AG': ['Antigua and Barbuda'],
+                'VC': ['Saint Vincent and the Grenadines'],
+                'LC': ['Saint Lucia'],
+                'DM': ['Dominica'],
+                'GD': ['Grenada'],
+                'KN': ['Saint Kitts and Nevis'],
+                'KY': ['Cayman Islands'],
+                'VG': ['British Virgin Islands'],
+                'VI': ['U.S. Virgin Islands'],
+                'BM': ['Bermuda'],
+                'AI': ['Anguilla'],
+                'MS': ['Montserrat'],
+                'TC': ['Turks and Caicos Islands'],
+                'GU': ['Guam'],
+                'MP': ['Northern Mariana Islands'],
+                'AS': ['American Samoa'],
+                'SX': ['Sint Maarten'],
+                'UM': ['United States Minor Outlying Islands']
+            },
+            '+7': {
+                'RU': ['Russia'],
+                'KZ': ['Kazakhstan']
+            }
+        };
+
+        // Check if the calling code is a special case
+        if (specialCases[callingCode]) {
+            // In a real application, you might want additional logic to determine which country
+            // For this example, we'll return the first one
+            return Object.keys(specialCases[callingCode])[0];
+        }
+
+        return countryCallingCodes[callingCode] || null;
+    }
+
+    const handleEnquirySubmit = async (e) => {
+        e.preventDefault();
+        // console.log(countryCode)
+        if (!validateForm()) return;
         setIsSubmitting(true);
         try {
             const response = await axiosInstance.post('/ticket/addNewTicket?enquiryFrom=swift', {
@@ -56,7 +325,7 @@ function EnquireForm({ product, onClose }) {
                 queryProductName: product?.name || '', // Added null check for product
                 senderName: enquiryForm.senderName,
                 senderMobile: countryCode + enquiryForm.senderMobile,
-                // senderCountryIso: enquiryForm.senderCountryIso,
+                senderCountryIso: getCountryCodeFromCallingCode(countryCode),
                 senderEmail: enquiryForm.senderEmail,
                 queryMcatName: enquiryForm.queryProductName,
             }, {
@@ -161,7 +430,7 @@ function EnquireForm({ product, onClose }) {
                             value={countryCode}
                             onChange={(e) => setCountryCode(e.target.value)}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                         >
+                        >
                             <option value="+93">Afghanistan (+93)</option>
                             <option value="+355">Albania (+355)</option>
                             <option value="+213">Algeria (+213)</option>

@@ -3,14 +3,17 @@ import Swal from 'sweetalert2';
 import contact from "../../assets/contact.png";
 // import con from "../../src/assets/contact1.png";
 import axiosInstance from "../../AuthContext/AxiosInstance";
+import { useAuth } from '../../AuthContext/AuthContext';
 
 
 function ContactUs() {
+    const { user } = useAuth();
+
     const topRef = useRef(null);
     const [formData, setFormData] = useState({
-        fullName: '',
-        email: '',
-        mobileNumber: '',
+        fullName: user?.swiftUserName || "",
+        email: user?.swiftUserEmail || "",
+        mobileNumber: user?.swiftUserPhone || "",
         message: '',
         city: ''
     });

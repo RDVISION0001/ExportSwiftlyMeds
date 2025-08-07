@@ -29,11 +29,46 @@ function Login({ onClose, showCloseButton = true }) {
   const [captchaVerified, setCaptchaVerified] = useState(false);
 
   const countryCodes = [
+    { code: '+93', name: 'Afghanistan', flag: '🇦🇫' },
+    { code: '+355', name: 'Albania', flag: '🇦🇱' },
+    { code: '+213', name: 'Algeria', flag: '🇩🇿' },
+    { code: '+1‑684', name: 'American Samoa', flag: '🇦🇸' },
+    { code: '+376', name: 'Andorra', flag: '🇦🇩' },
+    { code: '+244', name: 'Angola', flag: '🇦🇴' },
+    { code: '+672', name: 'Antarctica', flag: '🇦🇶' },
+    { code: '+1‑268', name: 'Antigua and Barbuda', flag: '🇦🇬' },
+    { code: '+54', name: 'Argentina', flag: '🇦🇷' },
+    { code: '+374', name: 'Armenia', flag: '🇦🇲' },
+    { code: '+297', name: 'Aruba', flag: '🇦🇼' },
+    { code: '+61', name: 'Australia', flag: '🇦🇺' },
+    { code: '+43', name: 'Austria', flag: '🇦🇹' },
+    { code: '+994', name: 'Azerbaijan', flag: '🇦🇿' },
+    { code: '+1‑242', name: 'Bahamas', flag: '🇧🇸' },
+    { code: '+973', name: 'Bahrain', flag: '🇧🇭' },
+    { code: '+880', name: 'Bangladesh', flag: '🇧🇩' },
+    { code: '+1‑246', name: 'Barbados', flag: '🇧🇧' },
+    { code: '+375', name: 'Belarus', flag: '🇧🇾' },
+    { code: '+32', name: 'Belgium', flag: '🇧🇪' },
+    { code: '+501', name: 'Belize', flag: '🇧🇿' },
+    { code: '+229', name: 'Benin', flag: '🇧🇯' },
+    { code: '+1441', name: 'Bermuda', flag: '🇧🇲' },
+    { code: '+975', name: 'Bhutan', flag: '🇧🇹' },
+    { code: '+591', name: 'Bolivia', flag: '🇧🇴' },
+    { code: '+387', name: 'Bosnia and Herzegovina', flag: '🇧🇦' },
+    { code: '+267', name: 'Botswana', flag: '🇧🇼' },
+    { code: '+55', name: 'Brazil', flag: '🇧🇷' },
+    { code: '+246', name: 'British Indian Ocean Territory', flag: '🇮🇴' },
+    { code: '+673', name: 'Brunei Darussalam', flag: '🇧🇳' },
+    { code: '+359', name: 'Bulgaria', flag: '🇧🇬' },
+    { code: '+226', name: 'Burkina Faso', flag: '🇧🇫' },
+    { code: '+257', name: 'Burundi', flag: '🇧🇮' },
+    { code: '+855', name: 'Cambodia', flag: '🇰🇭' },
     { code: '+91', name: 'India', flag: '🇮🇳' },
-    { code: '+1', name: 'USA', flag: '🇺🇸' },
-    { code: '+44', name: 'UK', flag: '🇬🇧' },
-    { code: '+971', name: 'UAE', flag: '🇦🇪' },
+    { code: '+1', name: 'United States', flag: '🇺🇸' },
+    { code: '+44', name: 'United Kingdom', flag: '🇬🇧' },
+    { code: '+971', name: 'United Arab Emirates', flag: '🇦🇪' },
   ];
+
 
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -287,7 +322,7 @@ function Login({ onClose, showCloseButton = true }) {
       setPassword("");
       setErrors({});
       await sendOtp();
-      
+
 
     } catch (error) {
       Swal.fire({
