@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaChevronRight, FaHome, FaChevronDown, FaPhone } from 'react-icons/fa';
 import { FiTrash2, FiPlus, FiMinus, FiX } from 'react-icons/fi';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { FaFlask, FaBoxOpen, FaPills, FaMedkit } from 'react-icons/fa';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../AuthContext/AuthContext';
 import axiosInstance from '../../../AuthContext/AxiosInstance';
 import Swal from 'sweetalert2';
@@ -24,18 +24,18 @@ const ProductDetailPage = () => {
     const [activeLoadingButton, setActiveLoadingButton] = useState(null);
     const navigate = useNavigate();
     const [rate, setRates] = useState(1);
-    const [EnquireMdal, setEnquireModal] = useState(false)
-    const [callUsModal, setCallUsModal] = useState(false)
+    const [enquireModal, setEnquireModal] = useState(false);
+    const [callUsModal, setCallUsModal] = useState(false);
     const [zoomStyle, setZoomStyle] = useState({
         display: 'none',
-        backgroundImage: `url(${product?.imageUrls?.[0]})`,
+        backgroundImage: product?.imageUrls?.[0] ? `url("${product.imageUrls[0]}")` : 'none',
         backgroundSize: '200%',
         backgroundPosition: '0% 0%',
-        width: '450px', // Fixed size for the preview
+        width: '450px',
         height: '450px',
-        position: 'fixed', // Fixed position
-        top: '200px', // Adjust based on your layout
-        left: '600px', // Position to the right of the main image
+        position: 'fixed',
+        top: '200px',
+        left: '600px',
         borderRadius: '8px',
         border: '1px solid #ddd',
         zIndex: 100,
@@ -60,14 +60,16 @@ const ProductDetailPage = () => {
         setZoomStyle(prev => ({
             ...prev,
             display: showZoom ? 'block' : 'none',
-            backgroundImage: `url(${product?.imageUrls?.[activeImage]})`,
+            backgroundImage: product?.imageUrls?.[activeImage] ? `url("${product.imageUrls[activeImage]}")` : 'none',
             backgroundSize: '200%',
             backgroundPosition: `${x}% ${y}%`,
         }));
     };
 
     const handleMouseEnter = () => {
-        setShowZoom(true);
+        if (product?.imageUrls?.[activeImage]) {
+            setShowZoom(true);
+        }
     };
 
     const handleMouseLeave = () => {
@@ -300,23 +302,24 @@ const ProductDetailPage = () => {
             return total + (itemTotal || 0);
         }, 0);
     };
-    const [enquiryProduct, setEnquiryProduct] = useState(null)
+
+    const [enquiryProduct, setEnquiryProduct] = useState(null);
 
     const handleEnquireModal = (product) => {
-        setEnquireModal(true)
-        setEnquiryProduct(product)
-    }
+        setEnquireModal(true);
+        setEnquiryProduct(product);
+    };
 
     const closeModalAll = () => {
-        setEnquireModal(false)
-        setEnquiryProduct(null)
-        setCallUsModal(false)
-    }
+        setEnquireModal(false);
+        setEnquiryProduct(null);
+        setCallUsModal(false);
+    };
 
     const handleCallusModal = (product) => {
-        setEnquiryProduct(product)
-        setCallUsModal(true)
-    }
+        setEnquiryProduct(product);
+        setCallUsModal(true);
+    };
 
     return (
         <>
@@ -367,12 +370,13 @@ const ProductDetailPage = () => {
                                                     src={product.imageUrls[activeImage]}
                                                     alt={product.name}
                                                     className="w-full h-full object-contain transition-transform duration-300 hover:scale-105"
+                                                    onError={() => console.error('Failed to load image:', product.imageUrls[activeImage])}
                                                 />
                                             ) : (
                                                 <div className="text-gray-400 text-lg">No Image Available</div>
                                             )}
                                         </div>
-                                        {showZoom && (
+                                        {showZoom && product?.imageUrls?.[activeImage] && (
                                             <div className="zoom-preview border" style={zoomStyle} />
                                         )}
                                         {product.imageUrls && product.imageUrls.length > 1 && (
@@ -384,18 +388,20 @@ const ProductDetailPage = () => {
                                                             setActiveImage(index);
                                                             setZoomStyle(prev => ({
                                                                 ...prev,
-                                                                backgroundImage: `url(${img})`,
+                                                                backgroundImage: img ? `url("${img}")` : 'none',
                                                             }));
                                                         }}
-                                                        className={`w-16 h-16 sm:w-20 sm:h-20 rounded-md overflow-hidden border-2 transition-all duration-200 ${activeImage === index
-                                                            ? 'border-blue-600 shadow-md'
-                                                            : 'border-gray-200 hover:border-blue-400'
-                                                            }`}
+                                                        className={`w-16 h-16 sm:w-20 sm:h-20 rounded-md overflow-hidden border-2 transition-all duration-200 ${
+                                                            activeImage === index
+                                                                ? 'border-blue-600 shadow-md'
+                                                                : 'border-gray-200 hover:border-blue-400'
+                                                        }`}
                                                     >
                                                         <img
                                                             src={img}
                                                             alt={`Thumbnail ${index + 1}`}
                                                             className="w-full h-full object-cover"
+                                                            onError={() => console.error('Failed to load thumbnail:', img)}
                                                         />
                                                     </button>
                                                 ))}
@@ -413,13 +419,13 @@ const ProductDetailPage = () => {
                                                     <span className="ml-2 font-semibold text-gray-900">{product.name || 'Generic'}</span>
                                                 </div>
                                                 <div className="flex gap-2">
-                                                    {/* <button
+                                                    <button
                                                         onClick={() => handleCallusModal(product)}
                                                         disabled={true}
-                                                        className="flex cursor-not-allowed  items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                                                        className="flex cursor-not-allowed items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                                                     >
                                                         <FaPhone className="mr-2" /> Call Us
-                                                    </button> */}
+                                                    </button>
                                                     <button
                                                         onClick={() => handleEnquireModal(product)}
                                                         className="flex cursor-pointer items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
@@ -499,9 +505,7 @@ const ProductDetailPage = () => {
                                                         </p>
                                                     </div>
                                                 </div>
-
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -561,8 +565,8 @@ const ProductDetailPage = () => {
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-white divide-y divide-gray-200">
-                                                {product?.prices.map((price, index) => {
-                                                    const perPillPrice = price.maxPrice / 100;
+                                                {product?.prices?.map((price, index) => {
+                                                    const perPillPrice = price.maxPrice/100;
                                                     let savings = null;
                                                     if (index > 0 && product.prices[0]?.maxPrice && product.prices[0].quantity) {
                                                         const basePerPillPrice = product.prices[0].maxPrice / product.prices[0].quantity;
@@ -597,8 +601,9 @@ const ProductDetailPage = () => {
                                                             </td>
                                                             <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                                 <button
-                                                                    className={`inline-flex items-center px-2 py-1 sm:px-3 sm:py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200 ${loading[`${product.id}-${price.id}`] ? 'opacity-50 cursor-not-allowed' : ''
-                                                                        }`}
+                                                                    className={`inline-flex items-center px-2 py-1 sm:px-3 sm:py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200 ${
+                                                                        loading[`${product.id}-${price.id}`] ? 'opacity-50 cursor-not-allowed' : ''
+                                                                    }`}
                                                                     onClick={() =>
                                                                         handleAddToCart(
                                                                             product,
@@ -660,8 +665,9 @@ const ProductDetailPage = () => {
                                         >
                                             <span>Treatment</span>
                                             <FaChevronDown
-                                                className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 ${openAccordion === 'treatment' ? 'rotate-180' : ''
-                                                    }`}
+                                                className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 ${
+                                                    openAccordion === 'treatment' ? 'rotate-180' : ''
+                                                }`}
                                             />
                                         </button>
                                         {openAccordion === 'treatment' && (
@@ -677,8 +683,9 @@ const ProductDetailPage = () => {
                                         >
                                             <span>How It Works</span>
                                             <FaChevronDown
-                                                className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 ${openAccordion === 'howItWorks' ? 'rotate-180' : ''
-                                                    }`}
+                                                className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 ${
+                                                    openAccordion === 'howItWorks' ? 'rotate-180' : ''
+                                                }`}
                                             />
                                         </button>
                                         {openAccordion === 'howItWorks' && (
@@ -694,8 +701,9 @@ const ProductDetailPage = () => {
                                         >
                                             <span>Precautions</span>
                                             <FaChevronDown
-                                                className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 ${openAccordion === 'precautions' ? 'rotate-180' : ''
-                                                    }`}
+                                                className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 ${
+                                                    openAccordion === 'precautions' ? 'rotate-180' : ''
+                                                }`}
                                             />
                                         </button>
                                         {openAccordion === 'precautions' && (
@@ -711,8 +719,9 @@ const ProductDetailPage = () => {
                                         >
                                             <span>Side Effects</span>
                                             <FaChevronDown
-                                                className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 ${openAccordion === 'sideEffects' ? 'rotate-180' : ''
-                                                    }`}
+                                                className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 ${
+                                                    openAccordion === 'sideEffects' ? 'rotate-180' : ''
+                                                }`}
                                             />
                                         </button>
                                         {openAccordion === 'sideEffects' && (
@@ -728,8 +737,9 @@ const ProductDetailPage = () => {
                                         >
                                             <span>Storage</span>
                                             <FaChevronDown
-                                                className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 ${openAccordion === 'storage' ? 'rotate-180' : ''
-                                                    }`}
+                                                className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 ${
+                                                    openAccordion === 'storage' ? 'rotate-180' : ''
+                                                }`}
                                             />
                                         </button>
                                         {openAccordion === 'storage' && (
@@ -781,8 +791,9 @@ const ProductDetailPage = () => {
                                             <div className="flex justify-center items-center gap-1 border border-gray-300 rounded-md w-fit px-2 py-1">
                                                 <button
                                                     onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.priceId, 'minus')}
-                                                    className={`p-1 rounded-md ${item.quantity <= 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'
-                                                        } transition-colors`}
+                                                    className={`p-1 rounded-md ${
+                                                        item.quantity <= 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'
+                                                    } transition-colors`}
                                                     disabled={item.quantity <= 1 || activeLoadingButton === `${item.priceId}-minus`}
                                                     aria-label="Decrease quantity"
                                                 >
@@ -797,8 +808,9 @@ const ProductDetailPage = () => {
                                                 <span className="w-6 text-center font-medium text-gray-800">{item.quantity}</span>
                                                 <button
                                                     onClick={() => updateQuantity(item.productId, item.quantity + 1, item.priceId, 'plus')}
-                                                    className={`p-1 rounded-md text-gray-700 hover:bg-gray-100 transition-colors ${activeLoadingButton === `${item.priceId}-plus` ? 'pointer-events-none' : ''
-                                                        }`}
+                                                    className={`p-1 rounded-md text-gray-700 hover:bg-gray-100 transition-colors ${
+                                                        activeLoadingButton === `${item.priceId}-plus` ? 'pointer-events-none' : ''
+                                                    }`}
                                                     disabled={activeLoadingButton === `${item.priceId}-plus`}
                                                     aria-label="Increase quantity"
                                                 >
@@ -849,42 +861,42 @@ const ProductDetailPage = () => {
                         )}
                     </div>
                 </div>
-                {/* enquiry moadlK */}
-                {EnquireMdal && <div className="fixed inset-0 backdrop-brightness-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center border-b p-4 sticky top-0 bg-white z-10">
-                            <h2 className="text-2xl font-bold text-gray-800">Product Enquiry</h2>
-                            <button
-                                onClick={closeModalAll}
-                                className="text-gray-500 hover:text-gray-700 cursor-pointer"
-                                aria-label="Close address modal"
-                            >
-                                <FiX size={24} />
-                            </button>
+                {/* Enquiry Modal */}
+                {enquireModal && (
+                    <div className="fixed inset-0 backdrop-brightness-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
+                            <div className="flex justify-between items-center border-b p-4 sticky top-0 bg-white z-10">
+                                <h2 className="text-2xl font-bold text-gray-800">Product Enquiry</h2>
+                                <button
+                                    onClick={closeModalAll}
+                                    className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                                    aria-label="Close address modal"
+                                >
+                                    <FiX size={24} />
+                                </button>
+                            </div>
+                            <EnquireForm product={enquiryProduct} onClose={closeModalAll} />
                         </div>
-                        <EnquireForm product={enquiryProduct} onClose={closeModalAll} />
                     </div>
-                </div>
-                }
-                {/* callUs Modal */}
-                {callUsModal && <div className="fixed inset-0 backdrop-brightness-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center border-b p-4 sticky top-0 bg-white z-10">
-                            <h2 className="text-2xl font-bold text-gray-800">Call Us</h2>
-                            <button
-                                onClick={closeModalAll}
-                                className="text-gray-500 hover:text-gray-700 cursor-pointer"
-                                aria-label="Close address modal"
-                            >
-                                <FiX size={24} />
-                            </button>
+                )}
+                {/* Call Us Modal */}
+                {callUsModal && (
+                    <div className="fixed inset-0 backdrop-brightness-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
+                            <div className="flex justify-between items-center border-b p-4 sticky top-0 bg-white z-10">
+                                <h2 className="text-2xl font-bold text-gray-800">Call Us</h2>
+                                <button
+                                    onClick={closeModalAll}
+                                    className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                                    aria-label="Close address modal"
+                                >
+                                    <FiX size={24} />
+                                </button>
+                            </div>
+                            <CallUsForm product={enquiryProduct} onClose={closeModalAll} />
                         </div>
-                        <CallUsForm product={enquiryProduct} onClose={closeModalAll} />
                     </div>
-                </div>
-                }
-
-
+                )}
             </div>
         </>
     );
