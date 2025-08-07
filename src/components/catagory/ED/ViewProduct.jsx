@@ -562,7 +562,7 @@ const ProductDetailPage = () => {
                                             </thead>
                                             <tbody className="bg-white divide-y divide-gray-200">
                                                 {product?.prices.map((price, index) => {
-                                                    const perPillPrice = price.maxPrice && price.quantity ? price.maxPrice / price.quantity : 0;
+                                                    const perPillPrice = price.maxPrice / 100;
                                                     let savings = null;
                                                     if (index > 0 && product.prices[0]?.maxPrice && product.prices[0].quantity) {
                                                         const basePerPillPrice = product.prices[0].maxPrice / product.prices[0].quantity;

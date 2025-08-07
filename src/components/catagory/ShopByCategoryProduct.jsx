@@ -6,7 +6,7 @@ import axiosInstance from '../../AuthContext/AxiosInstance';
 
 
 const ShopByCategoryProduct = () => {
-    const { category,currencyRates, catProduct, setCatId, catId, loading, selectCountry, itemsPerpage, setItemsPerpage } = useAuth();
+    const { category, currencyRates, catProduct, setCatId, catId, loading, selectCountry, itemsPerpage, setItemsPerpage } = useAuth();
     const [activePage, setActivePage] = useState(catId);
     const [selectedBrand, setSelectedBrand] = useState('');
     const [selectedBrandId, setSelectedBrandId] = useState('');
@@ -333,8 +333,8 @@ const ShopByCategoryProduct = () => {
             <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
                     {productsToDisplay.map((product) => {
-                        const originalPrice = product.prices?.[0]?.maxPrice / 100 || 0;
-                        const perPillPrice = originalPrice ? originalPrice / 100 : 0;
+                        const perPillPrice = product.prices?.[0]?.maxPrice / 100 || 0;
+
 
                         return (
                             <article
