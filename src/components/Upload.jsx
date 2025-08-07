@@ -11,7 +11,7 @@ export default function PrescriptionUpload({ onClose }) {
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false)
   const fileInputRef = useRef(null);
-  const { token, user,  setUploadPriscrption } = useAuth();
+  const { token, user, setUploadPriscrption } = useAuth();
   console.log("fhg", user)
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -77,15 +77,16 @@ export default function PrescriptionUpload({ onClose }) {
           },
         }
       );
-     
+
       setUploadPriscrption(response.data.url)
       setLoading(false)
       Swal.fire({
         title: "Success!",
-        text: response.message,
+        text: "Thank you for sharing your prescription. We will review it shortly. If the product does not fulfill your prescription, we will cancel your order and refund your amount.",
         icon: "success",
         confirmButtonText: "OK",
       });
+
       onClose(false);
     } catch (error) {
       console.log(error)
